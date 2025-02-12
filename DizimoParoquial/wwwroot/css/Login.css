@@ -1,0 +1,29 @@
+﻿body {
+    background: linear-gradient(to bottom, #03144b, #5e74dc); /* Azul escuro para azul claro */
+    height: 100vh; /* Garante que o fundo ocupe toda a tela */
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.container {
+    background: #ffffff;
+    width: 25rem;
+    height: 40rem;
+    border-radius: 8px; /* Opcional, para cantos arredondados */
+    box-shadow: 10px 10px 30px rgba(0, 0, 0, 1); /* Sombra preta */
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.btn-primary {
+    border-radius: 8px; /* Opcional, para cantos arredondados */
+    width: 20rem;
+    margin-top: 2rem;
+}
+
+h1 {
+    margin-bottom: 5rem;
+}
