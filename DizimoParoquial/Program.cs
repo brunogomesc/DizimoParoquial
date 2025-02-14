@@ -1,4 +1,7 @@
+using DizimoParoquial.Data.Interface;
+using DizimoParoquial.Data.Repositories;
 using DizimoParoquial.Services;
+using DizimoParoquial.Utils;
 using NToastNotify;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,17 +10,22 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-//Injecting the services
-
-builder.Services.AddSingleton<ConfigurationService>();
-
-builder.Services.AddMvc().AddNToastNotifyToastr( new ToastrOptions()
+builder.Services.AddMvc().AddNToastNotifyToastr(new ToastrOptions()
 {
     ProgressBar = false,
-    //CloseButton = true,
     PositionClass = ToastPositions.TopCenter,
-    TimeOut = 7000
+    TimeOut = 3000
 });
+
+//Injecting the services
+//Singleton
+builder.Services.AddSingleton<ConfigurationService>();
+builder.Services.AddSingleton<Encryption>();
+
+//Transient
+builder.Services.AddTransient<UserService>();
+builder.Services.AddTransient<IUserRepository, UserRepository>();
+
 
 var app = builder.Build();
 

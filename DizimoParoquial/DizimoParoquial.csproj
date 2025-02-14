@@ -15,11 +15,4 @@
     <PackageReference Include="NToastNotify" Version="8.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Data\Interface\" />
-    <Folder Include="Data\" />
-    <Folder Include="Utils\" />
-    <Folder Include="Data\Repositories\" />
-  </ItemGroup>
-
 </Project>
