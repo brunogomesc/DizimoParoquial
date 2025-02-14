@@ -34,9 +34,9 @@ namespace DizimoParoquial.Controllers
 
             User userAuthenticated = await _userService.GetUserByUsernameAndPassword(user, password);
 
-            if (userAuthenticated == null)
+            if (!userAuthenticated.Active)
             {
-                _notification.AddErrorToastMessage("Usuário e/ou senha não são válidos!");
+                _notification.AddErrorToastMessage("Usuário não é válido ou está inativo!");
                 return RedirectToAction(nameof(Index));
             }
 
