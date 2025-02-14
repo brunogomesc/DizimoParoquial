@@ -15,7 +15,7 @@ namespace DizimoParoquial.Controllers
 
         public IActionResult Index(User userAuthenticated)
         {
-            return View();
+            return View(userAuthenticated);
         }
     }
 }
