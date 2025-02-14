@@ -34,8 +34,7 @@ namespace DizimoParoquial.Services
             }
             catch (Exception)
             {
-
-                throw;
+                return user;
             }
 
         }
