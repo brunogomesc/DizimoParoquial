@@ -13,7 +13,7 @@ namespace DizimoParoquial.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index(string typeUser)
+        public IActionResult Index(User userAuthenticated)
         {
             return View();
         }
