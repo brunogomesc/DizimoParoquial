@@ -23,18 +23,24 @@ namespace DizimoParoquial.Data.Repositories
 
             try
             {
-                var query = $"SELECT * FROM User WHERE Username = '{username}' and Password = '{password}';";
+                var query = "SELECT * FROM User WHERE Username = @Username AND Password = @Password;";
 
                 using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
                 {
-                    user = (User)await connection.QueryAsync<User>(query);
+                    var result = await connection.QueryAsync<User>(query,
+                        new { 
+                            Username = username, 
+                            Password = password 
+                        }
+                    );
+
+                    user = result.FirstOrDefault();
 
                     return user;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                user.Username = ex.Message;
                 return user;
             }
         }
