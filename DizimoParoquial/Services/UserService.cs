@@ -32,9 +32,9 @@ namespace DizimoParoquial.Services
                 return user;
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return user;
+                throw new Exception(ex.Message);
             }
 
         }
@@ -51,9 +51,9 @@ namespace DizimoParoquial.Services
 
                 return user;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return user;
+                throw new Exception(ex.Message);
             }
         }
 
