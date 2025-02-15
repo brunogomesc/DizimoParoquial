@@ -39,8 +39,9 @@ namespace DizimoParoquial.Data.Repositories
                     return user;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                user.Username = ex.Message;
                 return user;
             }
         }
