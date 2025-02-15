@@ -36,12 +36,7 @@ namespace DizimoParoquial.Controllers
 
             if (userAuthenticated.UserId == 0)
             {
-                _notification.AddErrorToastMessage("Não retornou usuário!");
-                return RedirectToAction(nameof(Index));
-            }
-            else
-            {
-                _notification.AddErrorToastMessage("retornou usuário!");
+                _notification.AddErrorToastMessage("Usuário não é válido ou está inativo!");
                 return RedirectToAction(nameof(Index));
             }
 
