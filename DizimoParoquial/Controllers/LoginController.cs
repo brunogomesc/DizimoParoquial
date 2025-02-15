@@ -36,7 +36,7 @@ namespace DizimoParoquial.Controllers
 
             if (userAuthenticated.UserId == 0)
             {
-                _notification.AddErrorToastMessage("Usuário não é válido ou está inativo!");
+                _notification.AddErrorToastMessage(userAuthenticated.Username);
                 return RedirectToAction(nameof(Index));
             }
 
