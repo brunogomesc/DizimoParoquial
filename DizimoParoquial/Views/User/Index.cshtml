@@ -1,5 +1,226 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model List<User>
 @{
+
 }
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+</head>
+<body>
+    <div class="container my-4">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="d-flex align-items-center border-bottom pb-2 mb-3" style="font-family: system-ui; font-weight: bold;">
+                    <i class="fa fa-search" aria-hidden="true"></i>
+                    Buscar Usuários
+                </h2>
+                @using (Html.BeginForm("SearchUser", "User", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="Status" class="form-label"><b>Status:</b></label>
+                            <select name="status" class="form-control">
+                                <option></option>
+                                <option value="ativo">Ativo</option>
+                                <option value="inativo">Inativo</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="Name" class="form-label"><b>Nome:</b></label>
+                            <input name="name" class="form-control" type="text"/>
+                        </div>
+                    </div>
+                    <div class="row g-3 mt-3">
+                        <div class="col-md-3">
+                            <button class="btn btn-primary w-100">
+                                Pesquisar
+                            </button>
+                        </div>
+                    </div>
+                }
+                <div class="row g-3 mt-3">
+                    <button style="border: 3px;background-color:white;" data-bs-toggle="modal" data-bs-target="#modal_user_add">
+                        <i class="fa-solid fa-user-plus"></i> Adicionar Usuário
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    @if (Model != null)
+    {
+        <div class="card mt-4">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Primeiro Nome</th>
+                        <th>Segundo Nome</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Perfis Vinculados</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @* @foreach (var usuario in Model)
+                    {
+                        
+                    } *@
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <h3 class="text-center">Sem resultados para serem exibidos</h3>
+    }
+
+    @* Modal Add User *@
+
+    <div class="modal fade" id="modal_user_add">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"><i class="fa-solid fa-user-plus"></i> Cadastrar Usuário</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                @using (Html.BeginForm("SaveUser", "User", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="name" class="form-label"><b>Nome:</b></label>
+                                <input class="form-control" id="name" name="name" />
+                            </div>
+                            <div class="col-md-6">
+                                <label for="username" class="form-label"><b>Username:</b></label>
+                                <input class="form-control" id="username" name="username" />
+                            </div>
+                        </div>
+                        <div class="row g-3 mt-3">
+                            <div class="col-md-6">
+                                <label for="password" class="form-label"><b>Senha:</b></label>
+                                <input class="form-control" id="password" name="password" type="password" />
+                            </div>
+                            <div class="col-md-6">
+                                <label for="passwordConfirm" class="form-label"><b>Confirmação de Senha:</b></label>
+                                <input class="form-control" id="passwordConfirm" name="passwordConfirm" type="password" oninput="checkPasswords()" />
+                            </div>
+                        </div>
+                        <!-- Mensagem de erro -->
+                        <div class="alert alert-danger mt-3 d-none" id="error-message"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                        <button type="submit" class="btn btn-primary" id="saveButton">Salvar Usuário</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    @* End Modal Add User *@
+
+    @* Modal Edit User *@
+
+    <div class="modal fade" id="modal_user_edit">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"><i class="fa-solid fa-user-pen"></i> Editar Usuário</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                @using (Html.BeginForm("EditUser", "User", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="name" class="form-label"><b>Nome:</b></label>
+                                    <input class="form-control" id="nameEdit" name="name" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="username" class="form-label"><b>Username:</b></label>
+                                    <input class="form-control" id="usernameEdit" name="username" />
+                                </div>
+                            </div>
+                            <div class="row g-3 mt-3">
+                                <div class="col-md-6">
+                                    <label for="password" class="form-label"><b>Senha:</b></label>
+                                    <input class="form-control" id="passwordEdit" name="password" type="password" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="passwordConfirm" class="form-label"><b>Confirmação de Senha:</b></label>
+                                    <input class="form-control" id="passwordConfirmEdit" name="passwordConfirm" type="password" oninput="checkPasswords()" />
+                                </div>
+                            </div>
+                            <div class="row g-3 mt-3">
+                                <div class="col-md-6">
+                                    <label for="status" class="form-label"><b>Status:</b></label>
+                                    <select name="status" id="statusEdit" class="form-control">
+                                        <option></option>
+                                        <option value="ativo">Ativo</option>
+                                        <option value="inativo">Inativo</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Mensagem de erro -->
+                        <div id="passwordMessage"></div>
+                        <input hidden type="text" name="userId" id="userIdEdit" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                        <button type="submit" class="btn btn-primary" id="saveButtonEdit">Salvar Alterações</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    @* End Modal Edit User *@
+
+</body>
+</html>
+
+<script>
+    function openModal(id) {
+        $.ajax({
+            url: '/User/GetDetails', // Rota para o método do controlador que retornará os dados
+            type: 'GET',
+            data: { id: id },
+            success: function (data) {
+                $('#idUsuarioEdit').val(data.idUsuario);
+                $('#primeiroNomeEdit').val(data.primeiroNome);
+                $('#segundoNomeEdit').val(data.segundoNome);
+                $('#emailEdit').val(data.email);
+                $('#usernameEdit').val(data.userName);
+                $('#autenticacaoADEdit').prop('checked', data.autenticacaoAD);
+                $('#idPerfilEdit').val(data.idPerfil); // Assume que o 'perfilId' corresponde ao ID da opção
+                $('#statusEdit').val(data.status);
+                $('#modal_usuario_edit').modal('show');
+            },
+            error: function () {
+                alert("Erro ao buscar os dados.");
+            }
+        });
+    }
+</script>
+
+<script>
+    function checkPasswords() {
+        var password1 = document.getElementById("passwordEdit").value;
+        var password2 = document.getElementById("passwordConfirmEdit").value;
+        var messageDiv = document.getElementById("passwordMessage");
+
+        if (password1 !== password2) {
+            messageDiv.textContent = "Senhas divergentes!";
+            messageDiv.style.color = "red";
+        } else {
+            messageDiv.textContent = "Senhas coincidem";
+            messageDiv.style.color = "green";
+        }
+    }
+</script>
