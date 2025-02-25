@@ -3,6 +3,7 @@ using DizimoParoquial.Models;
 using DizimoParoquial.Services;
 using Dapper;
 using MySql.Data.MySqlClient;
+using System.Transactions;
 
 namespace DizimoParoquial.Data.Repositories
 {
@@ -42,6 +43,47 @@ namespace DizimoParoquial.Data.Repositories
             catch (Exception)
             {
                 return user;
+            }
+        }
+
+        public async Task<bool> RegisterUser(User user)
+        {
+
+            bool userWasCreated = false;
+
+            using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
+            {
+                using (var transaction = connection.BeginTransaction())
+                {
+
+                    try
+                    {
+                        var query = @"INSERT INTO User(Name, Username, Password, Active, CreatedAt, UpdatedAt) 
+                                    VALUES(@Name, @Username, @Password, @Active, @CreatedAt, @UpdatedAt)";
+
+                        var result = await connection.ExecuteAsync(query,
+                            new
+                            {
+                                user.Name,
+                                user.Username,
+                                user.Password,
+                                user.Active,
+                                user.CreatedAt,
+                                user.UpdatedAt
+                            }
+                        );
+
+                        transaction.Commit();
+
+                        return result > 0;
+                    }
+                    catch (Exception)
+                    {
+                        transaction.Rollback();
+                        return userWasCreated;
+                    }
+
+                }
             }
         }
 

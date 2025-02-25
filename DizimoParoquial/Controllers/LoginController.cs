@@ -41,7 +41,12 @@ namespace DizimoParoquial.Controllers
             }
 
             return RedirectToAction("Index", "Home", userAuthenticated);
-        } 
+        }
+
+        public IActionResult Logout()
+        {
+            return RedirectToAction(nameof(Index));
+        }
 
     }
 }

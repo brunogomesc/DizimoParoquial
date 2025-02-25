@@ -39,6 +39,29 @@ namespace DizimoParoquial.Services
 
         }
 
+        public async Task<bool> RegisterUser(User user)
+        {
+            bool userWasCreated = false;
+
+            try
+            {
+
+                user.Active = true;
+                user.CreatedAt = DateTime.Now;
+                user.UpdatedAt = null;
+                user.Password = _encryption.EncryptPassword(user.Password, _configurationService.GetKeyEncryption());
+
+                userWasCreated = await RegisterUserRepository(user);
+
+                return userWasCreated;
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         #region Repositories Methods
 
         private async Task<User> GetUserByUsernameAndPasswordRepository(string username, string password)
@@ -50,6 +73,22 @@ namespace DizimoParoquial.Services
                 user = await _userRepository.GetUserByUsernameAndPassword(username, password);
 
                 return user;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        private async Task<bool> RegisterUserRepository(User user)
+        {
+            bool userWasCreated = false;
+
+            try
+            {
+                userWasCreated = await _userRepository.RegisterUser(user);
+
+                return userWasCreated;
             }
             catch (Exception ex)
             {

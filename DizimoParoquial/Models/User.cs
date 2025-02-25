@@ -1,4 +1,6 @@
-﻿namespace DizimoParoquial.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace DizimoParoquial.Models
 {
     public class User
     {
@@ -15,7 +17,7 @@
 
         public DateTime CreatedAt { get; set; }
 
-        public DateTime UpdatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
 
     }
 }

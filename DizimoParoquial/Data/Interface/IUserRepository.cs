@@ -7,5 +7,7 @@ namespace DizimoParoquial.Data.Interface
 
         public Task<User> GetUserByUsernameAndPassword(string username, string password);
 
+        public Task<bool> RegisterUser(User user);
+
     }
 }

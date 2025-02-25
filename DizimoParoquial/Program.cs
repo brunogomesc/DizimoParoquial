@@ -14,7 +14,9 @@ builder.Services.AddMvc().AddNToastNotifyToastr(new ToastrOptions()
 {
     ProgressBar = false,
     PositionClass = ToastPositions.TopCenter,
-    TimeOut = 3000
+    TimeOut = 3000,
+    ShowMethod = "fadeIn",
+    HideMethod = "fadeOut"
 });
 
 //Injecting the services
