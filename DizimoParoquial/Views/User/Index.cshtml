@@ -1,6 +1,6 @@
-﻿@model List<User>
+﻿@model List<UserDTO>
 @{
-    Layout = "_Layout";
+    
 }
 
 <html>
@@ -23,8 +23,8 @@
                             <label for="Status" class="form-label"><b>Status:</b></label>
                             <select name="status" class="form-control">
                                 <option></option>
-                                <option value="ativo">Ativo</option>
-                                <option value="inativo">Inativo</option>
+                                <option value="true">Ativo</option>
+                                <option value="false">Inativo</option>
                             </select>
                         </div>
                         <div class="col-md-6">
@@ -49,24 +49,36 @@
         </div>
     </div>
     <br />
-    @if (Model != null)
+    @if (Model != null && Model.Any())
     {
         <div class="card mt-4">
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
-                        <th>Primeiro Nome</th>
-                        <th>Segundo Nome</th>
-                        <th>Email</th>
+                        <th>Nome</th>
+                        <th>Username</th>
                         <th>Status</th>
-                        <th>Perfis Vinculados</th>
+                        <th>Data Criação</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var usuario in Model)
+                    @foreach (var user in Model)
                     {
-                        
+                        <tr>
+                            <td>@Html.DisplayFor(item => user.Name) </td>
+                            <td>@Html.DisplayFor(item => user.Username) </td>
+                            <td>
+                                <div class="badge @(user.Active == true ? "bg-success" : "bg-danger")">
+                                    @(user.Active == true ? "Ativo" : "Inativo")
+                                </div>
+                            </td>
+                            <td>@(user.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))</td>
+                            <td>
+                                <a data-toggle="tooltip" class="bs-tooltip" data-placement="top" href="javascript:void(0);" onclick="openModal(@user.UserId)" title="Editar"><i class="fa-solid fa-user-pen" style="color: #000000;"></i></a>
+                                <a data-toggle="tooltip" class="bs-tooltip" data-placement="top" title="Excluir" href="@Url.Action("DeleteUser","User", new { userId = user.UserId })"><i class="fa-solid fa-trash" style="color: #000000;"></i></a>
+                            </td>
+                        </tr>
                     }
                 </tbody>
             </table>
@@ -74,7 +86,7 @@
     }
     else
     {
-        <h3 class="text-center">Sem resultados para serem exibidos</h3>
+        <h4 class="text-center">Sem resultados para serem exibidos</h4>
     }
 
     @* Modal Add User *@
@@ -110,7 +122,7 @@
                             </div>
                         </div>
                         <!-- Mensagem de erro -->
-                        <div class="alert alert-danger mt-3 d-none" id="error-message"></div>
+                        <div id="passwordMessage"></div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
@@ -214,7 +226,7 @@
     function checkPasswords() {
         var password1 = document.getElementById("password").value;
         var password2 = document.getElementById("passwordConfirm").value;
-        var messageDiv = document.getElementById("error-message");
+        var messageDiv = document.getElementById("passwordMessage");
 
         if (password1 !== password2) {
             messageDiv.textContent = "Senhas divergentes!";

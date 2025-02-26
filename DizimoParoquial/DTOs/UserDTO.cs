@@ -1,7 +1,6 @@
-﻿
-namespace DizimoParoquial.Models
+﻿namespace DizimoParoquial.DTOs
 {
-    public class User
+    public class UserDTO
     {
 
         public int UserId { get; set; }
@@ -10,13 +9,9 @@ namespace DizimoParoquial.Models
 
         public string Username { get; set; } = string.Empty;
 
-        public string Password { get; set; } = string.Empty;
-
         public bool Active { get; set; }
 
         public DateTime CreatedAt { get; set; }
-
-        public DateTime? UpdatedAt { get; set; }
 
     }
 }

@@ -1,4 +1,5 @@
-﻿using DizimoParoquial.Models;
+﻿using DizimoParoquial.DTOs;
+using DizimoParoquial.Models;
 using DizimoParoquial.Services;
 using Microsoft.AspNetCore.Mvc;
 using NToastNotify;
@@ -32,7 +33,7 @@ namespace DizimoParoquial.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            User userAuthenticated = await _userService.GetUserByUsernameAndPassword(user, password);
+            UserDTO userAuthenticated = await _userService.GetUserByUsernameAndPassword(user, password);
 
             if (userAuthenticated == null || userAuthenticated.UserId == 0)
             {
