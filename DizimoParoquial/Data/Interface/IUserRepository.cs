@@ -18,5 +18,9 @@ namespace DizimoParoquial.Data.Interface
 
         public Task<bool> DeleteUser(int userId);
 
+        public Task<UserDTO> GetUserById(int id);
+
+        public Task<bool> UpdateUser(User user);
+
     }
 }

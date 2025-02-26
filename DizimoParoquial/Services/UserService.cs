@@ -1,7 +1,9 @@
 ﻿using DizimoParoquial.Data.Interface;
 using DizimoParoquial.DTOs;
+using DizimoParoquial.Exceptions;
 using DizimoParoquial.Models;
 using DizimoParoquial.Utils;
+using System.Data.Common;
 
 namespace DizimoParoquial.Services
 {
@@ -33,9 +35,25 @@ namespace DizimoParoquial.Services
                 return user;
 
             }
-            catch (Exception ex)
+            catch (DbException ex)
             {
-                throw new Exception(ex.Message);
+                throw new RepositoryException("Login - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Login - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Login - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Login - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Login - Dados vazios.");
             }
 
         }
@@ -50,7 +68,7 @@ namespace DizimoParoquial.Services
                 UserDTO userExists = await GetUserByUsernameRepository(user.Username);
 
                 if (userExists != null && userExists.UserId > 0)
-                    return userWasCreated;
+                    throw new ValidationException("Usuário não existente");
 
                 user.Active = true;
                 user.CreatedAt = DateTime.Now;
@@ -62,9 +80,71 @@ namespace DizimoParoquial.Services
                 return userWasCreated;
 
             }
-            catch (Exception ex)
+            catch (DbException ex)
             {
-                throw new Exception(ex.Message);
+                throw new RepositoryException("Criar usuário - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Criar usuário - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Criar usuário - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Criar usuário - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Criar usuário - Dados vazios.");
+            }
+        }
+
+        public async Task<bool> UpdateUser(User user)
+        {
+            bool userWasUpdated = false;
+
+            try
+            {
+
+                UserDTO userExists = await GetUserByIdRepository(user.UserId);
+
+                if (userExists == null && userExists.UserId == 0)
+                    throw new ValidationException("Usuário não existente");
+
+                if (user.Password == null)
+                    user.Password = userExists.Password;
+                else
+                    user.Password = _encryption.EncryptPassword(user.Password, _configurationService.GetKeyEncryption());
+
+                user.UpdatedAt = DateTime.Now;
+
+                userWasUpdated = await UpdateUserRepository(user);
+
+                return userWasUpdated;
+
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Atualizar usuário - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Atualizar usuário - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Atualizar usuário - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Atualizar usuário - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Atualizar usuário - Dados vazios.");
             }
         }
 
@@ -80,9 +160,25 @@ namespace DizimoParoquial.Services
                 return users;
 
             }
-            catch (Exception ex)
+            catch (DbException ex)
             {
-                throw new Exception(ex.Message);
+                throw new RepositoryException("Consultar usuário - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Consultar usuário - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Consultar usuário - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Consultar usuário - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Consultar usuário - Dados vazios.");
             }
         }
 
@@ -98,9 +194,25 @@ namespace DizimoParoquial.Services
                 return users;
 
             }
-            catch (Exception ex)
+            catch (DbException ex)
             {
-                throw new Exception(ex.Message);
+                throw new RepositoryException("Consultar usuário - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Consultar usuário - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Consultar usuário - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Consultar usuário - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Consultar usuário - Dados vazios.");
             }
         }
 
@@ -116,9 +228,55 @@ namespace DizimoParoquial.Services
                 return userWasDeleted;
 
             }
-            catch (Exception ex)
+            catch (DbException ex)
             {
-                throw new Exception(ex.Message);
+                throw new RepositoryException("Excluir usuário - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Excluir usuário - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Excluir usuário - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Excluir usuário - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Excluir usuário - Dados vazios.");
+            }
+        }
+
+        public async Task<UserDTO> GetUserById(int id)
+        {
+            UserDTO user = new UserDTO();
+            try
+            {
+                user = await GetUserByIdRepository(id);
+                return user;
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consultar usuário - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Consultar usuário - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Consultar usuário - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Consultar usuário - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Consultar usuário - Dados vazios.");
             }
         }
 
@@ -134,9 +292,25 @@ namespace DizimoParoquial.Services
 
                 return user;
             }
-            catch (Exception ex)
+            catch (DbException ex)
             {
-                throw new Exception(ex.Message);
+                throw new RepositoryException("Consultar usuário - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Consultar usuário - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Consultar usuário - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Consultar usuário - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Consultar usuário - Dados vazios.");
             }
         }
 
@@ -150,9 +324,57 @@ namespace DizimoParoquial.Services
 
                 return userWasCreated;
             }
-            catch (Exception ex)
+            catch (DbException ex)
             {
-                throw new Exception(ex.Message);
+                throw new RepositoryException("Criar usuário - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Criar usuário - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Criar usuário - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Criar usuário - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Criar usuário - Dados vazios.");
+            }
+        }
+
+        private async Task<bool> UpdateUserRepository(User user)
+        {
+            bool userWasUpdated = false;
+
+            try
+            {
+                userWasUpdated = await _userRepository.UpdateUser(user);
+
+                return userWasUpdated;
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Atualizar usuário - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Atualizar usuário - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Atualizar usuário - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Atualizar usuário - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Atualizar usuário - Dados vazios.");
             }
         }
 
@@ -166,9 +388,25 @@ namespace DizimoParoquial.Services
 
                 return users;
             }
-            catch (Exception ex)
+            catch (DbException ex)
             {
-                throw new Exception(ex.Message);
+                throw new RepositoryException("Consultar usuário - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Consultar usuário - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Consultar usuário - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Consultar usuário - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Consultar usuário - Dados vazios.");
             }
         }
 
@@ -182,9 +420,25 @@ namespace DizimoParoquial.Services
 
                 return users;
             }
-            catch (Exception ex)
+            catch (DbException ex)
             {
-                throw new Exception(ex.Message);
+                throw new RepositoryException("Consultar usuário - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Consultar usuário - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Consultar usuário - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Consultar usuário - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Consultar usuário - Dados vazios.");
             }
         }
 
@@ -198,9 +452,25 @@ namespace DizimoParoquial.Services
 
                 return user;
             }
-            catch (Exception ex)
+            catch (DbException ex)
             {
-                throw new Exception(ex.Message);
+                throw new RepositoryException("Consultar usuário - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Consultar usuário - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Consultar usuário - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Consultar usuário - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Consultar usuário - Dados vazios.");
             }
         }
 
@@ -214,9 +484,57 @@ namespace DizimoParoquial.Services
 
                 return userWasDeleted;
             }
-            catch (Exception ex)
+            catch (DbException ex)
             {
-                throw new Exception(ex.Message);
+                throw new RepositoryException("Excluir usuário - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Excluir usuário - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Excluir usuário - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Excluir usuário - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Excluir usuário - Dados vazios.");
+            }
+        }
+
+        private async Task<UserDTO> GetUserByIdRepository(int id)
+        {
+            UserDTO user = new UserDTO();
+
+            try
+            {
+                user = await _userRepository.GetUserById(id);
+
+                return user;
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consultar usuário - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Consultar usuário - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Consultar usuário - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Consultar usuário - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("AtuaConsultarlizar usuário - Dados vazios.");
             }
         }
 

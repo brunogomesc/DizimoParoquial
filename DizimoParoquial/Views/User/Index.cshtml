@@ -150,38 +150,38 @@
                         <div class="row g-3">
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label for="name" class="form-label"><b>Nome:</b></label>
+                                    <label for="nameEdit" class="form-label"><b>Nome:</b></label>
                                     <input class="form-control" id="nameEdit" name="name" />
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="username" class="form-label"><b>Username:</b></label>
+                                    <label for="usernameEdit" class="form-label"><b>Username:</b></label>
                                     <input class="form-control" id="usernameEdit" name="username" />
                                 </div>
                             </div>
                             <div class="row g-3 mt-3">
                                 <div class="col-md-6">
-                                    <label for="password" class="form-label"><b>Senha:</b></label>
+                                    <label for="passwordEdit" class="form-label"><b>Senha:</b></label>
                                     <input class="form-control" id="passwordEdit" name="password" type="password" />
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="passwordConfirm" class="form-label"><b>Confirmação de Senha:</b></label>
+                                    <label for="passwordConfirmEdit" class="form-label"><b>Confirmação de Senha:</b></label>
                                     <input class="form-control" id="passwordConfirmEdit" name="passwordConfirm" type="password" oninput="checkPasswordsEdit()" />
                                 </div>
                             </div>
                             <div class="row g-3 mt-3">
                                 <div class="col-md-6">
-                                    <label for="status" class="form-label"><b>Status:</b></label>
-                                    <select name="status" id="statusEdit" class="form-control">
+                                    <label for="statusEdit" class="form-label"><b>Status:</b></label>
+                                    <select name="active" id="statusEdit" class="form-control">
                                         <option></option>
-                                        <option value="ativo">Ativo</option>
-                                        <option value="inativo">Inativo</option>
+                                        <option value="true">Ativo</option>
+                                        <option value="false">Inativo</option>
                                     </select>
                                 </div>
                             </div>
                         </div>
                         
                         <!-- Mensagem de erro -->
-                        <div id="passwordMessage"></div>
+                        <div id="passwordMessageEdit"></div>
                         <input hidden type="text" name="userId" id="userIdEdit" />
                     </div>
                     <div class="modal-footer">
@@ -205,15 +205,16 @@
             type: 'GET',
             data: { id: id },
             success: function (data) {
-                $('#idUsuarioEdit').val(data.idUsuario);
-                $('#primeiroNomeEdit').val(data.primeiroNome);
-                $('#segundoNomeEdit').val(data.segundoNome);
-                $('#emailEdit').val(data.email);
-                $('#usernameEdit').val(data.userName);
-                $('#autenticacaoADEdit').prop('checked', data.autenticacaoAD);
-                $('#idPerfilEdit').val(data.idPerfil); // Assume que o 'perfilId' corresponde ao ID da opção
-                $('#statusEdit').val(data.status);
-                $('#modal_usuario_edit').modal('show');
+                $('#userIdEdit').val(data.userId);
+                $('#nameEdit').val(data.name);
+                $('#usernameEdit').val(data.username);
+                if(data.active == true){
+                    $('#statusEdit').val("true");
+                }
+                else{
+                    $('#statusEdit').val("false");
+                }
+                $('#modal_user_edit').modal('show');
             },
             error: function () {
                 alert("Erro ao buscar os dados.");
@@ -232,7 +233,7 @@
             messageDiv.textContent = "Senhas divergentes!";
             messageDiv.style.color = "red";
         } else {
-            messageDiv.textContent = "Senhas coincidem";
+            messageDiv.textContent = "Senhas coincidem!";
             messageDiv.style.color = "green";
         }
     }
@@ -242,13 +243,13 @@
     function checkPasswordsEdit() {
         var password1 = document.getElementById("passwordEdit").value;
         var password2 = document.getElementById("passwordConfirmEdit").value;
-        var messageDiv = document.getElementById("passwordMessage");
+        var messageDiv = document.getElementById("passwordMessageEdit");
 
         if (password1 !== password2) {
             messageDiv.textContent = "Senhas divergentes!";
             messageDiv.style.color = "red";
         } else {
-            messageDiv.textContent = "Senhas coincidem";
+            messageDiv.textContent = "Senhas coincidem!";
             messageDiv.style.color = "green";
         }
     }

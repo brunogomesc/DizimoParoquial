@@ -1,4 +1,5 @@
 ﻿using DizimoParoquial.DTOs;
+using DizimoParoquial.Exceptions;
 using DizimoParoquial.Models;
 using DizimoParoquial.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -27,21 +28,39 @@ namespace DizimoParoquial.Controllers
         public async Task<IActionResult> Login(string user, string password)
         {
 
-            if(string.IsNullOrWhiteSpace(user) || string.IsNullOrWhiteSpace(password))
+            try
             {
-                _notification.AddErrorToastMessage("Usuário e/ou senha não preenchidos!");
-                return RedirectToAction(nameof(Index));
+                if (string.IsNullOrWhiteSpace(user) || string.IsNullOrWhiteSpace(password))
+                {
+                    _notification.AddErrorToastMessage("Usuário e/ou senha não preenchidos!");
+                    return RedirectToAction(nameof(Index));
+                }
+
+                UserDTO userAuthenticated = await _userService.GetUserByUsernameAndPassword(user, password);
+
+                if (userAuthenticated == null || userAuthenticated.UserId == 0)
+                {
+                    _notification.AddErrorToastMessage("Usuário não é válido ou está inativo!");
+                    return RedirectToAction(nameof(Index));
+                }
+
+                return RedirectToAction("Index", "Home", userAuthenticated);
+            }
+            catch (ValidationException ex)
+            {
+                _notification.AddErrorToastMessage(ex.Message);
+            }
+            catch (RepositoryException ex)
+            {
+                _notification.AddErrorToastMessage(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _notification.AddErrorToastMessage(ex.Message);
             }
 
-            UserDTO userAuthenticated = await _userService.GetUserByUsernameAndPassword(user, password);
+            return RedirectToAction(nameof(Index));
 
-            if (userAuthenticated == null || userAuthenticated.UserId == 0)
-            {
-                _notification.AddErrorToastMessage("Usuário não é válido ou está inativo!");
-                return RedirectToAction(nameof(Index));
-            }
-
-            return RedirectToAction("Index", "Home", userAuthenticated);
         }
 
         public IActionResult Logout()

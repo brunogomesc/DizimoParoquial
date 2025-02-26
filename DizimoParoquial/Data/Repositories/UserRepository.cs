@@ -7,6 +7,8 @@ using System.Transactions;
 using System.Collections.Generic;
 using System.Text;
 using DizimoParoquial.DTOs;
+using DizimoParoquial.Exceptions;
+using System.Data.Common;
 
 namespace DizimoParoquial.Data.Repositories
 {
@@ -45,9 +47,13 @@ namespace DizimoParoquial.Data.Repositories
                     return user;
                 }
             }
-            catch (Exception)
+            catch (DbException ex)
             {
-                return user;
+                throw new RepositoryException("Consulta Usuário - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("Consulta Usuário - Erro interno.", ex);
             }
         }
 
@@ -58,6 +64,9 @@ namespace DizimoParoquial.Data.Repositories
 
             using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
             {
+
+                connection.Open();
+
                 using (var transaction = connection.BeginTransaction())
                 {
 
@@ -80,14 +89,22 @@ namespace DizimoParoquial.Data.Repositories
 
                         transaction.Commit();
 
+                        connection.Dispose();
+
                         return result > 0;
                     }
-                    catch (Exception)
+                    catch (DbException ex)
                     {
                         transaction.Rollback();
-                        return userWasCreated;
+                        connection.Dispose();
+                        throw new RepositoryException("Criar Usuário - Erro ao acessar o banco de dados.", ex);
                     }
-
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        connection.Dispose();
+                        throw new RepositoryException("Criar Usuário - Erro interno.", ex);
+                    }
                 }
             }
         }
@@ -99,7 +116,7 @@ namespace DizimoParoquial.Data.Repositories
 
             try
             {
-                var query = "SELECT * FROM User;";
+                var query = "SELECT * FROM User WHERE Deleted = false;";
 
                 using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
                 {
@@ -110,9 +127,13 @@ namespace DizimoParoquial.Data.Repositories
                     return users;
                 }
             }
-            catch (Exception)
+            catch (DbException ex)
             {
-                return users;
+                throw new RepositoryException("Consulta Usuário - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("Consulta Usuário - Erro interno.", ex);
             }
         }
 
@@ -142,9 +163,13 @@ namespace DizimoParoquial.Data.Repositories
                     return users;
                 }
             }
-            catch (Exception)
+            catch (DbException ex)
             {
-                return users;
+                throw new RepositoryException("Consulta Usuário - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("Consulta Usuário - Erro interno.", ex);
             }
         }
 
@@ -171,9 +196,46 @@ namespace DizimoParoquial.Data.Repositories
                     return user;
                 }
             }
-            catch (Exception)
+            catch (DbException ex)
             {
-                return user;
+                throw new RepositoryException("Consulta Usuário - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("Consulta Usuário - Erro interno.", ex);
+            }
+        }
+
+        public async Task<UserDTO> GetUserById(int id)
+        {
+
+            UserDTO user = new UserDTO();
+
+            try
+            {
+                var query = "SELECT * FROM User WHERE UserId = @UserId";
+
+                using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
+                {
+                    var result = await connection.QueryAsync<UserDTO>(query,
+                        new
+                        {
+                            UserId = id
+                        }
+                    );
+
+                    user = result.FirstOrDefault();
+
+                    return user;
+                }
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consulta Usuário - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("Consulta Usuário - Erro interno.", ex);
             }
         }
 
@@ -184,6 +246,9 @@ namespace DizimoParoquial.Data.Repositories
 
             using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
             {
+
+                connection.Open();
+
                 using (var transaction = connection.BeginTransaction())
                 {
 
@@ -202,14 +267,79 @@ namespace DizimoParoquial.Data.Repositories
 
                         transaction.Commit();
 
+                        connection.Dispose();
+
                         return result > 0;
                     }
-                    catch (Exception)
+                    catch (DbException ex)
                     {
                         transaction.Rollback();
-                        return userWasCreated;
+                        connection.Dispose();
+                        throw new RepositoryException("Deletar Usuário - Erro ao acessar o banco de dados.", ex);
                     }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        connection.Dispose();
+                        throw new RepositoryException("Deletar Usuário - Erro interno.", ex);
+                    }
+                }
+            }
+        }
 
+        public async Task<bool> UpdateUser(User user)
+        {
+
+            bool userWasUpdated = false;
+
+            using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
+            {
+
+                connection.Open();
+
+                using (var transaction = connection.BeginTransaction())
+                {
+
+                    try
+                    {
+                        var query = @"UPDATE User 
+                                    SET Name = @Name, 
+                                        Username = @Username, 
+                                        Password = @Password, 
+                                        Active = @Active, 
+                                        UpdatedAt = @UpdatedAt 
+                                    WHERE UserId = @UserId";
+
+                        var result = await connection.ExecuteAsync(query,
+                            new
+                            {
+                                user.Name,
+                                user.Username,
+                                user.Password,
+                                user.Active,
+                                user.UpdatedAt,
+                                user.UserId
+                            }
+                        );
+
+                        transaction.Commit();
+
+                        connection.Dispose();
+
+                        return result > 0;
+                    }
+                    catch (DbException ex)
+                    {
+                        transaction.Rollback();
+                        connection.Dispose();
+                        throw new RepositoryException("Atualizar Usuário - Erro ao acessar o banco de dados.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        connection.Dispose();
+                        throw new RepositoryException("Atualizar Usuário - Erro interno.", ex);
+                    }
                 }
             }
         }
