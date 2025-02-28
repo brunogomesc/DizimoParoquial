@@ -28,6 +28,9 @@ builder.Services.AddSingleton<Encryption>();
 builder.Services.AddTransient<UserService>();
 builder.Services.AddTransient<IUserRepository, UserRepository>();
 
+builder.Services.AddTransient<PermissionService>();
+builder.Services.AddTransient<IPermissionRepository, PermissionRepository>();
+
 
 var app = builder.Build();
 

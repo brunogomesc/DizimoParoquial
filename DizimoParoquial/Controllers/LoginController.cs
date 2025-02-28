@@ -10,6 +10,7 @@ namespace DizimoParoquial.Controllers
     public class LoginController : Controller
     {
 
+        private const string ROUTE_SCREEN_HOME = "/Views/Home/Index.cshtml";
         private readonly IToastNotification _notification;
         private readonly UserService _userService;
 
@@ -44,7 +45,9 @@ namespace DizimoParoquial.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
-                return RedirectToAction("Index", "Home", userAuthenticated);
+                _notification.AddSuccessToastMessage("Usuário autenticado com sucesso!");
+
+                return View(ROUTE_SCREEN_HOME);
             }
             catch (ValidationException ex)
             {

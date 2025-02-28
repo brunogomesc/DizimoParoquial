@@ -11,6 +11,7 @@ namespace DizimoParoquial.Controllers
     public class UserController : Controller
     {
 
+        private const string ROUTE_SCREEN_USERS = "/Views/User/Index.cshtml";
         private readonly IToastNotification _notification;
         private readonly UserService _userService;
 
@@ -22,47 +23,17 @@ namespace DizimoParoquial.Controllers
 
         public IActionResult Index()
         {
-
-            try
-            {
-                List<UserDTO> users = new List<UserDTO>();
-
-                if (TempData["Users"] is string usersJson && !string.IsNullOrEmpty(usersJson))
-                {
-                    users = JsonSerializer.Deserialize<List<UserDTO>>(usersJson);
-                    TempData.Remove("Users");
-                }
-
-                return View(users);
-            }
-            catch (ValidationException ex)
-            {
-                _notification.AddErrorToastMessage(ex.Message);
-            }
-            catch (NullException ex)
-            {
-                _notification.AddErrorToastMessage(ex.Message);
-            }
-            catch (RepositoryException ex)
-            {
-                _notification.AddErrorToastMessage(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                _notification.AddErrorToastMessage(ex.Message);
-            }
-
             return View();
-
         }
 
         [HttpPost]
         public async Task<IActionResult> SearchUser(string status, string name)
         {
 
+            List<UserDTO> users = new List<UserDTO>();
+
             try
             {
-                List<UserDTO> users = new List<UserDTO>();
 
                 bool? statusConverted = status != null ? Convert.ToBoolean(status) : null;
 
@@ -72,8 +43,6 @@ namespace DizimoParoquial.Controllers
                 else
                     users = await _userService.GetUsersWithFilters(statusConverted, name);
 
-                TempData["Users"] = JsonSerializer.Serialize(users); // Serializa a lista para TempData
-
             }
             catch (ValidationException ex)
             {
@@ -92,7 +61,7 @@ namespace DizimoParoquial.Controllers
                 _notification.AddErrorToastMessage(ex.Message);
             }
 
-            return RedirectToAction(nameof(Index));
+            return View(ROUTE_SCREEN_USERS, users);
 
         }
 

@@ -14,9 +14,8 @@ namespace DizimoParoquial.Controllers
             _notification = notification;
         }
 
-        public IActionResult Index(User userAuthenticated)
+        public IActionResult Index()
         {
-            _notification.AddSuccessToastMessage("Usuário autenticado com sucesso!");
             return View();
         }
     }
