@@ -1,5 +1,194 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model List<AgentDTO>
 @{
+
 }
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<body>
+    <div class="container my-4">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="d-flex align-items-center border-bottom pb-2 mb-3" style="font-family: system-ui; font-weight: bold;">
+                    <i class="fa fa-search" aria-hidden="true"></i>
+                    Buscar Agentes do Dizimo
+                </h2>
+                @using (Html.BeginForm("SearchAgents", "Agent", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="Status" class="form-label"><b>Status:</b></label>
+                            <select name="status" class="form-control">
+                                <option></option>
+                                <option value="true">Ativo</option>
+                                <option value="false">Inativo</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="Name" class="form-label"><b>Nome:</b></label>
+                            <input name="name" class="form-control" type="text" />
+                        </div>
+                    </div>
+                    <div class="row g-3 mt-3">
+                        <div class="col-md-3">
+                            <button class="btn btn-primary w-100">
+                                Pesquisar
+                            </button>
+                        </div>
+                    </div>
+                }
+                <div class="row g-3 mt-3">
+                    <button style="border: 3px;background-color:white;" data-bs-toggle="modal" data-bs-target="#modal_agent_add">
+                        <i class="fa-solid fa-user-plus"></i> Adicionar Agente do Dizimo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    @if (Model != null && Model.Any())
+    {
+        <div class="card mt-4">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Código</th>
+                        <th>Status</th>
+                        <th>Data Criação</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var agent in Model)
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(item => agent.Name) </td>
+                            <td>@Html.DisplayFor(item => agent.AgentCode) </td>
+                            <td>
+                                <div class="badge @(agent.Active == true ? "bg-success" : "bg-danger")">
+                                    @(agent.Active == true ? "Ativo" : "Inativo")
+                                </div>
+                            </td>
+                            <td>
+                                <a data-toggle="tooltip" class="bs-tooltip" data-placement="top" href="javascript:void(0);" onclick="openModal(@agent.AgentId)" title="Editar"><i class="fa-solid fa-user-pen" style="color: #000000;"></i></a>
+                                <a data-toggle="tooltip" class="bs-tooltip" data-placement="top" title="Excluir" href="@Url.Action("DeleteAgent","Agent", new { agentId = agent.AgentId })"><i class="fa-solid fa-trash" style="color: #000000;"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <h4 class="text-center">Sem resultados para serem exibidos</h4>
+    }
+
+    @* Modal Add Agent *@
+
+    <div class="modal fade" id="modal_agent_add">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"><i class="fa-solid fa-user-plus"></i> Cadastrar Agente</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                @using (Html.BeginForm("SaveAgent", "Agent", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="name" class="form-label"><b>Nome:</b></label>
+                                <input class="form-control" id="name" name="name" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                        <button type="submit" class="btn btn-primary" id="saveButton">Salvar Agente</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    @* End Modal Add Agent *@
+
+    @* Modal Edit Agent *@
+
+    <div class="modal fade" id="modal_agent_edit">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"><i class="fa-solid fa-user-pen"></i> Editar Agente</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                @using (Html.BeginForm("EditAgent", "Agent", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="nameEdit" class="form-label"><b>Nome:</b></label>
+                                    <input class="form-control" id="nameEdit" name="name" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="codeEdit" class="form-label"><b>Código:</b></label>
+                                    <input disabled class="form-control" id="codeEdit" name="code" />
+                                </div>
+                            </div>
+                            <div class="row g-3 mt-3">
+                                <div class="col-md-6">
+                                    <label for="statusEdit" class="form-label"><b>Status:</b></label>
+                                    <select name="active" id="statusEdit" class="form-control">
+                                        <option></option>
+                                        <option value="true">Ativo</option>
+                                        <option value="false">Inativo</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <input hidden type="text" name="userId" id="agentIdEdit" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                        <button type="submit" class="btn btn-primary" id="saveButtonEdit">Salvar Alterações</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    @* End Modal Edit User *@
+
+</body>
+</html>
+
+<script>
+    function openModal(id) {
+        $.ajax({
+            url: '/Agent/GetDetails', // Rota para o método do controlador que retornará os dados
+            type: 'GET',
+            data: { id: id },
+            success: function (data) {
+                $('#agentIdEdit').val(data.agentId);
+                $('#nameEdit').val(data.name);
+                $('#codeEdit').val(data.code);
+                if(data.active == true){
+                    $('#statusEdit').val("true");
+                }
+                else{
+                    $('#statusEdit').val("false");
+                }
+                $('#modal_user_edit').modal('show');
+            },
+            error: function () {
+                alert("Erro ao buscar os dados.");
+            }
+        });
+    }
+</script>
