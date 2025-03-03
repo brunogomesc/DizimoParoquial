@@ -8,5 +8,11 @@ namespace DizimoParoquial.Controllers
         {
             return View();
         }
+
+        public IActionResult SearchAgents()
+        {
+            return View();
+        }
+
     }
 }
