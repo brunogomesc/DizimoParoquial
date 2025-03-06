@@ -7,12 +7,13 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dizimo Paroquial</title>
+    <title>Dizimo Migrantes</title>
     <link rel="stylesheet" href="~/css/Login.css" asp-append-version="true"/>
 </head>
 <body>
     <div class="container">
-        <h1>Dizimo Paroquial</h1>
+        <h1>Dizimo Migrantes</h1>
+        <img src="~/img/Brasao_Migrantes.png" alt="Logo" style="width: 150px; margin: 0 auto 15px auto; display: block;">
         @using (Html.BeginForm("Login","Login", FormMethod.Post)) {
             <div class="form-floating mb-3">
                 <input type="text" class="form-control" id="floatingUser" name="user" placeholder="Login">
@@ -21,6 +22,9 @@
             <div class="form-floating">
                 <input type="password" class="form-control" id="floatingPassword" name="password" placeholder="Senha">
                 <label for="floatingPassword">Senha</label>
+                <span class="toggle-password" onclick="togglePassword()">
+                    <i class="fas fa-eye"></i>
+                </span>
             </div>
             <div>
                 <button class="btn btn-primary" type="submit">Acessar</button>
@@ -29,3 +33,20 @@
     </div>
 </body>
 </html>
+
+<script>
+        function togglePassword() {
+        var passwordInput = document.getElementById("floatingPassword");
+        var icon = document.querySelector(".toggle-password i");
+
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+        } else {
+            passwordInput.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+        }
+    }
+</script>

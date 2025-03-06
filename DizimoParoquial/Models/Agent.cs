@@ -9,7 +9,7 @@
 
         public bool Active { get; set; }
 
-        public int AgentCode { get; set; }
+        public string AgentCode { get; set; } = string.Empty;
 
         public DateTime CreatedAt { get; set; }
 

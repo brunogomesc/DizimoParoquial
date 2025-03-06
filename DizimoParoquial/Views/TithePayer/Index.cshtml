@@ -1,0 +1,312 @@
+﻿@model List<TithePayer>
+@{
+    ViewData["Username"] = @ViewBag.UserName;
+}
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<body>
+    <div class="container my-4">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="d-flex align-items-center border-bottom pb-2 mb-3" style="font-family: system-ui; font-weight: bold;">
+                    <i class="fa fa-search" aria-hidden="true"></i>
+                    Buscar Usuários
+                </h2>
+                @using (Html.BeginForm("SearchTithePayer", "TithePayer", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="document" class="form-label"><b>CPF:</b></label>
+                            <input name="document" class="form-control" type="text" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="name" class="form-label"><b>Nome:</b></label>
+                            <input name="name" class="form-control" type="text" />
+                        </div>
+                    </div>
+                    <div class="row g-3 mt-3">
+                        <div class="col-md-3">
+                            <button class="btn btn-primary w-100">
+                                Pesquisar
+                            </button>
+                        </div>
+                    </div>
+                }
+                <div class="row g-3 mt-3">
+                    <button style="border: 3px;background-color:white;" data-bs-toggle="modal" data-bs-target="#modal_tithepayer_add">
+                        <i class="fa-solid fa-user-plus"></i> Adicionar Dizimista
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    @if (Model != null && Model.Any())
+    {
+        <div class="card mt-4">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>CPF</th>
+                        <th>Data Nascimento</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var tithePayer in Model)
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(item => tithePayer.Name) </td>
+                            <td>@Html.DisplayFor(item => tithePayer.Document) </td>
+                            <td>@(tithePayer.DateBirth.ToString("dd/MM/yyyy"))</td>
+                            <td>
+                                <a data-toggle="tooltip" class="bs-tooltip" data-placement="top" href="javascript:void(0);" onclick="openModal(@tithePayer.TithePayerId)" title="Editar"><i class="fa-solid fa-user-pen" style="color: #000000;"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <h4 class="text-center">Sem resultados para serem exibidos</h4>
+    }
+
+    @* Modal Add TithePayer *@
+
+    <div class="modal fade" id="modal_tithepayer_add">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"><i class="fa-solid fa-user-plus"></i> Cadastrar Dizimista</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                @using (Html.BeginForm("SaveTithePayer", "TithePayer", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="name" class="form-label"><b>Nome:</b></label>
+                                <input class="form-control" id="name" name="name" />
+                            </div>
+                            <div class="col-md-3">
+                                <label for="document" class="form-label"><b>CPF:</b></label>
+                                <input class="form-control" id="document" name="document" />
+                            </div>
+                            <div class="col-md-3">
+                                <label for="datebirth" class="form-label"><b>Data de Nascimento:</b></label>
+                                <input type="date" class="form-control" id="datebirth" name="datebirth" />
+                            </div>
+                        </div>
+                        <div class="row g-3 mt-3">
+                            <div class="col-md-6">
+                                <label for="email" class="form-label"><b>E-mail:</b></label>
+                                <input type="email" class="form-control" id="email" name="email" />
+                            </div>
+                            <div class="col-md-6">
+                                <label for="phonenumber" class="form-label"><b>Telefone:</b></label>
+                                <input type="tel" class="form-control" id="phonenumber" name="phonenumber" />
+                            </div>
+                        </div>
+                        <div class="row g-3 mt-3">
+                            <div class="col-md-10">
+                                <label for="address" class="form-label"><b>Endereço:</b></label>
+                                <input class="form-control" id="address" name="address" />
+                            </div>
+                            <div class="col-md-2">
+                                <label for="number" class="form-label"><b>Número:</b></label>
+                                <input type="number" class="form-control" id="number" name="number" />
+                            </div>
+                        </div>
+                        <div class="row g-3 mt-3">
+                            <div class="col-md-3">
+                                <label for="zipcode" class="form-label"><b>CEP:</b></label>
+                                <input class="form-control" id="zipcode" name="zipcode" />
+                            </div>
+                            <div class="col-md-3">
+                                <label for="neighborhood" class="form-label"><b>Bairro:</b></label>
+                                <input type="text" class="form-control" id="neighborhood" name="neighborhood" />
+                            </div>
+                            <div class="col-md-6">
+                                <label for="complement" class="form-label"><b>Complemento:</b></label>
+                                <input type="text" class="form-control" id="complement" name="complement" />
+                            </div>
+                        </div>
+                        @* <div class="row g-3 mt-3">
+                            <div class="col-md-12">
+                                <label for="termfile" class="form-label"><b>Termo de Autorização:</b></label>
+                                <input type="file" class="form-control" id="termfile" name="termfile" />
+                            </div>
+                        </div> *@
+                        <!-- Mensagem de erro -->
+                        <div id="passwordMessage"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                        <button type="submit" class="btn btn-primary" id="saveButton">Salvar Usuário</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    @* End Modal Add TithePayer *@
+
+    @* Modal Edit TithePayer *@
+
+    <div class="modal fade" id="modal_tithepayer_edit">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"><i class="fa-solid fa-user-pen"></i> Editar Dizimista</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                @using (Html.BeginForm("EditTithePayer", "TithePayer", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="nameEdit" class="form-label"><b>Nome:</b></label>
+                                <input class="form-control" id="nameEdit" name="name" />
+                            </div>
+                            <div class="col-md-3">
+                                <label for="documentEdit" class="form-label"><b>CPF:</b></label>
+                                <input class="form-control" id="documentEdit" name="document" />
+                            </div>
+                            <div class="col-md-3">
+                                <label for="datebirthEdit" class="form-label"><b>Data de Nascimento:</b></label>
+                                <input type="date" class="form-control" id="datebirthEdit" name="datebirth" />
+                            </div>
+                        </div>
+                        <div class="row g-3 mt-3">
+                            <div class="col-md-6">
+                                <label for="emailEdit" class="form-label"><b>E-mail:</b></label>
+                                <input type="email" class="form-control" id="emailEdit" name="email" />
+                            </div>
+                            <div class="col-md-6">
+                                <label for="phonenumberEdit" class="form-label"><b>Telefone:</b></label>
+                                <input type="tel" class="form-control" id="phonenumberEdit" name="phonenumber" />
+                            </div>
+                        </div>
+                        <div class="row g-3 mt-3">
+                            <div class="col-md-10">
+                                <label for="addressEdit" class="form-label"><b>Endereço:</b></label>
+                                <input class="form-control" id="addressEdit" name="address" />
+                            </div>
+                            <div class="col-md-2">
+                                <label for="numberEdit" class="form-label"><b>Número:</b></label>
+                                <input type="number" class="form-control" id="numberEdit" name="number" />
+                            </div>
+                        </div>
+                        <div class="row g-3 mt-3">
+                            <div class="col-md-3">
+                                <label for="zipcodeEdit" class="form-label"><b>CEP:</b></label>
+                                <input class="form-control" id="zipcodeEdit" name="zipcode" />
+                            </div>
+                            <div class="col-md-3">
+                                <label for="neighborhoodEdit" class="form-label"><b>Bairro:</b></label>
+                                <input type="text" class="form-control" id="neighborhoodEdit" name="neighborhood" />
+                            </div>
+                            <div class="col-md-6">
+                                <label for="complementEdit" class="form-label"><b>Complemento:</b></label>
+                                <input type="text" class="form-control" id="complementEdit" name="complement" />
+                            </div>
+                        </div>
+                        @* <div class="row g-3 mt-3">
+                            <div class="col-md-12">
+                                <div id="fileMessageEdit"></div>
+                                <a id="viewTermFile" data-toggle="tooltip" class="bs-tooltip" data-placement="top" href="javascript:void(0);" onclick="openFile()" style="cursor: pointer" title="Visualizar Arquivo"><i class="fa fa-search" style="color: #000000;"></i></a>
+                                <input type="file" class="form-control" id="termfileEdit" name="termfile" />
+                            </div>
+                        </div> *@
+                        <!-- Mensagem de erro -->
+                        <input hidden type="text" name="tithePayerId" id="tithePayerIdEdit" />
+                        <input hidden type="text" name="tithePayerTermFile" id="tithePayerTermFileEdit" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                        <button type="submit" class="btn btn-primary" id="saveButtonEdit">Salvar Alterações</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    @* End Modal Edit TithePayer *@
+
+    @* Modal View TermFile *@
+
+    <div class="modal fade" id="modal_tithepayer_view">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"><i class="fa-solid fa-user-pen"></i> Visualizar Termo Dizimista</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <iframe id="fileTerm" style="width: 100%; height: 90%;"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* End Modal View TermFile *@
+
+</body>
+</html>
+
+<script>
+    function openModal(id) {
+        $.ajax({
+            url: '/TithePayer/GetDetails', // Rota para o método do controlador que retornará os dados
+            type: 'GET',
+            data: { id: id },
+            success: function (data) {
+                var messageDiv = document.getElementById("fileMessageEdit");
+                $('#tithePayerIdEdit').val(data.tithePayerId);
+                $('#datebirthEdit').val(data.dateBirth ? new Date(data.dateBirth).toISOString().split('T')[0] : '');
+                $('#nameEdit').val(data.name);
+                $('#documentEdit').val(data.document);
+                $('#emailEdit').val(data.email);
+                $('#phonenumberEdit').val(data.phoneNumber);
+                $('#addressEdit').val(data.address);
+                $('#numberEdit').val(data.number);
+                $('#zipcodeEdit').val(data.zipCode);
+                $('#neighborhoodEdit').val(data.neighborhood);
+                $('#complementEdit').val(data.complement);
+                @* if(data.termFile != null && data.termFile.length > 0) {
+                    messageDiv.textContent = "Arquivo já importado!";
+                    messageDiv.style.color = "green";
+                    document.getElementById("viewTermFile").hidden = false;
+                    $('#tithePayerTermFileEdit').val(data.termFile);
+                } *@
+                $('#modal_tithepayer_edit').modal('show');
+            },
+            error: function () {
+                alert("Erro ao buscar os dados.");
+            }
+        });
+    }
+</script>
+
+<script>
+    function openFile() {
+
+        var fileTerm = document.getElementById("tithePayerTermFileEdit").value;
+
+        let blob = new Blob([new Uint8Array(fileTerm)], { type: "image/pdf" });
+
+        let url = URL.createObjectURL(blob);
+
+        document.getElementById("fileTerm").src = url;
+
+        $('#modal_tithepayer_view').modal('show');
+
+    }
+</script>

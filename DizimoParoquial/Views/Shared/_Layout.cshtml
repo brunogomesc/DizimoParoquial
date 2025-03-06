@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dizimo Paroquial</title>
+    <title>Dizimo Migrantes</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -30,15 +30,21 @@
                     <li class="nav-item active">
                         <a class="nav-link" href="@Url.Action("Index","Home")">Inicio <span class="sr-only">(current)</span></a>
                     </li>
-                    <li class="nav-item active">
-                        <a class="nav-link" href="@Url.Action("Index","Lancamento")">Lançar Dizimo</a>
+                    <li class="nav-item dropdown active">
+                        <a class="nav-link dropdown-toggle" href="#" id="dropdownTithe" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Dizimo
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="dropdownTithe">
+                            <a class="dropdown-item" href="#">Lançar Dizimo</a>
+                            <a class="dropdown-item" href="@Url.Action("Index","Agent")">Consultar Dizimo</a>
+                        </div>
                     </li>
                     <li class="nav-item dropdown active">
                         <a class="nav-link dropdown-toggle" href="#" id="dropdownRegister" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Cadastrar
                         </a>
                         <div class="dropdown-menu" aria-labelledby="dropdownRegister">
-                            <a class="dropdown-item" href="#">Dizimista</a>
+                            <a class="dropdown-item" href="@Url.Action("Index","TithePayer")">Dizimista</a>
                             <a class="dropdown-item" href="@Url.Action("Index","Agent")">Agente do Dizimo</a>
                             <a class="dropdown-item" href="@Url.Action("Index","User")">Usuário de Acesso</a>
                             <a class="dropdown-item" href="@Url.Action("Index","Permission")">Permissões de Usuário</a>
@@ -57,10 +63,10 @@
                 <ul class="navbar-nav">
                     <li class="nav-item dropdown active">
                         <a class="nav-link dropdown-toggle" href="#" id="dropdownOptions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Administrador
+                            <i class="fa-solid fa-user"></i> - @ViewData["Username"]
                         </a>
                         <div class="dropdown-menu" aria-labelledby="dropdownOptions">
-                            <a class="dropdown-item" href="#">Sair</a>
+                            <a class="dropdown-item" href="@Url.Action("Logout", "Login")">Sair</a>
                         </div>
                     </li>
                 </ul>

@@ -60,12 +60,10 @@ namespace DizimoParoquial.Data.Repositories
         public async Task<bool> RegisterUser(User user)
         {
 
-            bool userWasCreated = false;
-
             using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
             {
 
-                connection.Open();
+                await connection.OpenAsync();
 
                 using (var transaction = connection.BeginTransaction())
                 {
@@ -89,20 +87,20 @@ namespace DizimoParoquial.Data.Repositories
 
                         transaction.Commit();
 
-                        connection.Dispose();
+                        await connection.DisposeAsync();
 
                         return result > 0;
                     }
                     catch (DbException ex)
                     {
                         transaction.Rollback();
-                        connection.Dispose();
+                        await connection.DisposeAsync();
                         throw new RepositoryException("Criar Usuário - Erro ao acessar o banco de dados.", ex);
                     }
                     catch (Exception ex)
                     {
                         transaction.Rollback();
-                        connection.Dispose();
+                        await connection.DisposeAsync();
                         throw new RepositoryException("Criar Usuário - Erro interno.", ex);
                     }
                 }
@@ -242,12 +240,10 @@ namespace DizimoParoquial.Data.Repositories
         public async Task<bool> DeleteUser(int userId)
         {
 
-            bool userWasCreated = false;
-
             using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
             {
 
-                connection.Open();
+                await connection.OpenAsync();
 
                 using (var transaction = connection.BeginTransaction())
                 {
@@ -267,20 +263,20 @@ namespace DizimoParoquial.Data.Repositories
 
                         transaction.Commit();
 
-                        connection.Dispose();
+                        await connection.DisposeAsync();
 
                         return result > 0;
                     }
                     catch (DbException ex)
                     {
                         transaction.Rollback();
-                        connection.Dispose();
+                        await connection.DisposeAsync();
                         throw new RepositoryException("Deletar Usuário - Erro ao acessar o banco de dados.", ex);
                     }
                     catch (Exception ex)
                     {
                         transaction.Rollback();
-                        connection.Dispose();
+                        await connection.DisposeAsync();
                         throw new RepositoryException("Deletar Usuário - Erro interno.", ex);
                     }
                 }
@@ -290,12 +286,10 @@ namespace DizimoParoquial.Data.Repositories
         public async Task<bool> UpdateUser(User user)
         {
 
-            bool userWasUpdated = false;
-
             using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
             {
 
-                connection.Open();
+                await connection.OpenAsync();
 
                 using (var transaction = connection.BeginTransaction())
                 {
@@ -324,20 +318,20 @@ namespace DizimoParoquial.Data.Repositories
 
                         transaction.Commit();
 
-                        connection.Dispose();
+                        await connection.DisposeAsync();
 
                         return result > 0;
                     }
                     catch (DbException ex)
                     {
                         transaction.Rollback();
-                        connection.Dispose();
+                        await connection.DisposeAsync();
                         throw new RepositoryException("Atualizar Usuário - Erro ao acessar o banco de dados.", ex);
                     }
                     catch (Exception ex)
                     {
                         transaction.Rollback();
-                        connection.Dispose();
+                        await connection.DisposeAsync();
                         throw new RepositoryException("Atualizar Usuário - Erro interno.", ex);
                     }
                 }

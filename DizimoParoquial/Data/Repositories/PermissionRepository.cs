@@ -93,7 +93,7 @@ namespace DizimoParoquial.Data.Repositories
             using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
             {
 
-                connection.Open();
+                await connection.OpenAsync();
 
                 using (var transaction = connection.BeginTransaction())
                 {
@@ -119,20 +119,20 @@ namespace DizimoParoquial.Data.Repositories
 
                         transaction.Commit();
 
-                        connection.Dispose();
+                        await connection.DisposeAsync();
 
                         return result > 0;
                     }
                     catch (DbException ex)
                     {
                         transaction.Rollback();
-                        connection.Dispose();
+                        await connection.DisposeAsync();
                         throw new RepositoryException("Criar Permissões - Erro ao acessar o banco de dados.", ex);
                     }
                     catch (Exception ex)
                     {
                         transaction.Rollback();
-                        connection.Dispose();
+                        await connection.DisposeAsync();
                         throw new RepositoryException("Criar Permissões - Erro interno.", ex);
                     }
                 }
@@ -145,7 +145,7 @@ namespace DizimoParoquial.Data.Repositories
             using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
             {
 
-                connection.Open();
+                await connection.OpenAsync();
 
                 using (var transaction = connection.BeginTransaction())
                 {
@@ -164,20 +164,20 @@ namespace DizimoParoquial.Data.Repositories
 
                         transaction.Commit();
 
-                        connection.Dispose();
+                        await connection.DisposeAsync();
 
                         return result > 0;
                     }
                     catch (DbException ex)
                     {
                         transaction.Rollback();
-                        connection.Dispose();
+                        await connection.DisposeAsync();
                         throw new RepositoryException("Excluir Permissões - Erro ao acessar o banco de dados.", ex);
                     }
                     catch (Exception ex)
                     {
                         transaction.Rollback();
-                        connection.Dispose();
+                        await connection.DisposeAsync();
                         throw new RepositoryException("Excluir Permissões - Erro interno.", ex);
                     }
                 }

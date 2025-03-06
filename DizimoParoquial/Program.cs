@@ -14,9 +14,14 @@ builder.Services.AddMvc().AddNToastNotifyToastr(new ToastrOptions()
 {
     ProgressBar = false,
     PositionClass = ToastPositions.TopCenter,
-    TimeOut = 3000,
-    ShowMethod = "fadeIn",
-    HideMethod = "fadeOut"
+    TimeOut = 5000
+});
+
+builder.Services.AddSession( options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
 });
 
 //Injecting the services
@@ -31,12 +36,21 @@ builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddTransient<PermissionService>();
 builder.Services.AddTransient<IPermissionRepository, PermissionRepository>();
 
+builder.Services.AddTransient<AgentService>();
+builder.Services.AddTransient<IAgentRepository, AgentRepository>();
+
+builder.Services.AddTransient<TithePayerService>();
+builder.Services.AddTransient<ITithePayerRepository, TithePayerRepository>();
+
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
+
+    app.UseExceptionHandler("/Error");
+
     app.UseHsts();
 }
 
@@ -44,6 +58,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseSession();
 
 app.UseAuthorization();
 

@@ -1,10 +1,12 @@
 using System.Diagnostics;
 using DizimoParoquial.Models;
+using DizimoParoquial.Utils.Filters;
 using Microsoft.AspNetCore.Mvc;
 using NToastNotify;
 
 namespace DizimoParoquial.Controllers
 {
+    [SessionAuthorize("HOMEPAGE")]
     public class HomeController : Controller
     {
         private readonly IToastNotification _notification;
@@ -16,6 +18,9 @@ namespace DizimoParoquial.Controllers
 
         public IActionResult Index()
         {
+
+            ViewBag.UserName = HttpContext.Session.GetString("Username");
+
             return View();
         }
     }

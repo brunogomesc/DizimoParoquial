@@ -1,6 +1,6 @@
 ﻿@model List<AgentDTO>
 @{
-
+    ViewData["Username"] = @ViewBag.UserName;
 }
 
 <html>
@@ -58,7 +58,6 @@
                         <th>Nome</th>
                         <th>Código</th>
                         <th>Status</th>
-                        <th>Data Criação</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
@@ -152,7 +151,7 @@
                                 </div>
                             </div>
                         </div>
-                        <input hidden type="text" name="userId" id="agentIdEdit" />
+                        <input hidden type="text" name="agentId" id="agentIdEdit" />
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
@@ -177,14 +176,14 @@
             success: function (data) {
                 $('#agentIdEdit').val(data.agentId);
                 $('#nameEdit').val(data.name);
-                $('#codeEdit').val(data.code);
+                $('#codeEdit').val(data.agentCode);
                 if(data.active == true){
                     $('#statusEdit').val("true");
                 }
                 else{
                     $('#statusEdit').val("false");
                 }
-                $('#modal_user_edit').modal('show');
+                $('#modal_agent_edit').modal('show');
             },
             error: function () {
                 alert("Erro ao buscar os dados.");

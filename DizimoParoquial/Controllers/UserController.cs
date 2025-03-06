@@ -2,12 +2,14 @@
 using DizimoParoquial.Exceptions;
 using DizimoParoquial.Models;
 using DizimoParoquial.Services;
+using DizimoParoquial.Utils.Filters;
 using Microsoft.AspNetCore.Mvc;
 using NToastNotify;
 using System.Text.Json;
 
 namespace DizimoParoquial.Controllers
 {
+    [SessionAuthorize("MANUSER")]
     public class UserController : Controller
     {
 
@@ -23,6 +25,7 @@ namespace DizimoParoquial.Controllers
 
         public IActionResult Index()
         {
+            ViewBag.UserName = HttpContext.Session.GetString("Username");
             return View();
         }
 
@@ -30,6 +33,7 @@ namespace DizimoParoquial.Controllers
         public async Task<IActionResult> SearchUser(string status, string name)
         {
 
+            ViewBag.UserName = HttpContext.Session.GetString("Username");
             List<UserDTO> users = new List<UserDTO>();
 
             try
@@ -44,18 +48,6 @@ namespace DizimoParoquial.Controllers
                     users = await _userService.GetUsersWithFilters(statusConverted, name);
 
             }
-            catch (ValidationException ex)
-            {
-                _notification.AddErrorToastMessage(ex.Message);
-            }
-            catch (NullException ex)
-            {
-                _notification.AddErrorToastMessage(ex.Message);
-            }
-            catch (RepositoryException ex)
-            {
-                _notification.AddErrorToastMessage(ex.Message);
-            }
             catch (Exception ex)
             {
                 _notification.AddErrorToastMessage(ex.Message);
@@ -68,6 +60,8 @@ namespace DizimoParoquial.Controllers
         [HttpPost]
         public async Task<IActionResult> SaveUser(User user)
         {
+
+            ViewBag.UserName = HttpContext.Session.GetString("Username");
 
             try
             {
@@ -85,18 +79,6 @@ namespace DizimoParoquial.Controllers
                     _notification.AddErrorToastMessage("Não foi possível criar o usuário!");
 
             }
-            catch (ValidationException ex)
-            {
-                _notification.AddErrorToastMessage(ex.Message);
-            }
-            catch (NullException ex)
-            {
-                _notification.AddErrorToastMessage(ex.Message);
-            }
-            catch (RepositoryException ex)
-            {
-                _notification.AddErrorToastMessage(ex.Message);
-            }
             catch (Exception ex)
             {
                 _notification.AddErrorToastMessage(ex.Message);
@@ -109,6 +91,8 @@ namespace DizimoParoquial.Controllers
         [HttpPost]
         public async Task<IActionResult> EditUser(User user)
         {
+
+            ViewBag.UserName = HttpContext.Session.GetString("Username");
 
             try
             {
@@ -125,18 +109,6 @@ namespace DizimoParoquial.Controllers
                 else
                     _notification.AddErrorToastMessage("Não foi possível alterar o usuário!");
             }
-            catch (ValidationException ex)
-            {
-                _notification.AddErrorToastMessage(ex.Message);
-            }
-            catch (NullException ex)
-            {
-                _notification.AddErrorToastMessage(ex.Message);
-            }
-            catch (RepositoryException ex)
-            {
-                _notification.AddErrorToastMessage(ex.Message);
-            }
             catch (Exception ex)
             {
                 _notification.AddErrorToastMessage(ex.Message);
@@ -148,6 +120,8 @@ namespace DizimoParoquial.Controllers
 
         public async Task<IActionResult> DeleteUser(int userId)
         {
+
+            ViewBag.UserName = HttpContext.Session.GetString("Username");
 
             try
             {
@@ -164,18 +138,6 @@ namespace DizimoParoquial.Controllers
                 else
                     _notification.AddErrorToastMessage("Erro ao excluir o usuário!");
             }
-            catch (ValidationException ex)
-            {
-                _notification.AddErrorToastMessage(ex.Message);
-            }
-            catch (NullException ex)
-            {
-                _notification.AddErrorToastMessage(ex.Message);
-            }
-            catch (RepositoryException ex)
-            {
-                _notification.AddErrorToastMessage(ex.Message);
-            }
             catch (Exception ex)
             {
                 _notification.AddErrorToastMessage(ex.Message);
@@ -189,6 +151,8 @@ namespace DizimoParoquial.Controllers
         public async Task<IActionResult> GetDetails(int id)
         {
 
+            ViewBag.UserName = HttpContext.Session.GetString("Username");
+
             try
             {
                 UserDTO user = await _userService.GetUserById(id);
@@ -200,18 +164,6 @@ namespace DizimoParoquial.Controllers
                 }
 
                 return Json(user);
-            }
-            catch (ValidationException ex)
-            {
-                _notification.AddErrorToastMessage(ex.Message);
-            }
-            catch (NullException ex)
-            {
-                _notification.AddErrorToastMessage(ex.Message);
-            }
-            catch (RepositoryException ex)
-            {
-                _notification.AddErrorToastMessage(ex.Message);
             }
             catch (Exception ex)
             {

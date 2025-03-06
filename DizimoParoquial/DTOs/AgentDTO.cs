@@ -7,7 +7,7 @@
 
         public string Name { get; set; } = string.Empty;
 
-        public int AgentCode { get; set; }
+        public string AgentCode { get; set; } = string.Empty;
 
         public bool Active { get; set; }
 

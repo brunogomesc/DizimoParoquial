@@ -45,17 +45,12 @@ namespace DizimoParoquial.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
+                HttpContext.Session.SetInt32("User", userAuthenticated.UserId);
+                HttpContext.Session.SetString("Username", userAuthenticated.Username);
+
                 _notification.AddSuccessToastMessage("Usuário autenticado com sucesso!");
 
                 return View(ROUTE_SCREEN_HOME);
-            }
-            catch (ValidationException ex)
-            {
-                _notification.AddErrorToastMessage(ex.Message);
-            }
-            catch (RepositoryException ex)
-            {
-                _notification.AddErrorToastMessage(ex.Message);
             }
             catch (Exception ex)
             {
@@ -68,6 +63,7 @@ namespace DizimoParoquial.Controllers
 
         public IActionResult Logout()
         {
+            HttpContext.Session.Clear();
             return RedirectToAction(nameof(Index));
         }
 

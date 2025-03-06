@@ -6,6 +6,7 @@
     List<UserDTO> users = await _userService.GetUsersWithouthFilters();
     List<Permission> permissions = await _permissionService.GetAllPermissions();
     int selectedUserId = ViewBag.SelectedUserId;
+    ViewData["Username"] = @ViewBag.UserName;
 }
 
 <html>
