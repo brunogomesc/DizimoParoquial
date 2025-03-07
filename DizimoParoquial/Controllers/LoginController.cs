@@ -48,6 +48,8 @@ namespace DizimoParoquial.Controllers
                 HttpContext.Session.SetInt32("User", userAuthenticated.UserId);
                 HttpContext.Session.SetString("Username", userAuthenticated.Username);
 
+                ViewBag.UserName = userAuthenticated.Username;
+
                 _notification.AddSuccessToastMessage("Usuário autenticado com sucesso!");
 
                 return View(ROUTE_SCREEN_HOME);
