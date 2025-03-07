@@ -68,7 +68,7 @@ namespace DizimoParoquial.Services
                 UserDTO userExists = await GetUserByUsernameRepository(user.Username);
 
                 if (userExists != null && userExists.UserId > 0)
-                    throw new ValidationException("Usuário não existente");
+                    throw new ValidationException("Usuário já existe, por favor cadastrar novo usuário!");
 
                 user.Active = true;
                 user.CreatedAt = DateTime.Now;

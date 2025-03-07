@@ -114,7 +114,7 @@ namespace DizimoParoquial.Data.Repositories
 
             try
             {
-                var query = "SELECT * FROM User WHERE Deleted = false;";
+                var query = "SELECT * FROM User WHERE Deleted = false and Username != 'admin';";
 
                 using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
                 {
@@ -144,7 +144,7 @@ namespace DizimoParoquial.Data.Repositories
             {
                 StringBuilder query = new StringBuilder();
                 
-                query.Append("SELECT * FROM User WHERE Deleted = false ");
+                query.Append("SELECT * FROM User WHERE Deleted = false and Username != 'admin' ");
 
                 if (status != null)
                     query.Append($" AND Active = {status}");
