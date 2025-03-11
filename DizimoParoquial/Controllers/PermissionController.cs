@@ -35,22 +35,32 @@ namespace DizimoParoquial.Controllers
         public async Task<IActionResult> SearchPermissions(int user)
         {
 
-            ViewBag.UserName = HttpContext.Session.GetString("Username");
-
-            if (user == 0)
+            try
             {
-                _notification.AddErrorToastMessage("É preciso escolher um usuário para alterar as permissões!");
-                return View(ROUTE_SCREEN_PERMISSIONS);
+                ViewBag.UserName = HttpContext.Session.GetString("Username");
+
+                if (user == 0)
+                {
+                    _notification.AddErrorToastMessage("É preciso escolher um usuário para alterar as permissões!");
+                    return View(ROUTE_SCREEN_PERMISSIONS);
+                }
+
+                List<UserPermissionDTO> userPermissions = await _permissionService.GetUserPermissions(user);
+
+                if (userPermissions == null || userPermissions.Count == 0)
+                    _notification.AddWarningToastMessage("Usuário não possui permissões cadastradas!");
+
+                ViewBag.SelectedUserId = user;
+
+                return View(ROUTE_SCREEN_PERMISSIONS, userPermissions);
+            }
+            catch (Exception ex)
+            {
+                _notification.AddErrorToastMessage(ex.Message);
             }
 
-            List<UserPermissionDTO> userPermissions = await _permissionService.GetUserPermissions(user);
+            return RedirectToAction(nameof(Index));
 
-            if(userPermissions == null || userPermissions.Count == 0)
-                _notification.AddWarningToastMessage("Usuário não possui permissões cadastradas!");
-
-            ViewBag.SelectedUserId = user;
-
-            return View(ROUTE_SCREEN_PERMISSIONS, userPermissions);
         }
 
         [HttpPost]

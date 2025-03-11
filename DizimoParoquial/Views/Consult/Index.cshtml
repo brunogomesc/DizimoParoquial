@@ -1,0 +1,74 @@
+﻿@model List<TitheDTO>
+@{
+    ViewData["Username"] = @ViewBag.UserName;
+}
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<body>
+    <div class="container my-4">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="d-flex align-items-center border-bottom pb-2 mb-3" style="font-family: system-ui; font-weight: bold;">
+                    <i class="fa fa-search" aria-hidden="true"></i>
+                    Consultar Dizimo
+                </h2>
+                @using (Html.BeginForm("SearchTithes","Consult", FormMethod.Post, new { enctype = "multipart/form-data"}))
+                {
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="Name" class="form-label"><b>Nome:</b></label>
+                            <input name="name" id="name" class="form-control" type="text" />
+                        </div>
+                        <div class="col-md-3">
+                            <label for="tithePayerCode" class="form-label"><b>Código Dizimista:</b></label>
+                            <input name="tithePayerCode" id="tithePayerCode" class="form-control" type="number" />
+                        </div>
+                    </div>
+                    <div class="row g-3 mt-3">
+                        <div class="col-md-3">
+                            <button class="btn btn-primary w-100" type="submit">
+                                Pesquisar
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <br />
+    @if (Model != null && Model.Any())
+    {
+        <div class="card mt-4">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Nome Dizimista</th>
+                        <th>Nome Agente do Dizimo</th>
+                        <th>Mês pago</th>
+                        <th>Valor</th>
+                        <th>Forma de Pagamento</th>
+                        <th>Data de Pagamento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var tithe in Model)
+                    {
+                        <tr>
+                            <td>@tithe.NameTithePayer</td>
+                            <td>@tithe.NameAgent</td>
+                            <td>@tithe.PaymentMonth.ToString("MM/yyyy")</td>
+                            <td>R$ @tithe.Value.ToString("N2")</td>
+                            <td>@tithe.PaymentType</td>
+                            <td>@tithe.RegistrationDate.ToString("dd/MM/yyyy")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</body>
+</html>

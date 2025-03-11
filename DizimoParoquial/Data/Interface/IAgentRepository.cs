@@ -12,6 +12,8 @@ namespace DizimoParoquial.Data.Interface
 
         public Task<AgentDTO> GetAgentById(int id);
 
+        public Task<AgentDTO> GetAgentByCode(string agentCode);
+
         public Task<bool> UpdateAgent(Agent agent);
 
         public Task<bool> DeleteAgent(int agentId);

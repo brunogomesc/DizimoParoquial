@@ -129,6 +129,39 @@ namespace DizimoParoquial.Data.Repositories
             }
         }
 
+        public async Task<AgentDTO> GetAgentByCode(string agentCode)
+        {
+
+            AgentDTO user = new AgentDTO();
+
+            try
+            {
+                var query = "SELECT * FROM Agent WHERE AgentCode = @AgentCode";
+
+                using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
+                {
+                    var result = await connection.QueryAsync<AgentDTO>(query,
+                        new
+                        {
+                            AgentCode = agentCode
+                        }
+                    );
+
+                    user = result.FirstOrDefault();
+
+                    return user;
+                }
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consulta Agente - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("Consulta Agente - Erro interno.", ex);
+            }
+        }
+
         public async Task<bool> DeleteAgent(int agentId)
         {
 

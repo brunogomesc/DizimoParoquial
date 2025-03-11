@@ -1,12 +1,19 @@
-﻿@model List<AgentDTO>
+﻿@model List<TithePayerLaunchDTO>
 @{
     ViewData["Username"] = @ViewBag.UserName;
+
+    //Listagem de datas para o select
+    List<DateTime> dates = GetDateTimes();
+
 }
 
 <html>
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 </head>
 <body>
     <div class="container my-4">
@@ -16,178 +23,160 @@
                     <i class="fa fa-search" aria-hidden="true"></i>
                     Lançar Dizimo
                 </h2>
-                @using (Html.BeginForm("SearchTithePayer", "Launch", FormMethod.Post, new { enctype = "multipart/form-data" }))
-                {
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="Status" class="form-label"><b>Status:</b></label>
-                            <select name="status" class="form-control">
-                                <option></option>
-                                <option value="true">Ativo</option>
-                                <option value="false">Inativo</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="Name" class="form-label"><b>Nome:</b></label>
-                            <input name="name" class="form-control" type="text" />
-                        </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="Name" class="form-label"><b>Nome:</b></label>
+                        <input name="name" id="name" class="form-control" type="text" />
                     </div>
-                    <div class="row g-3 mt-3">
-                        <div class="col-md-3">
-                            <button class="btn btn-primary w-100">
-                                Pesquisar
-                            </button>
-                        </div>
+                    <div class="col-md-3">
+                        <label for="tithePayerCode" class="form-label"><b>Código Dizimista:</b></label>
+                        <input name="tithePayerCode" id="tithePayerCode" class="form-control" type="number" />
                     </div>
-                }
+                </div>
                 <div class="row g-3 mt-3">
-                    <button style="border: 3px;background-color:white;" data-bs-toggle="modal" data-bs-target="#modal_agent_add">
-                        <i class="fa-solid fa-user-plus"></i> Adicionar Agente do Dizimo
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <br />
-    @if (Model != null && Model.Any())
-    {
-        <div class="card mt-4">
-            <table class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>Código</th>
-                        <th>Status</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var agent in Model)
-                    {
-                        <tr>
-                            <td>@Html.DisplayFor(item => agent.Name) </td>
-                            <td>@Html.DisplayFor(item => agent.AgentCode) </td>
-                            <td>
-                                <div class="badge @(agent.Active == true ? "bg-success" : "bg-danger")">
-                                    @(agent.Active == true ? "Ativo" : "Inativo")
-                                </div>
-                            </td>
-                            <td>
-                                <a data-toggle="tooltip" class="bs-tooltip" data-placement="top" href="javascript:void(0);" onclick="openModal(@agent.AgentId)" title="Editar"><i class="fa-solid fa-user-pen" style="color: #000000;"></i></a>
-                                <a data-toggle="tooltip" class="bs-tooltip" data-placement="top" title="Excluir" href="@Url.Action("DeleteAgent","Agent", new { agentId = agent.AgentId })"><i class="fa-solid fa-trash" style="color: #000000;"></i></a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    }
-    else
-    {
-        <h4 class="text-center">Sem resultados para serem exibidos</h4>
-    }
-
-    @* Modal Add Agent *@
-
-    <div class="modal fade" id="modal_agent_add">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title"><i class="fa-solid fa-user-plus"></i> Cadastrar Agente</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                @using (Html.BeginForm("SaveAgent", "Agent", FormMethod.Post, new { enctype = "multipart/form-data" }))
-                {
-                    <div class="modal-body">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label for="name" class="form-label"><b>Nome:</b></label>
-                                <input class="form-control" id="name" name="name" />
-                            </div>
-                        </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-primary w-100" onclick="filterTithePayer()">
+                            Pesquisar
+                        </button>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                        <button type="submit" class="btn btn-primary" id="saveButton">Salvar Agente</button>
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
-
-    @* End Modal Add Agent *@
-
-    @* Modal Edit Agent *@
-
-    <div class="modal fade" id="modal_agent_edit">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title"><i class="fa-solid fa-user-pen"></i> Editar Agente</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                @using (Html.BeginForm("EditAgent", "Agent", FormMethod.Post, new { enctype = "multipart/form-data" }))
-                {
-                    <div class="modal-body">
-                        <div class="row g-3">
+                <div id="resultDiv" class="mt-4" style="display: none;">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Resultados da Pesquisa</h5>
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label for="nameEdit" class="form-label"><b>Nome:</b></label>
-                                    <input class="form-control" id="nameEdit" name="name" />
+                                    <label for="resultName" class="form-label"><b>Nome:</b></label>
+                                    <input id="resultName" class="form-control" type="text" readonly />
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="codeEdit" class="form-label"><b>Código:</b></label>
-                                    <input disabled class="form-control" id="codeEdit" name="code" />
+                                <div class="col-md-3">
+                                    <label for="resultCode" class="form-label"><b>Código Dizimista:</b></label>
+                                    <input id="resultCode" class="form-control" type="number" readonly />
                                 </div>
-                            </div>
-                            <div class="row g-3 mt-3">
-                                <div class="col-md-6">
-                                    <label for="statusEdit" class="form-label"><b>Status:</b></label>
-                                    <select name="active" id="statusEdit" class="form-control">
-                                        <option></option>
-                                        <option value="true">Ativo</option>
-                                        <option value="false">Inativo</option>
-                                    </select>
+                                <div class="col-md-3">
+                                    <label for="resultDateBirth" class="form-label"><b>Data de Nascimento:</b></label>
+                                    <input id="resultDateBirth" class="form-control" type="datetime" readonly />
                                 </div>
                             </div>
                         </div>
-                        <input hidden type="text" name="agentId" id="agentIdEdit" />
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                        <button type="submit" class="btn btn-primary" id="saveButtonEdit">Salvar Alterações</button>
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Registrar Dizimo</h5>
+                            @using (Html.BeginForm("SaveTithe", "Launch", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                            {
+                                <input id="tithePayerId" name="tithePayerId" type="number" hidden />
+                                <div class="row g-3">
+                                    <div class="col-md-3">
+                                        <label for="value" class="form-label"><b>Valor</b></label>
+                                        <span class="toggle-value">
+                                            (R$)
+                                        </span>
+                                        <input data-mask="#.##0,00" data-mask-reverse="true" type="text" class="form-control" id="value" name="value">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="agentCode" id="agentCode" class="form-label"><b>Código Agente do Dizimo:</b></label>
+                                        <input id="agentCode" name="agentCode" class="form-control" type="number" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="paymentType" id="paymentType" class="form-label"><b>Forma de Pagamento:</b></label>
+                                        <select id="paymentType" name="paymentType" class="form-control">
+                                            <option></option>
+                                            <option value="Pix">Pix</option>
+                                            <option value="Dinheiro">Dinheiro</option>
+                                            <option value="Cartão de Crédito">Cartão de Crédito</option>
+                                            <option value="Cartão de Débito">Cartão de Débito</option>
+                                            <option value="Transferência Bancária">Transferência Bancária</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row g-3 mt-2">
+                                    <div class="col-md-10">
+                                        <label for="dates" id="dates" class="form-label"><b>Meses a serem pagos:</b></label>
+                                        <select class="form-control js-example-basic-multiple" name="dates[]" multiple="multiple">
+                                            <option></option>
+                                            @foreach (var date in dates)
+                                            {
+                                                <option value="@date.ToString("yyyy-MM")">@date.ToString("MM/yyyy")</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row g-3 mt-3">
+                                    <div class="col-md-3">
+                                        <button class="btn btn-primary w-100" type="submit">
+                                            Salvar
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
                     </div>
-                }
+                </div>
             </div>
         </div>
     </div>
-
-    @* End Modal Edit User *@
-
 </body>
 </html>
 
 <script>
-    function openModal(id) {
+    function filterTithePayer() {
+        var searchName = document.getElementById("name").value;
+        var searchCode = document.getElementById("tithePayerCode").value;
         $.ajax({
-            url: '/Agent/GetDetails', // Rota para o método do controlador que retornará os dados
+            url: '/Launch/SearchTithePayer', // Rota para o método do controlador que retornará os dados
             type: 'GET',
-            data: { id: id },
+            data: { name: searchName, code: searchCode },
             success: function (data) {
-                $('#agentIdEdit').val(data.agentId);
-                $('#nameEdit').val(data.name);
-                $('#codeEdit').val(data.agentCode);
-                if(data.active == true){
-                    $('#statusEdit').val("true");
+                if (data) { // Verifica se há dados retornados
+                    document.getElementById("resultName").value = data.name;
+                    document.getElementById("resultCode").value = data.tithePayerId;
+                    document.getElementById("tithePayerId").value = data.tithePayerId;
+                    document.getElementById("resultDateBirth").value = data.dateBirth ? new Date(data.dateBirth).toISOString().split('T')[0] : '';
+
+                    // Exibe a div de resultados
+                    document.getElementById("resultDiv").style.display = "block";
+                } else {
+                    alert("Nenhum resultado encontrado.");
+                    document.getElementById("resultDiv").style.display = "none"; // Oculta a div se não houver resultados
                 }
-                else{
-                    $('#statusEdit').val("false");
-                }
-                $('#modal_agent_edit').modal('show');
             },
             error: function () {
                 alert("Erro ao buscar os dados.");
+                document.getElementById("resultDiv").style.display = "none";
             }
         });
     }
 </script>
+
+<script>
+    $(document).ready(function () {
+        $('#value').mask('#.##0,00', { reverse: true });
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('.js-example-basic-multiple').select2({
+            width: '100%'
+        });
+    });
+</script>
+
+@functions {
+    private List<DateTime> GetDateTimes()
+    {
+        List<DateTime> dates = new List<DateTime>();
+        DateTime today = DateTime.Now;
+        for (int i = 12; i > 0; i--)
+        {
+            dates.Add(today.AddMonths(-i));
+        }
+        dates.Add(today);
+        for (int i = 1; i <= 12; i++)
+        {
+            dates.Add(today.AddMonths(i));
+        }
+        return dates;
+    }
+}

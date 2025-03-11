@@ -42,6 +42,12 @@ builder.Services.AddTransient<IAgentRepository, AgentRepository>();
 builder.Services.AddTransient<TithePayerService>();
 builder.Services.AddTransient<ITithePayerRepository, TithePayerRepository>();
 
+builder.Services.AddTransient<TitheService>();
+builder.Services.AddTransient<ITitheRepository, TitheRepository>();
+
+builder.Services.AddTransient<IncomeService>();
+builder.Services.AddTransient<IIncomeRepository, IncomeRepository>();
+
 
 var app = builder.Build();
 

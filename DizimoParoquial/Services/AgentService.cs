@@ -114,6 +114,38 @@ namespace DizimoParoquial.Services
             }
         }
 
+        public async Task<AgentDTO> GetAgentByCode(string agentCode)
+        {
+            AgentDTO agent = new AgentDTO();
+
+            try
+            {
+                agent = await GetAgentByCodeRepository(agentCode);
+
+                return agent;
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Buscar Agente Dizimo - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Buscar Agente Dizimo - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Buscar Agente Dizimo - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Buscar Agente Dizimo - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Buscar Agente Dizimo - Dados vazios.");
+            }
+        }
+
         public async Task<bool> UpdateAgent(Agent agent)
         {
             bool agentWasUpdated = false;
@@ -298,6 +330,38 @@ namespace DizimoParoquial.Services
             try
             {
                 agent = await _agentRepository.GetAgentById(id);
+
+                return agent;
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consultar Agente do Dizimo - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Consultar Agente do Dizimo - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Consultar Agente do Dizimo - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Consultar Agente do Dizimo - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Consultar Agente do Dizimo - Dados vazios.");
+            }
+        }
+
+        private async Task<AgentDTO> GetAgentByCodeRepository(string agentCode)
+        {
+            AgentDTO agent = new AgentDTO();
+
+            try
+            {
+                agent = await _agentRepository.GetAgentByCode(agentCode);
 
                 return agent;
             }

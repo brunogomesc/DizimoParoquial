@@ -53,17 +53,24 @@ namespace DizimoParoquial.Controllers
         public async Task<IActionResult> SaveTithePayer(TithePayerDTO tithePayer)
         {
 
-            ViewBag.UserName = HttpContext.Session.GetString("Username");
-
-            if (string.IsNullOrWhiteSpace(tithePayer.Name)  || string.IsNullOrWhiteSpace(tithePayer.Document))
+            try
             {
-                _notification.AddErrorToastMessage("Nome e Documento são obrigatórios!");
-                return RedirectToAction(nameof(Index));
+                ViewBag.UserName = HttpContext.Session.GetString("Username");
+
+                if (string.IsNullOrWhiteSpace(tithePayer.Name) || string.IsNullOrWhiteSpace(tithePayer.Document))
+                {
+                    _notification.AddErrorToastMessage("Nome e Documento são obrigatórios!");
+                    return RedirectToAction(nameof(Index));
+                }
+
+                int tithePayerCode = await _tithePayerService.RegisterTithePayer(tithePayer, Convert.ToInt32(HttpContext.Session.GetInt32("User")));
+
+                _notification.AddSuccessToastMessage($"Dizimista {tithePayer.Name} cadastrado com sucesso! Código: {tithePayerCode}");
             }
-
-            int tithePayerCode = await _tithePayerService.RegisterTithePayer(tithePayer);
-
-            _notification.AddSuccessToastMessage($"Dizimista {tithePayer.Name} cadastrado com sucesso! Código: {tithePayerCode}");
+            catch (Exception ex)
+            {
+                _notification.AddErrorToastMessage(ex.Message);
+            }
 
             return RedirectToAction(nameof(Index));
         }
