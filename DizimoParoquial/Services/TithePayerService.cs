@@ -24,6 +24,11 @@ namespace DizimoParoquial.Services
             try
             {
 
+                List<TithePayer> tithePayerExisting = await GetTithePayersWithFilters(tithePayer.Document, null);
+
+                if(tithePayerExisting != null || tithePayerExisting.Count > 0)
+                    throw new ValidationException("Dizimista já cadastrado");
+
                 byte[]? imageBytes = null;
 
                 if (tithePayer.TermFile != null && tithePayer.TermFile.Length > 0)
