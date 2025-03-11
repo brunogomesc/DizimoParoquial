@@ -238,6 +238,7 @@ namespace DizimoParoquial.Data.Repositories
                                         Neighborhood = @Neighborhood,
                                         Complement = @Complement,
                                         UpdatedAt = @UpdatedAt
+                                        TermFile = @TermFile
                                     WHERE TithePayerId = @TithePayerId";
 
                         var result = await connection.ExecuteAsync(query,
@@ -254,6 +255,7 @@ namespace DizimoParoquial.Data.Repositories
                                 tithePayer.Neighborhood,
                                 tithePayer.Complement,
                                 tithePayer.UpdatedAt,
+                                tithePayer.TermFile,
                                 tithePayer.TithePayerId
                             }
                         );

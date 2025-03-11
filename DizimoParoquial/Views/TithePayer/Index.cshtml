@@ -1,6 +1,7 @@
 ﻿@model List<TithePayer>
 @{
     ViewData["Username"] = @ViewBag.UserName;
+    ViewBag.Image = @ViewBag.UrlImagem;
 }
 
 <html>
@@ -138,12 +139,12 @@
                                 <input type="text" class="form-control" id="complement" name="complement" />
                             </div>
                         </div>
-                        @* <div class="row g-3 mt-3">
+                        <div class="row g-3 mt-3">
                             <div class="col-md-12">
                                 <label for="termfile" class="form-label"><b>Termo de Autorização:</b></label>
-                                <input type="file" class="form-control" id="termfile" name="termfile" />
+                                <input accept=".jpeg, .png" type="file" class="form-control" id="termfile" name="termfile" />
                             </div>
-                        </div> *@
+                        </div>
                         <!-- Mensagem de erro -->
                         <div id="passwordMessage"></div>
                     </div>
@@ -218,17 +219,15 @@
                                 <input type="text" class="form-control" id="complementEdit" name="complement" />
                             </div>
                         </div>
-                        @* <div class="row g-3 mt-3">
+                        <div class="row g-3 mt-3">
                             <div class="col-md-12">
                                 <div id="fileMessageEdit"></div>
                                 <a id="viewTermFile" data-toggle="tooltip" class="bs-tooltip" data-placement="top" href="javascript:void(0);" onclick="openFile()" style="cursor: pointer" title="Visualizar Arquivo"><i class="fa fa-search" style="color: #000000;"></i></a>
-                                <input type="file" class="form-control" id="termfileEdit" name="termfile" />
+                                <input accept=".jpeg, .png" type="file" class="form-control" id="termfileEdit" name="termfile" />
                             </div>
-                        </div> *@
-                        <!-- Mensagem de erro -->
-                        <input hidden type="text" name="tithePayerId" id="tithePayerIdEdit" />
-                        <input hidden type="text" name="tithePayerTermFile" id="tithePayerTermFileEdit" />
+                        </div> 
                     </div>
+                    <input hidden type="text" name="tithePayerId" id="tithePayerIdEdit" />
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
                         <button type="submit" class="btn btn-primary" id="saveButtonEdit">Salvar Alterações</button>
@@ -238,19 +237,23 @@
         </div>
     </div>
 
-    @* End Modal Edit TithePayer *@
+    @* End Modal Edit TithePayer
 
     @* Modal View TermFile *@
 
     <div class="modal fade" id="modal_tithepayer_view">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title"><i class="fa-solid fa-user-pen"></i> Visualizar Termo Dizimista</h4>
+                    <h4 class="modal-title">
+                        <i class="fa-solid fa-user-pen"></i> Visualizar Termo Dizimista
+                    </h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <iframe id="fileTerm" style="width: 100%; height: 90%;"></iframe>
+                <div class="modal-body d-flex justify-content-center align-items-center">
+                    <img id="imagePreview" src="/images/default-avatar.png" alt="Imagem do Dizimista"
+                         class="img-fluid img-thumbnail"
+                         style="max-width: 70%; max-height: 80vh; display: block;" />
                 </div>
             </div>
         </div>
@@ -280,12 +283,13 @@
                 $('#zipcodeEdit').val(data.zipCode);
                 $('#neighborhoodEdit').val(data.neighborhood);
                 $('#complementEdit').val(data.complement);
-                @* if(data.termFile != null && data.termFile.length > 0) {
+                if(data.termFile != null && data.termFile.length > 0) {
                     messageDiv.textContent = "Arquivo já importado!";
                     messageDiv.style.color = "green";
                     document.getElementById("viewTermFile").hidden = false;
                     $('#tithePayerTermFileEdit').val(data.termFile);
-                } *@
+                    $("#imagePreview").attr("src", data.termFile64Base);
+                }
                 $('#modal_tithepayer_edit').modal('show');
             },
             error: function () {
@@ -297,14 +301,6 @@
 
 <script>
     function openFile() {
-
-        var fileTerm = document.getElementById("tithePayerTermFileEdit").value;
-
-        let blob = new Blob([new Uint8Array(fileTerm)], { type: "image/pdf" });
-
-        let url = URL.createObjectURL(blob);
-
-        document.getElementById("fileTerm").src = url;
 
         $('#modal_tithepayer_view').modal('show');
 

@@ -116,6 +116,14 @@ namespace DizimoParoquial.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
+                if(tithePayer.TermFile != null)
+                {
+                    string imgBase64 = Convert.ToBase64String(tithePayer.TermFile);
+                    string urlImagem = $"data:image/jpeg;base64,{imgBase64}";
+                    tithePayer.TermFile64Base = urlImagem;
+                    ViewBag.UrlImagem = urlImagem;
+                }
+
                 return Json(tithePayer);
             }
             catch (Exception ex)

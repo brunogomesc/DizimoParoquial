@@ -36,6 +36,8 @@ namespace DizimoParoquial.Models
 
         public byte[]? TermFile { get; set; }
 
+        public string TermFile64Base { get; set; } = string.Empty;
+
         public int UserId { get; set; }
 
     }

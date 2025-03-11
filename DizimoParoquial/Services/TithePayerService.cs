@@ -26,7 +26,7 @@ namespace DizimoParoquial.Services
 
                 byte[]? imageBytes = null;
 
-                if (tithePayer.TermFile != null)
+                if (tithePayer.TermFile != null && tithePayer.TermFile.Length > 0)
                 {
                     using var memoryStream = new MemoryStream();
                     await tithePayer.TermFile.CopyToAsync(memoryStream);
@@ -42,7 +42,7 @@ namespace DizimoParoquial.Services
                     PhoneNumber = tithePayer.PhoneNumber,
                     Address = tithePayer.Address,
                     Number = tithePayer.Number,
-                    ZipCode = tithePayer.ZipCode,
+                    ZipCode = tithePayer.ZipCode.Replace("-", ""),
                     Neighborhood = tithePayer.Neighborhood,
                     Complement = tithePayer.Complement,
                     CreatedAt = DateTime.Now,
@@ -226,6 +226,15 @@ namespace DizimoParoquial.Services
 
                 tithePayer.UpdatedAt = DateTime.Now;
 
+                byte[]? imageBytes = null;
+
+                if (tithePayer.TermFile != null && tithePayer.TermFile.Length > 0)
+                {
+                    using var memoryStream = new MemoryStream();
+                    await tithePayer.TermFile.CopyToAsync(memoryStream);
+                    imageBytes = memoryStream.ToArray();
+                }
+
                 TithePayer tithePayerUpdate = new TithePayer
                 {
                     TithePayerId = tithePayer.TithePayerId,
@@ -236,12 +245,12 @@ namespace DizimoParoquial.Services
                     PhoneNumber = tithePayer.PhoneNumber,
                     Address = tithePayer.Address,
                     Number = tithePayer.Number,
-                    ZipCode = tithePayer.ZipCode,
+                    ZipCode = tithePayer.ZipCode.Replace("-",""),
                     Neighborhood = tithePayer.Neighborhood,
                     Complement = tithePayer.Complement,
                     CreatedAt = tithePayerExists.CreatedAt,
                     UpdatedAt = tithePayer.UpdatedAt,
-                    TermFile = tithePayerExists.TermFile
+                    TermFile = imageBytes == null ? tithePayerExists.TermFile : imageBytes
                 };
 
                 tithePayerWasUpdated = await UpdateTithePayerRepository(tithePayerUpdate);
