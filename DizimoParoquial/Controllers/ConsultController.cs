@@ -44,7 +44,9 @@ namespace DizimoParoquial.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
-                return View(ROUTE_SCREEN_CONSULT, tithes.OrderByDescending(t => t.PaymentMonth));
+                List<TitheDTO> tithesOrdered = tithes.OrderByDescending(t => t.PaymentMonth).ToList();
+
+                return View(ROUTE_SCREEN_CONSULT, tithesOrdered);
 
             }
             catch (Exception ex)

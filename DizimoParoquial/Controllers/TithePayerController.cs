@@ -121,7 +121,6 @@ namespace DizimoParoquial.Controllers
                     string imgBase64 = Convert.ToBase64String(tithePayer.TermFile);
                     string urlImagem = $"data:image/jpeg;base64,{imgBase64}";
                     tithePayer.TermFile64Base = urlImagem;
-                    ViewBag.UrlImagem = urlImagem;
                 }
 
                 return Json(tithePayer);
