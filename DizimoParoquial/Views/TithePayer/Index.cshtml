@@ -51,6 +51,7 @@
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
+                        <th>Código Dizimista</th>
                         <th>Nome</th>
                         <th>CPF</th>
                         <th>Data Nascimento</th>
@@ -61,8 +62,9 @@
                     @foreach (var tithePayer in Model)
                     {
                         <tr>
-                            <td>@Html.DisplayFor(item => tithePayer.Name) </td>
-                            <td>@Html.DisplayFor(item => tithePayer.Document) </td>
+                            <td>@Html.DisplayFor(item => tithePayer.TithePayerId)</td>
+                            <td>@Html.DisplayFor(item => tithePayer.Name)</td>
+                            <td>@Html.DisplayFor(item => tithePayer.Document)</td>
                             <td>@(tithePayer.DateBirth.ToString("dd/MM/yyyy"))</td>
                             <td>
                                 <a data-toggle="tooltip" class="bs-tooltip" data-placement="top" href="javascript:void(0);" onclick="openModal(@tithePayer.TithePayerId)" title="Editar"><i class="fa-solid fa-user-pen" style="color: #000000;"></i></a>

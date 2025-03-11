@@ -36,7 +36,7 @@ namespace DizimoParoquial.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
-                List<TitheDTO> tithes = await _titheService.GetTithesWithFilters(name.TrimEnd().TrimStart(), tithePayerCode);
+                List<TitheDTO> tithes = await _titheService.GetTithesWithFilters(name, tithePayerCode);
 
                 if (tithes == null || tithes.Count == 0)
                 {

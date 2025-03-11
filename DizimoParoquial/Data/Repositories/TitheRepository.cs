@@ -101,7 +101,7 @@ namespace DizimoParoquial.Data.Repositories
                 query.Append("WHERE 1 = 1 ");
 
                 if (name != null)
-                    query.Append($" AND TP.Name LIKE '%{name}%'");
+                    query.Append($" AND TP.Name LIKE '%{name.TrimEnd().TrimStart()}%'");
 
                 if (tithePayerCode != 0)
                     query.Append($" AND T.TithePayerId = {tithePayerCode} ");
