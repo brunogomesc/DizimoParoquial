@@ -6,9 +6,9 @@
     List<UserDTO> users = await _userService.GetUsersWithouthFilters();
     List<Permission> permissions = await _permissionService.GetAllPermissions();
     int selectedUserId = ViewBag.SelectedUserId;
-    string user = @ViewBag.UserName;
-    ViewData["Username"] = user;
-    users.RemoveAt(users.FindIndex(u => u.Username == user));
+    string username = @ViewBag.UserName;
+    ViewData["Username"] = username;
+    users.RemoveAt(users.FindIndex(u => u.Username == username));
 }
 
 <html>

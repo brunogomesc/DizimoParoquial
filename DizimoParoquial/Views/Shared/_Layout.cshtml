@@ -55,8 +55,7 @@
                             Relatórios
                         </a>
                         <div class="dropdown-menu" aria-labelledby="dropdownReport">
-                            <a class="dropdown-item" href="#">Dizimos</a>
-                            <a class="dropdown-item" href="#">Eventos Sistema</a>
+                            <a class="dropdown-item" href="@Url.Action("ReportValuePerPaymentType","Report")">Valor Por Tipo Pagamento</a>
                         </div>
                     </li>
                 </ul>
@@ -78,11 +77,5 @@
             @RenderBody()
         </main>
     </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; @DateTime.Now.Year - Dizimo Migrantes - <a asp-area="" asp-controller="Home" asp-action="Index">Contato</a>
-        </div>
-    </footer>
 </body>
 </html>

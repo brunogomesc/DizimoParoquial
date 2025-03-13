@@ -1,0 +1,87 @@
+﻿@using System.IdentityModel.Tokens.Jwt;
+@using Microsoft.IdentityModel.Tokens;
+@using System.Text;
+@using System.Security.Claims;
+
+@{
+    string iframeUrl = GenerateIframe();
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório</title>
+    <style>
+        html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        }
+
+        .container {
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 0.5px); /* Ajusta conforme a altura do header */
+        overflow: hidden;
+        }
+
+        main {
+        flex-grow: 1;
+        overflow: hidden;
+        }
+
+        iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <iframe style="overflow: hidden;" src="@iframeUrl" allowtransparency frameborder="0"></iframe>
+</body>
+</html>
+
+@functions {
+    private string GenerateIframe()
+    {
+        string METABASE_SITE_URL = "https://metabase.devcorehub.com.br";
+
+        string iframeUrl = METABASE_SITE_URL + "/embed/dashboard/" + GenerateToken() + "#bordered=true&titled=true";
+
+        return iframeUrl;
+    }
+
+    private string GenerateToken()
+    {
+        
+        string key = "8daa5bf6c39305a57844f8625fbd688b76ddd3c6f9e2190762805e52b86b1abf";
+        
+        var securityKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+        var credentials = new Microsoft.IdentityModel.Tokens.SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
+        var header = new JwtHeader(credentials);
+        
+        var dash = new Dictionary<string, Int32>();
+        dash.Add("dashboard", 33);
+
+        //Empty dictionary for the params. Anything else gives odd results
+        var pars = new Dictionary<string, string>();
+
+        //create the payload
+        JwtPayload payload = new JwtPayload
+        {
+            {"resource",dash } ,
+            {"params" ,pars}
+        };
+        
+        var secToken = new JwtSecurityToken(header, payload);
+        var handler = new JwtSecurityTokenHandler();
+        var tokenString = handler.WriteToken(secToken);
+
+        return tokenString;
+    }
+}
