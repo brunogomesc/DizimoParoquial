@@ -94,15 +94,15 @@
                     <div class="modal-body">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label for="name" class="form-label"><b>Nome:</b></label>
+                                <label for="name" class="form-label"><b>Nome: <b style="color:red;">*</b></b></label>
                                 <input class="form-control" id="name" name="name" />
                             </div>
                             <div class="col-md-3">
-                                <label for="document" class="form-label"><b>CPF:</b></label>
+                                <label for="document" class="form-label"><b>CPF: <b style="color:red;">*</b></b></label>
                                 <input class="form-control" id="document" name="document" />
                             </div>
                             <div class="col-md-3">
-                                <label for="datebirth" class="form-label"><b>Data de Nascimento:</b></label>
+                                <label for="datebirth" class="form-label"><b>Data de Nascimento: <b style="color:red;">*</b></b></label>
                                 <input type="date" class="form-control" id="datebirth" name="datebirth" />
                             </div>
                         </div>
@@ -112,7 +112,7 @@
                                 <input type="email" class="form-control" id="email" name="email" />
                             </div>
                             <div class="col-md-6">
-                                <label for="phonenumber" class="form-label"><b>Telefone:</b></label>
+                                <label for="phonenumber" class="form-label"><b>Telefone: <b style="color:red;">*</b></b></label>
                                 <input type="tel" class="form-control" id="phonenumber" name="phonenumber" />
                             </div>
                         </div>
@@ -129,7 +129,7 @@
                         <div class="row g-3 mt-3">
                             <div class="col-md-3">
                                 <label for="zipcode" class="form-label"><b>CEP:</b></label>
-                                <input class="form-control" id="zipcode" name="zipcode" />
+                                <input maxlength="8" class="form-control" id="zipcode" name="zipcode" />
                             </div>
                             <div class="col-md-3">
                                 <label for="neighborhood" class="form-label"><b>Bairro:</b></label>
@@ -306,4 +306,29 @@
         $('#modal_tithepayer_view').modal('show');
 
     }
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const zipcodeInput = document.getElementById("zipcode");
+
+        zipcodeInput.addEventListener("input", function () {
+            let cep = zipcodeInput.value.replace(/\D/g, ""); // Remove caracteres não numéricos
+
+            if (cep.length === 8) { // O CEP brasileiro tem 8 dígitos
+                fetch(`https://viacep.com.br/ws/${cep}/json/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.erro) {
+                            document.getElementById("address").value = data.logradouro || "";
+                            document.getElementById("neighborhood").value = data.bairro || "";
+                            document.getElementById("complement").value = data.complemento || "";
+                        } else {
+                            alert("CEP não encontrado. Verifique e tente novamente.");
+                        }
+                    })
+                    .catch(error => console.error("Erro ao buscar o CEP:", error));
+            }
+        });
+    });
 </script>
