@@ -28,7 +28,8 @@ namespace DizimoParoquial.Controllers
             _agentService = agentService;
         }
 
-        [SessionAuthorize("REGTIT")]
+        //[SessionAuthorize("REGTIT")]
+        [Route("SalvarDizimo")]
         public IActionResult Index()
         {
             ViewBag.UserName = HttpContext.Session.GetString("Username");

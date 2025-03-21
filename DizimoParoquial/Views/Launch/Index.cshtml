@@ -1,10 +1,8 @@
 ﻿@model List<TithePayerLaunchDTO>
 @{
-    ViewData["Username"] = @ViewBag.UserName;
-
+    Layout = "_LayoutLogin";
     //Listagem de datas para o select
     List<DateTime> dates = GetDateTimes();
-
 }
 
 <html>
