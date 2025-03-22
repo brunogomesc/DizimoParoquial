@@ -27,11 +27,11 @@ namespace DizimoParoquial.Controllers
 
             List<TithePayer> tithePayers = await _tithePayerService.GetTithePayersWithouthFilters();
 
-            int pageSize = 10;
+            //int pageSize = 10;
 
-            var paginatedTithePayers = PaginatedList<TithePayer>.CreateAsync(tithePayers.AsQueryable(), pageNumber, pageSize);
+            //var paginatedTithePayers = PaginatedList<TithePayer>.CreateAsync(tithePayers.AsQueryable(), pageNumber, pageSize);
 
-            return View(ROUTE_SCREEN_TITHEPAYERS, paginatedTithePayers);
+            return View(ROUTE_SCREEN_TITHEPAYERS, tithePayers);
         }
 
         public async Task<IActionResult> SearchTithePayer(string name, string document, int pageNumber = 1)
@@ -54,11 +54,11 @@ namespace DizimoParoquial.Controllers
                 _notification.AddErrorToastMessage(ex.Message);
             }
 
-            int pageSize = 10;
+            //int pageSize = 10;
 
-            var paginatedTithePayers = PaginatedList<TithePayer>.CreateAsync(tithePayers.AsQueryable(), pageNumber, pageSize);
+            //var paginatedTithePayers = PaginatedList<TithePayer>.CreateAsync(tithePayers.AsQueryable(), pageNumber, pageSize);
 
-            return View(ROUTE_SCREEN_TITHEPAYERS, paginatedTithePayers);
+            return View(ROUTE_SCREEN_TITHEPAYERS, tithePayers);
         }
 
         public async Task<IActionResult> SaveTithePayer(TithePayerDTO tithePayer)
