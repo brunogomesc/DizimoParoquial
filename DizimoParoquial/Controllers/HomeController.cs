@@ -6,7 +6,7 @@ using NToastNotify;
 
 namespace DizimoParoquial.Controllers
 {
-    [SessionAuthorize("HOMEPAGE")]
+    //[SessionAuthorize("HOMEPAGE")]
     public class HomeController : Controller
     {
         private readonly IToastNotification _notification;
