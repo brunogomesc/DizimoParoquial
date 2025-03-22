@@ -37,6 +37,7 @@
                         <div class="dropdown-menu" aria-labelledby="dropdownTithe">
                             <a class="dropdown-item" href="@Url.Action("Index","Launch")">Lançar Dizimo</a>
                             <a class="dropdown-item" href="@Url.Action("Index","Consult")">Consultar Dizimo</a>
+                            <a class="dropdown-item" href="@Url.Action("Index","TithePayer")">Cadastrar Dizimista</a>
                         </div>
                     </li>
                     <li class="nav-item dropdown active">
@@ -44,10 +45,8 @@
                             Cadastrar
                         </a>
                         <div class="dropdown-menu" aria-labelledby="dropdownRegister">
-                            <a class="dropdown-item" href="@Url.Action("Index","TithePayer")">Dizimista</a>
                             <a class="dropdown-item" href="@Url.Action("Index","Agent")">Agente do Dizimo</a>
                             <a class="dropdown-item" href="@Url.Action("Index","User")">Usuário de Acesso</a>
-                            <a class="dropdown-item" href="@Url.Action("Index","Permission")">Permissões de Usuário</a>
                         </div>
                     </li>
                     <li class="nav-item dropdown active">
@@ -56,6 +55,7 @@
                         </a>
                         <div class="dropdown-menu" aria-labelledby="dropdownReport">
                             <a class="dropdown-item" href="@Url.Action("ReportValuePerPaymentType","Report")">Valor Por Tipo Pagamento</a>
+                            <a class="dropdown-item" href="@Url.Action("ReportTithePayer","Report")">Dizimistas Por Período</a>
                         </div>
                     </li>
                 </ul>

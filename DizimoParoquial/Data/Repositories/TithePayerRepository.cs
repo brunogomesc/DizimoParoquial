@@ -282,5 +282,45 @@ namespace DizimoParoquial.Data.Repositories
             }
         }
 
+        public async Task<List<ReportTithePayer>> GetReportTithePayers(string? paymentType, string? name, DateTime startPaymentDate, DateTime endPaymentDate)
+        {
+
+            List<ReportTithePayer> report = new List<ReportTithePayer>();
+
+            try
+            {
+                StringBuilder query = new StringBuilder();
+
+                query.Append("SELECT I.IncomeId, TP.Name, I.Value, I.PaymentType, I.RegistrationDate as PaymentDate ");
+                query.Append("FROM Income I ");
+                query.Append("INNER JOIN TithePayer TP ");
+                query.Append("ON I.TithePayerId = TP.TithePayerId ");
+                query.Append($"WHERE RegistrationDate BETWEEN '{startPaymentDate.ToString("yyyy-MM-dd HH:mm:ss")}' AND '{endPaymentDate.AddDays(1).ToString("yyyy-MM-dd HH:mm:ss")}' ");
+
+                if (paymentType != null)
+                    query.Append($"AND PaymentType = '{paymentType}' ");
+
+                if (name != null)
+                    query.Append($"AND Name LIKE '%{name}%' ");
+
+                using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
+                {
+                    var result = await connection.QueryAsync<ReportTithePayer>(query.ToString());
+
+                    report = result.ToList();
+
+                    return report;
+                }
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consulta Relatório Dizimista - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("Consulta Relatório Dizimista - Erro interno.", ex);
+            }
+        }
+
     }
 }

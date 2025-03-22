@@ -183,6 +183,40 @@ namespace DizimoParoquial.Services
             }
         }
 
+        public async Task<List<ReportTithePayer>> GetReportTithePayers(string? paymentType, string? name, DateTime startPaymentDate, DateTime endPaymentDate)
+        {
+            List<ReportTithePayer> report = new List<ReportTithePayer>();
+
+            try
+            {
+
+                report = await GetReportTithePayersRepository(paymentType, name, startPaymentDate, endPaymentDate);
+
+                return report;
+
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consultar Dizimista - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Consultar Dizimista - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Consultar Dizimista - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Consultar Dizimista - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Consultar Dizimista - Dados vazios.");
+            }
+        }
+
         public async Task<TithePayerLaunchDTO> GetTithePayersLauchingWithFilters(string? name, int code)
         {
             TithePayerLaunchDTO tithePayer = new TithePayerLaunchDTO();
@@ -476,6 +510,38 @@ namespace DizimoParoquial.Services
             catch (ArgumentNullException)
             {
                 throw new NullException("Atualizar Dizimista - Dados vazios.");
+            }
+        }
+
+        private async Task<List<ReportTithePayer>> GetReportTithePayersRepository(string? paymentType, string? name, DateTime startPaymentDate, DateTime endPaymentDate)
+        {
+            List<ReportTithePayer> report = new List<ReportTithePayer>();
+
+            try
+            {
+                report = await _tithePayerRepository.GetReportTithePayers(paymentType, name, startPaymentDate, endPaymentDate);
+
+                return report;
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consultar Relatório Dizimista - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Consultar Relatório Dizimista - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Consultar Relatório Dizimista - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Consultar Relatório Dizimista - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Consultar Relatório Dizimista - Dados vazios.");
             }
         }
 

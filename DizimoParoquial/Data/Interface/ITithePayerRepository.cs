@@ -18,5 +18,7 @@ namespace DizimoParoquial.Data.Interface
 
         public Task<bool> UpdateTithePayer(TithePayer tithePayer);
 
+        public Task<List<ReportTithePayer>> GetReportTithePayers(string? paymentType, string? name, DateTime startPaymentDate, DateTime endPaymentDate);
+
     }
 }
