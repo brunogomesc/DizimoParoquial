@@ -4,10 +4,11 @@ using DizimoParoquial.Services;
 using DizimoParoquial.Utils.Filters;
 using Microsoft.AspNetCore.Mvc;
 using NToastNotify;
+using System.Threading.Tasks;
 
 namespace DizimoParoquial.Controllers
 {
-    [SessionAuthorize("MANTITPAY")]
+    //[SessionAuthorize("MANTITPAY")]
     public class TithePayerController : Controller
     {
 
@@ -21,10 +22,13 @@ namespace DizimoParoquial.Controllers
             _tithePayerService = tithePayerService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             ViewBag.UserName = HttpContext.Session.GetString("Username");
-            return View();
+
+            List<TithePayer> tithePayers = await _tithePayerService.GetTithePayersWithouthFilters();
+
+            return View(tithePayers);
         }
 
         public async Task<IActionResult> SearchTithePayer(string name, string document)
