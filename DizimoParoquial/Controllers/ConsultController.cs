@@ -46,7 +46,9 @@ namespace DizimoParoquial.Controllers
 
                 List<TitheDTO> tithesOrdered = tithes.OrderByDescending(t => t.PaymentMonth).ToList();
 
-                return View(ROUTE_SCREEN_CONSULT, tithesOrdered);
+                List<TitheDTO> latestTithes = tithesOrdered.Take(3).ToList();
+
+                return View(ROUTE_SCREEN_CONSULT, latestTithes);
 
             }
             catch (Exception ex)
