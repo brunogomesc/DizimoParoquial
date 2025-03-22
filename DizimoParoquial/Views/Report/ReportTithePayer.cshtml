@@ -1,0 +1,118 @@
+﻿@model List<ReportTithePayer>
+@{
+    ViewData["Username"] = @ViewBag.UserName;
+    DateTime startDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+    DateTime endDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+}
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<body>
+    <div class="container my-4">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="d-flex align-items-center border-bottom pb-2 mb-3" style="font-family: system-ui; font-weight: bold;">
+                    <i class="fa fa-report" aria-hidden="true"></i>
+                    Relatório de Dizimistas
+                </h2>
+                @using (Html.BeginForm("SearchReportTithePayer", "Report", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="Status" class="form-label"><b>Forma de Pagamento:</b></label>
+                            <select id="paymentType" name="paymentType" class="form-control">
+                                <option></option>
+                                <option value="Pix">Pix</option>
+                                <option value="Dinheiro">Dinheiro</option>
+                                <option value="Cartão de Crédito">Cartão de Crédito</option>
+                                <option value="Cartão de Débito">Cartão de Débito</option>
+                                <option value="Transferência Bancária">Transferência Bancária</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="Name" class="form-label"><b>Nome Dizimista:</b></label>
+                            <input name="name" class="form-control" type="text" />
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="startPaymentDate" class="form-label"><b>Data de Pagamento (Inicio): <b style="color:red;">*</b></b></label>
+                            <input name="startPaymentDate" value="@startDateTime.ToString("yyyy-MM-dd")" type="date" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="endPaymentDate" class="form-label"><b>Data de Pagamento (Final): <b style="color:red;">*</b></b></label>
+                            <input name="endPaymentDate" value="@endDateTime.ToString("yyyy-MM-dd")" class="form-control" type="date" />
+                        </div>
+                    </div>
+                    <div class="row g-3 mt-3">
+                        <div class="col-md-3">
+                            <button class="btn btn-primary w-100">
+                                Pesquisar
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <br />
+    @if (Model != null && Model.Any())
+    {
+        <div class="card mt-4">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Nome Dizimista</th>
+                        <th>Valor</th>
+                        <th>Data de Pagamento</th>
+                        <th>Forma de Pagamento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var tithePayer in Model)
+                    {
+                        <tr>
+                            <td>@tithePayer.Name </td>
+                            <td>R$ @tithePayer.Value.ToString("F2") </td>
+                            <td>@tithePayer.PaymentDate.ToString("dd/MM/yyyy")</td>
+                            <td>@tithePayer.PaymentType</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <h4 class="text-center">Sem resultados para serem exibidos</h4>
+    }
+</body>
+</html>
+
+<script>
+    function openModal(id) {
+        $.ajax({
+            url: '/Agent/GetDetails', // Rota para o método do controlador que retornará os dados
+            type: 'GET',
+            data: { id: id },
+            success: function (data) {
+                $('#agentIdEdit').val(data.agentId);
+                $('#nameEdit').val(data.name);
+                $('#codeEdit').val(data.agentCode);
+                if(data.active == true){
+                    $('#statusEdit').val("true");
+                }
+                else{
+                    $('#statusEdit').val("false");
+                }
+                $('#modal_agent_edit').modal('show');
+            },
+            error: function () {
+                alert("Erro ao buscar os dados.");
+            }
+        });
+    }
+</script>

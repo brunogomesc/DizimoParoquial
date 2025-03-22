@@ -1,0 +1,180 @@
+﻿@model List<TithePayerLaunchDTO>
+@{
+    Layout = "_Layout";
+    //Listagem de datas para o select
+    List<DateTime> dates = GetDateTimes();
+}
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+</head>
+<body>
+    <div class="container my-4">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="d-flex align-items-center border-bottom pb-2 mb-3" style="font-family: system-ui; font-weight: bold;">
+                    <i class="fa fa-search" aria-hidden="true"></i>
+                    Lançar Dizimo
+                </h2>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="Name" class="form-label"><b>Nome:</b></label>
+                        <input name="name" id="name" class="form-control" type="text" />
+                    </div>
+                    <div class="col-md-3">
+                        <label for="tithePayerCode" class="form-label"><b>Código Dizimista:</b></label>
+                        <input name="tithePayerCode" id="tithePayerCode" class="form-control" type="number" />
+                    </div>
+                </div>
+                <div class="row g-3 mt-3">
+                    <div class="col-md-3">
+                        <button class="btn btn-primary w-100" onclick="filterTithePayer()">
+                            Pesquisar
+                        </button>
+                    </div>
+                </div>
+                <div id="resultDiv" class="mt-4" style="display: none;">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Resultados da Pesquisa</h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="resultName" class="form-label"><b>Nome:</b></label>
+                                    <input id="resultName" class="form-control" type="text" readonly />
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="resultCode" class="form-label"><b>Código Dizimista:</b></label>
+                                    <input id="resultCode" class="form-control" type="number" readonly />
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="resultDateBirth" class="form-label"><b>Data de Nascimento:</b></label>
+                                    <input id="resultDateBirth" class="form-control" type="datetime" readonly />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Registrar Dizimo</h5>
+                            @using (Html.BeginForm("SaveTithe", "Launch", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                            {
+                                <input id="tithePayerId" name="tithePayerId" type="number" hidden />
+                                <div class="row g-3">
+                                    <div class="col-md-3">
+                                        <label for="value" class="form-label"><b>Valor</b></label>
+                                        <span class="toggle-value">
+                                            (R$)
+                                        </span>
+                                        <input data-mask="#.##0,00" data-mask-reverse="true" type="text" class="form-control" id="value" name="value">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="agentCode" id="agentCode" class="form-label"><b>Código Agente do Dizimo:</b></label>
+                                        <input id="agentCode" name="agentCode" class="form-control" type="number" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="paymentType" id="paymentType" class="form-label"><b>Forma de Pagamento:</b></label>
+                                        <select id="paymentType" name="paymentType" class="form-control">
+                                            <option></option>
+                                            <option value="Pix">Pix</option>
+                                            <option value="Dinheiro">Dinheiro</option>
+                                            <option value="Cartão de Crédito">Cartão de Crédito</option>
+                                            <option value="Cartão de Débito">Cartão de Débito</option>
+                                            <option value="Transferência Bancária">Transferência Bancária</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row g-3 mt-2">
+                                    <div class="col-md-10">
+                                        <label for="dates" id="dates" class="form-label"><b>Meses a serem pagos:</b></label>
+                                        <select class="form-control js-example-basic-multiple" name="dates[]" multiple="multiple">
+                                            <option></option>
+                                            @foreach (var date in dates)
+                                            {
+                                                <option value="@date.ToString("yyyy-MM")">@date.ToString("MM/yyyy")</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row g-3 mt-3">
+                                    <div class="col-md-3">
+                                        <button class="btn btn-primary w-100" type="submit">
+                                            Salvar
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<script>
+    function filterTithePayer() {
+        var searchName = document.getElementById("name").value;
+        var searchCode = document.getElementById("tithePayerCode").value;
+        $.ajax({
+            url: '/Launch/SearchTithePayer', // Rota para o método do controlador que retornará os dados
+            type: 'GET',
+            data: { name: searchName, code: searchCode },
+            success: function (data) {
+                if (data) { // Verifica se há dados retornados
+                    document.getElementById("resultName").value = data.name;
+                    document.getElementById("resultCode").value = data.tithePayerId;
+                    document.getElementById("tithePayerId").value = data.tithePayerId;
+                    document.getElementById("resultDateBirth").value = data.dateBirth ? new Date(data.dateBirth).toISOString().split('T')[0] : '';
+
+                    // Exibe a div de resultados
+                    document.getElementById("resultDiv").style.display = "block";
+                } else {
+                    alert("Nenhum resultado encontrado.");
+                    document.getElementById("resultDiv").style.display = "none"; // Oculta a div se não houver resultados
+                }
+            },
+            error: function () {
+                alert("Erro ao buscar os dados.");
+                document.getElementById("resultDiv").style.display = "none";
+            }
+        });
+    }
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('#value').mask('#.##0,00', { reverse: true });
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('.js-example-basic-multiple').select2({
+            width: '100%'
+        });
+    });
+</script>
+
+@functions {
+    private List<DateTime> GetDateTimes()
+    {
+        List<DateTime> dates = new List<DateTime>();
+        DateTime today = DateTime.Now;
+        for (int i = 12; i > 0; i--)
+        {
+            dates.Add(today.AddMonths(-i));
+        }
+        dates.Add(today);
+        for (int i = 1; i <= 12; i++)
+        {
+            dates.Add(today.AddMonths(i));
+        }
+        return dates;
+    }
+}

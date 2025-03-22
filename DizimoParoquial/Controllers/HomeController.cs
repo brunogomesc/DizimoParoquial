@@ -1,32 +1,27 @@
 using System.Diagnostics;
 using DizimoParoquial.Models;
+using DizimoParoquial.Utils.Filters;
 using Microsoft.AspNetCore.Mvc;
+using NToastNotify;
 
 namespace DizimoParoquial.Controllers
 {
+    //[SessionAuthorize("HOMEPAGE")]
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly IToastNotification _notification;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(IToastNotification notification)
         {
-            _logger = logger;
+            _notification = notification;
         }
 
         public IActionResult Index()
         {
-            return View();
-        }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+            ViewBag.UserName = HttpContext.Session.GetString("Username");
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View();
         }
     }
 }

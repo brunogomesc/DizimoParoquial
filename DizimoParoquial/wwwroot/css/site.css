@@ -20,3 +20,19 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+/* Adiciona uma borda ao redor do botão quando o mouse estiver sobre ele */
+.navbar-nav .nav-link:hover {
+    border: 1px solid white;
+    border-radius: 5px;
+    padding: 8px 13px; /* Ajuste para manter alinhamento */
+    background-color: rgba(255, 255, 255, 0.2); /* Efeito de realce */
+}
+
+/* Mantém o destaque para o link ativo */
+.navbar-nav .nav-link.active,
+.navbar-nav .nav-link:focus {
+    border: 1px solid white;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.3);
+}
