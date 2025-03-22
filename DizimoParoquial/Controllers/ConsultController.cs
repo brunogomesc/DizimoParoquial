@@ -24,6 +24,13 @@ namespace DizimoParoquial.Controllers
             return View();
         }
 
+        [Route("ConsultarDizimo")]
+        public IActionResult ConsultAllUsers()
+        {
+            ViewBag.UserName = HttpContext.Session.GetString("Username");
+            return View();
+        }
+
         public async Task<IActionResult> SearchTithes(string name, int tithePayerCode)
         {
             ViewBag.UserName = HttpContext.Session.GetString("Username");

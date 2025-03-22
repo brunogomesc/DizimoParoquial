@@ -1,6 +1,7 @@
 ﻿using DizimoParoquial.DTOs;
 using DizimoParoquial.Models;
 using DizimoParoquial.Services;
+using DizimoParoquial.Utils;
 using DizimoParoquial.Utils.Filters;
 using Microsoft.AspNetCore.Mvc;
 using NToastNotify;
@@ -22,16 +23,20 @@ namespace DizimoParoquial.Controllers
             _tithePayerService = tithePayerService;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int pageNumber = 1)
         {
             ViewBag.UserName = HttpContext.Session.GetString("Username");
 
             List<TithePayer> tithePayers = await _tithePayerService.GetTithePayersWithouthFilters();
 
-            return View(tithePayers);
+            int pageSize = 10;
+
+            var paginatedTithePayers = PaginatedList<TithePayer>.CreateAsync(tithePayers.AsQueryable(), pageNumber, pageSize);
+
+            return View(paginatedTithePayers);
         }
 
-        public async Task<IActionResult> SearchTithePayer(string name, string document)
+        public async Task<IActionResult> SearchTithePayer(string name, string document, int pageNumber = 1)
         {
             List<TithePayer> tithePayers = new List<TithePayer>();
             ViewBag.UserName = HttpContext.Session.GetString("Username");
@@ -43,7 +48,7 @@ namespace DizimoParoquial.Controllers
                     tithePayers = await _tithePayerService.GetTithePayersWithouthFilters();
 
                 else
-                    tithePayers = await _tithePayerService.GetTithePayersWithFilters(document?.Replace(".","").Replace("-",""), name);
+                    tithePayers = await _tithePayerService.GetTithePayersWithFilters(document?.Replace(".", "").Replace("-", ""), name);
 
             }
             catch (Exception ex)
@@ -51,7 +56,11 @@ namespace DizimoParoquial.Controllers
                 _notification.AddErrorToastMessage(ex.Message);
             }
 
-            return View(ROUTE_SCREEN_TITHEPAYERS, tithePayers);
+            int pageSize = 10;
+
+            var paginatedTithePayers = PaginatedList<TithePayer>.CreateAsync(tithePayers.AsQueryable(), pageNumber, pageSize);
+
+            return View(ROUTE_SCREEN_TITHEPAYERS, paginatedTithePayers);
         }
 
         public async Task<IActionResult> SaveTithePayer(TithePayerDTO tithePayer)
@@ -61,7 +70,7 @@ namespace DizimoParoquial.Controllers
             {
                 ViewBag.UserName = HttpContext.Session.GetString("Username");
 
-                if (string.IsNullOrWhiteSpace(tithePayer.Name) 
+                if (string.IsNullOrWhiteSpace(tithePayer.Name)
                     || string.IsNullOrWhiteSpace(tithePayer.Document)
                     || tithePayer.DateBirth != DateTime.MinValue
                     || string.IsNullOrWhiteSpace(tithePayer.PhoneNumber))
@@ -123,7 +132,7 @@ namespace DizimoParoquial.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
-                if(tithePayer.TermFile != null)
+                if (tithePayer.TermFile != null)
                 {
                     string imgBase64 = Convert.ToBase64String(tithePayer.TermFile);
                     string urlImagem = $"data:image/jpeg;base64,{imgBase64}";

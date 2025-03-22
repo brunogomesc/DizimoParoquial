@@ -17,8 +17,8 @@ namespace DizimoParoquial.Controllers
         private readonly AgentService _agentService;
 
         public LaunchController(
-            IToastNotification notification, 
-            TithePayerService tithePayerService, 
+            IToastNotification notification,
+            TithePayerService tithePayerService,
             TitheService titheService,
             AgentService agentService)
         {
@@ -30,6 +30,12 @@ namespace DizimoParoquial.Controllers
 
         //[SessionAuthorize("REGTIT")]
         [Route("SalvarDizimo")]
+        public IActionResult LaunchAllUsers()
+        {
+            ViewBag.UserName = HttpContext.Session.GetString("Username");
+            return View();
+        }
+
         public IActionResult Index()
         {
             ViewBag.UserName = HttpContext.Session.GetString("Username");
@@ -44,8 +50,8 @@ namespace DizimoParoquial.Controllers
 
             try
             {
-                
-                if(name == null && code == 0)
+
+                if (name == null && code == 0)
                 {
                     _notification.AddErrorToastMessage("Informe o nome ou código do dizimista.");
                     return RedirectToAction(nameof(Index));
@@ -77,7 +83,7 @@ namespace DizimoParoquial.Controllers
 
             try
             {
-                
+
                 if (string.IsNullOrWhiteSpace(value))
                 {
                     _notification.AddErrorToastMessage("Valor é obrigatório!");
@@ -96,13 +102,13 @@ namespace DizimoParoquial.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
-                if(dates == null || dates.Length == 0)
+                if (dates == null || dates.Length == 0)
                 {
                     _notification.AddErrorToastMessage("Data de Pagamento é obrigatório!");
                     return RedirectToAction(nameof(Index));
                 }
 
-                if(tithePayerId == 0)
+                if (tithePayerId == 0)
                 {
                     _notification.AddErrorToastMessage("Dizimista é obrigatório!");
                     return RedirectToAction(nameof(Index));
@@ -110,7 +116,7 @@ namespace DizimoParoquial.Controllers
 
                 AgentDTO agent = await _agentService.GetAgentByCode(agentCode);
 
-                if(agent == null)
+                if (agent == null)
                 {
                     _notification.AddErrorToastMessage("Agente do Dizimo não localizado!");
                     return RedirectToAction(nameof(Index));
