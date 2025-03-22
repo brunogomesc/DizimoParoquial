@@ -8,7 +8,7 @@ using NToastNotify;
 
 namespace DizimoParoquial.Controllers
 {
-    [SessionAuthorize("MANAGENT")]
+    //[SessionAuthorize("MANAGENT")]
     public class AgentController : Controller
     {
 
