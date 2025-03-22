@@ -2,10 +2,8 @@
 using DizimoParoquial.Models;
 using DizimoParoquial.Services;
 using DizimoParoquial.Utils;
-using DizimoParoquial.Utils.Filters;
 using Microsoft.AspNetCore.Mvc;
 using NToastNotify;
-using System.Threading.Tasks;
 
 namespace DizimoParoquial.Controllers
 {
@@ -33,7 +31,7 @@ namespace DizimoParoquial.Controllers
 
             var paginatedTithePayers = PaginatedList<TithePayer>.CreateAsync(tithePayers.AsQueryable(), pageNumber, pageSize);
 
-            return View(paginatedTithePayers);
+            return View(ROUTE_SCREEN_TITHEPAYERS, paginatedTithePayers);
         }
 
         public async Task<IActionResult> SearchTithePayer(string name, string document, int pageNumber = 1)

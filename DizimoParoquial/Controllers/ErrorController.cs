@@ -9,11 +9,11 @@ namespace DizimoParoquial.Controllers
             return View();
         }
 
-        public IActionResult Error401()
-        {
-            ViewBag.UserName = HttpContext.Session.GetString("Username");
-            return View("/Views/Error/Index.cshtml");
-        }
+        //public IActionResult Error401()
+        //{
+        //    ViewBag.UserName = HttpContext.Session.GetString("Username");
+        //    return View("/Views/Error/Index.cshtml");
+        //}
 
     }
 }
