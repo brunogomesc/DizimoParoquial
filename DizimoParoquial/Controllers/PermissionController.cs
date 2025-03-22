@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace DizimoParoquial.Controllers
 {
-    [SessionAuthorize("MANPERM")]
+    //[SessionAuthorize("MANPERM")]
     public class PermissionController : Controller
     {
 
