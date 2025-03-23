@@ -13,6 +13,8 @@
 
         public bool Active { get; set; }
 
+        public string Profile { get; set; } = string.Empty;
+
         public DateTime CreatedAt { get; set; }
 
     }

@@ -302,7 +302,8 @@ namespace DizimoParoquial.Data.Repositories
                                         Username = @Username, 
                                         Password = @Password, 
                                         Active = @Active, 
-                                        UpdatedAt = @UpdatedAt 
+                                        UpdatedAt = @UpdatedAt,
+                                        Profile = @Profile,
                                     WHERE UserId = @UserId";
 
                         var result = await connection.ExecuteAsync(query,
@@ -313,7 +314,8 @@ namespace DizimoParoquial.Data.Repositories
                                 user.Password,
                                 user.Active,
                                 user.UpdatedAt,
-                                user.UserId
+                                user.UserId,
+                                user.Profile
                             }
                         );
 
