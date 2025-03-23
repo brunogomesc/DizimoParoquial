@@ -19,7 +19,7 @@ namespace DizimoParoquial.Services
             _incomeService = incomeService;
         }
 
-        public async Task<bool> SaveTithe(LauchingTithe lauchingTithe, int userId)
+        public async Task<bool> SaveTithe(LauchingTithe lauchingTithe)
         {
             bool titheWasSaved = false;
 
@@ -32,7 +32,7 @@ namespace DizimoParoquial.Services
                     PaymentType = lauchingTithe.PaymentType,
                     Value = lauchingTithe.Value,
                     TithePayerId = lauchingTithe.TithePayerId,
-                    UserId = userId,
+                    UserId = null,
                     RegistrationDate = DateTime.Now
                 };
 
@@ -54,7 +54,7 @@ namespace DizimoParoquial.Services
                         PaymentType = lauchingTithe.PaymentType,
                         Value = tithesValueAmount,
                         TithePayerId = lauchingTithe.TithePayerId,
-                        UserId = userId,
+                        UserId = null,
                         RegistrationDate = DateTime.Now,
                         IncomeId = incomeId,
                         PaymentMonth = lauchingTithe.PaymentDates[i]

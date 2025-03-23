@@ -51,7 +51,7 @@ namespace DizimoParoquial.Controllers
             try
             {
 
-                if (name == null && code == 0)
+                if (name == null || code == 0)
                 {
                     _notification.AddErrorToastMessage("Informe o nome ou código do dizimista.");
                     return RedirectToAction(nameof(Index));
@@ -136,7 +136,7 @@ namespace DizimoParoquial.Controllers
                     TithePayerId = tithePayerId
                 };
 
-                bool titheWasSaved = await _titheService.SaveTithe(tithe, Convert.ToInt32(HttpContext.Session.GetInt32("User")));
+                bool titheWasSaved = await _titheService.SaveTithe(tithe);
 
                 if (titheWasSaved)
                     _notification.AddSuccessToastMessage("Dizimo registrado com sucesso!");
