@@ -11,6 +11,8 @@ namespace DizimoParoquial.Controllers
     public class LaunchController : Controller
     {
 
+        private const string ROUTE_SCREEN_LAUNCH_ALLUSERS = "/Views/Launch/LaunchAllUsers.cshtml";
+        private const string ROUTE_SCREEN_LAUNCH = "/Views/Launch/LaunchAllUsers.cshtml";
         private readonly IToastNotification _notification;
         private readonly TithePayerService _tithePayerService;
         private readonly TitheService _titheService;
@@ -43,7 +45,40 @@ namespace DizimoParoquial.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> SearchTithePayer(string name, int code)
+        public async Task<IActionResult> SearchTithePayer(int code)
+        {
+
+            ViewBag.UserName = HttpContext.Session.GetString("Username");
+
+            try
+            {
+
+                if (code == 0)
+                {
+                    _notification.AddErrorToastMessage("Informe o nome ou código do dizimista.");
+                    return RedirectToAction(nameof(Index));
+                }
+
+                TithePayerLaunchDTO tithePayer = await _tithePayerService.GetTithePayersLauchingWithFilters(code);
+
+                if (tithePayer == null)
+                {
+                    _notification.AddErrorToastMessage("Dizimista não encontrado.");
+                    return RedirectToAction(nameof(Index));
+                }
+
+                return View(ROUTE_SCREEN_LAUNCH_ALLUSERS, tithePayer);
+            }
+            catch (Exception ex)
+            {
+                _notification.AddErrorToastMessage(ex.Message);
+            }
+
+            return RedirectToAction(nameof(Index));
+
+        }
+
+        public async Task<IActionResult> SearchTithePayerLaunch(string name, int code)
         {
 
             ViewBag.UserName = HttpContext.Session.GetString("Username");
@@ -57,7 +92,7 @@ namespace DizimoParoquial.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
-                TithePayerLaunchDTO tithePayer = await _tithePayerService.GetTithePayersLauchingWithFilters(name, code);
+                List<TithePayerLaunchDTO> tithePayer = await _tithePayerService.GetTithePayersLauchingWithFilters(name, code);
 
                 if (tithePayer == null)
                 {
@@ -65,7 +100,7 @@ namespace DizimoParoquial.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
-                return Json(tithePayer);
+                return View(ROUTE_SCREEN_LAUNCH_ALLUSERS, tithePayer);
             }
             catch (Exception ex)
             {

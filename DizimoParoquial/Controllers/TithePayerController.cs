@@ -70,7 +70,7 @@ namespace DizimoParoquial.Controllers
 
                 if (string.IsNullOrWhiteSpace(tithePayer.Name)
                     || string.IsNullOrWhiteSpace(tithePayer.Document)
-                    || tithePayer.DateBirth != DateTime.MinValue
+                    || tithePayer.DateBirth == DateTime.MinValue
                     || string.IsNullOrWhiteSpace(tithePayer.PhoneNumber))
                 {
                     _notification.AddErrorToastMessage("Nome, Documento, Data de Nascimento e Telefone são obrigatórios!");
