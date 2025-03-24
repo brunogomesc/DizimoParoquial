@@ -8,7 +8,7 @@ namespace DizimoParoquial.Data.Interface
 
         public Task<bool> SaveTithes(List<Tithe> tithes);
 
-        public Task<List<TitheDTO>> GetTithesWithFilters(string? name, int tithePayerCode);
+        public Task<List<TitheDTO>> GetTithesWithFilters(string? name, int tithePayerCode, string? document);
 
     }
 }

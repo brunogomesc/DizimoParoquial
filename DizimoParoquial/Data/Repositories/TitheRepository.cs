@@ -78,7 +78,7 @@ namespace DizimoParoquial.Data.Repositories
             }
         }
 
-        public async Task<List<TitheDTO>> GetTithesWithFilters(string? name, int tithePayerCode)
+        public async Task<List<TitheDTO>> GetTithesWithFilters(string? name, int tithePayerCode, string? document)
         {
 
             List<TitheDTO> tithes = new List<TitheDTO>();
@@ -105,6 +105,9 @@ namespace DizimoParoquial.Data.Repositories
 
                 if (tithePayerCode != 0)
                     query.Append($" AND T.TithePayerId = {tithePayerCode} ");
+
+                if (document != null)
+                    query.Append($" AND TP.Document = '{document}'");
 
                 using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
                 {

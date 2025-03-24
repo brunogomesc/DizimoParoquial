@@ -31,19 +31,21 @@ namespace DizimoParoquial.Controllers
             return View();
         }
 
-        public async Task<IActionResult> SearchTithes(string name, int tithePayerCode)
+        public async Task<IActionResult> SearchTithes(string name, int tithePayerCode, string document)
         {
             ViewBag.UserName = HttpContext.Session.GetString("Username");
             try
             {
 
-                if (string.IsNullOrWhiteSpace(name) && tithePayerCode == 0)
+                if (string.IsNullOrWhiteSpace(name) && tithePayerCode == 0 && string.IsNullOrWhiteSpace(document))
                 {
                     _notification.AddErrorToastMessage("Informe o nome ou código do dizimista.");
                     return RedirectToAction(nameof(Index));
                 }
 
-                List<TitheDTO> tithes = await _titheService.GetTithesWithFilters(name, tithePayerCode);
+                document = document.Replace(".", "").Replace("-", "");
+
+                List<TitheDTO> tithes = await _titheService.GetTithesWithFilters(name, tithePayerCode, document);
 
                 if (tithes == null || tithes.Count == 0)
                 {

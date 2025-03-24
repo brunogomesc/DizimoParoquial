@@ -19,11 +19,15 @@
                 @using (Html.BeginForm("SearchTithes","Consult", FormMethod.Post, new { enctype = "multipart/form-data"}))
                 {
                     <div class="row g-3">
-                        <div class="col-md-6">
+                        <div class="col-md-5">
                             <label for="Name" class="form-label"><b>Nome:</b></label>
                             <input name="name" id="name" class="form-control" type="text" />
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-5">
+                            <label for="Document" class="form-label"><b>Documento:</b></label>
+                            <input name="document" id="document" class="form-control" type="text" />
+                        </div>
+                        <div class="col-md-2">
                             <label for="tithePayerCode" class="form-label"><b>Código Dizimista:</b></label>
                             <input name="tithePayerCode" id="tithePayerCode" class="form-control" type="number" />
                         </div>

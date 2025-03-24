@@ -51,7 +51,7 @@ namespace DizimoParoquial.Controllers
             try
             {
 
-                if (name == null || code == 0)
+                if (name == null && code == 0)
                 {
                     _notification.AddErrorToastMessage("Informe o nome ou código do dizimista.");
                     return RedirectToAction(nameof(Index));

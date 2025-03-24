@@ -91,14 +91,14 @@ namespace DizimoParoquial.Services
             }
         }
 
-        public async Task<List<TitheDTO>> GetTithesWithFilters(string? name, int tithePayerCode)
+        public async Task<List<TitheDTO>> GetTithesWithFilters(string? name, int tithePayerCode, string? document)
         {
             List<TitheDTO> tithes = new List<TitheDTO>();
 
             try
             {
 
-                tithes = await GetTithesWithFiltersRepository(name, tithePayerCode);
+                tithes = await GetTithesWithFiltersRepository(name, tithePayerCode, document);
 
                 return tithes;
 
@@ -159,13 +159,13 @@ namespace DizimoParoquial.Services
             }
         }
 
-        private async Task<List<TitheDTO>> GetTithesWithFiltersRepository(string? name, int tithePayerCode)
+        private async Task<List<TitheDTO>> GetTithesWithFiltersRepository(string? name, int tithePayerCode, string? document)
         {
             List<TitheDTO> tithes = new List<TitheDTO>();
 
             try
             {
-                tithes = await _titheRepository.GetTithesWithFilters(name, tithePayerCode);
+                tithes = await _titheRepository.GetTithesWithFilters(name, tithePayerCode, document);
 
                 return tithes;
             }
