@@ -187,17 +187,18 @@
             type: 'GET',
             data: { code: id },
             success: function (data) {
-                if (data) { // Verifica se há dados retornados
-                    document.getElementById("resultName").value = data.name;
-                    document.getElementById("resultCode").value = data.tithePayerId;
-                    document.getElementById("tithePayerId").value = data.tithePayerId;
-                    document.getElementById("resultDateBirth").value = data.dateBirth ? new Date(data.dateBirth).toISOString().split('T')[0] : '';
+                console.log(data);
+                // if (data) { // Verifica se há dados retornados
+                //     document.getElementById("resultName").value = data.name;
+                //     document.getElementById("resultCode").value = data.tithePayerId;
+                //     document.getElementById("tithePayerId").value = data.tithePayerId;
+                //     document.getElementById("resultDateBirth").value = data.dateBirth ? new Date(data.dateBirth).toISOString().split('T')[0] : '';
 
-                    // Exibe a div de resultados
-                    $('#modal_tithe_launch').modal('show');
-                } else {
-                    alert("Nenhum resultado encontrado.");
-                }
+                //     // Exibe a div de resultados
+                //     $('#modal_tithe_launch').modal('show');
+                // } else {
+                //     alert("Nenhum resultado encontrado.");
+                // }
             },
             error: function () {
                 alert("Erro ao buscar os dados.");
