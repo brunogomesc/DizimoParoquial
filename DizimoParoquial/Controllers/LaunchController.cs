@@ -67,7 +67,7 @@ namespace DizimoParoquial.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
-                return View(ROUTE_SCREEN_LAUNCH_ALLUSERS, tithePayer);
+                return Json(tithePayer);
             }
             catch (Exception ex)
             {
