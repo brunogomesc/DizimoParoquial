@@ -45,7 +45,7 @@ namespace DizimoParoquial.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> SearchTithePayer(int code)
+        public async Task<IActionResult> SearchTithePayerAllUsers(int code)
         {
 
             ViewBag.UserName = HttpContext.Session.GetString("Username");
