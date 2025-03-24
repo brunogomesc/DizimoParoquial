@@ -97,7 +97,7 @@ namespace DizimoParoquial.Controllers
                 if (tithePayer == null)
                 {
                     _notification.AddErrorToastMessage("Dizimista não encontrado.");
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(LaunchAllUsers));
                 }
 
                 return View(ROUTE_SCREEN_LAUNCH_ALLUSERS, tithePayer);
@@ -107,7 +107,7 @@ namespace DizimoParoquial.Controllers
                 _notification.AddErrorToastMessage(ex.Message);
             }
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(LaunchAllUsers));
 
         }
 
