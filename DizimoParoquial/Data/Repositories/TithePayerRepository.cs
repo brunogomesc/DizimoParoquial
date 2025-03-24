@@ -225,7 +225,7 @@ namespace DizimoParoquial.Data.Repositories
                     query.Append($" AND TithePayerId = {code}");
 
                 if (name != null)
-                    query.Append($" AND Name LIKE '%{code}%'");
+                    query.Append($" AND Name LIKE '%{name}%'");
 
                 using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
                 {
