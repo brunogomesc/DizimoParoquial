@@ -66,7 +66,7 @@
                             <td>@Html.DisplayFor(item => tithePayer.Document)</td>
                             <td>@(tithePayer.DateBirth.ToString("dd/MM/yyyy"))</td>
                             <td>
-                                <a data-toggle="tooltip" class="bs-tooltip" data-placement="top" href="javascript:void(0);" onclick="openModal(@tithePayer.TithePayerId)" title="Lançar"><i class="fa-regular fa-clipboard" style="color: #000000"></i></a>
+                                <a data-toggle="tooltip" class="bs-tooltip" data-placement="top" href="javascript:void(0);" onclick="openModalLaunch(@tithePayer.TithePayerId)" title="Lançar"><i class="fa-regular fa-clipboard" style="color: #000000"></i></a>
                             </td>
                         </tr>
                     }
@@ -181,7 +181,7 @@
 </html>
 
 <script>
-    function filterTithePayer(id) {
+    function openModalLaunch(id) {
         $.ajax({
             url: '/Launch/SearchTithePayerAllUsers', // Rota para o método do controlador que retornará os dados
             type: 'GET',
