@@ -43,7 +43,8 @@ namespace DizimoParoquial.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
-                document = document.Replace(".", "").Replace("-", "");
+                if(document != null)
+                    document = document.Replace(".", "").Replace("-", "");
 
                 List<TitheDTO> tithes = await _titheService.GetTithesWithFilters(name, tithePayerCode, document);
 
