@@ -294,7 +294,7 @@ namespace DizimoParoquial.Services
 
                 TithePayer tithePayerExists = await GetTithePayerById(tithePayer.TithePayerId);
 
-                if (tithePayerExists == null && tithePayerExists.TithePayerId == 0)
+                if (tithePayerExists == null || tithePayerExists.TithePayerId == 0)
                     throw new ValidationException("Dizimista não existente");
 
                 tithePayer.UpdatedAt = DateTime.Now;

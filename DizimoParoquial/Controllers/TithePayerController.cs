@@ -27,10 +27,6 @@ namespace DizimoParoquial.Controllers
 
             List<TithePayer> tithePayers = await _tithePayerService.GetTithePayersWithouthFilters();
 
-            //int pageSize = 10;
-
-            //var paginatedTithePayers = PaginatedList<TithePayer>.CreateAsync(tithePayers.AsQueryable(), pageNumber, pageSize);
-
             return View(ROUTE_SCREEN_TITHEPAYERS, tithePayers);
         }
 
@@ -53,10 +49,6 @@ namespace DizimoParoquial.Controllers
             {
                 _notification.AddErrorToastMessage(ex.Message);
             }
-
-            //int pageSize = 10;
-
-            //var paginatedTithePayers = PaginatedList<TithePayer>.CreateAsync(tithePayers.AsQueryable(), pageNumber, pageSize);
 
             return View(ROUTE_SCREEN_TITHEPAYERS, tithePayers);
         }

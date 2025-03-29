@@ -113,51 +113,43 @@
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">Registrar Dizimo</h5>
-                                
-                                    <input id="tithePayerId" name="tithePayerId" type="number" hidden />
-                                    <div class="row g-3">
-                                        <div class="col-md-3">
-                                            <label for="value" class="form-label"><b>Valor</b></label>
-                                            <span class="toggle-value">
-                                                (R$)
-                                            </span>
-                                            <input data-mask="#.##0,00" data-mask-reverse="true" type="text" class="form-control" id="value" name="value">
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label for="agentCode" id="agentCode" class="form-label"><b>Código Agente do Dizimo:</b></label>
-                                            <input id="agentCode" name="agentCode" class="form-control" type="number" />
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="paymentType" id="paymentType" class="form-label"><b>Forma de Pagamento:</b></label>
-                                            <select id="paymentType" name="paymentType" class="form-control">
-                                                <option></option>
-                                                <option value="Pix">Pix</option>
-                                                <option value="Dinheiro">Dinheiro</option>
-                                                <option value="Cartão de Crédito">Cartão de Crédito</option>
-                                                <option value="Cartão de Débito">Cartão de Débito</option>
-                                                <option value="Transferência Bancária">Transferência Bancária</option>
-                                            </select>
-                                        </div>
+                                <input id="tithePayerId" name="tithePayerId" type="number" hidden />
+                                <div class="row g-3">
+                                    <div class="col-md-3">
+                                        <label for="value" class="form-label"><b>Valor</b></label>
+                                        <span class="toggle-value">
+                                            (R$)
+                                        </span>
+                                        <input data-mask="#.##0,00" data-mask-reverse="true" type="text" class="form-control" id="value" name="value">
                                     </div>
-                                    <div class="row g-3 mt-2">
-                                        <div class="col-md-10">
-                                            <label for="dates" id="dates" class="form-label"><b>Meses a serem pagos:</b></label>
-                                            <select class="form-control js-example-basic-multiple" name="dates[]" multiple="multiple">
-                                                <option></option>
-                                                @foreach (var date in dates)
-                                                {
-                                                    <option value="@date.ToString("yyyy-MM")">@date.ToString("MM/yyyy")</option>
-                                                }
-                                            </select>
-                                        </div>
+                                    <div class="col-md-3">
+                                        <label for="agentCode" id="agentCode" class="form-label"><b>Código Agente do Dizimo:</b></label>
+                                        <input id="agentCode" name="agentCode" class="form-control" type="number" />
                                     </div>
-                                    <div class="row g-3 mt-3">
-                                        <div class="col-md-3">
-                                            <button class="btn btn-primary w-100" type="submit">
-                                                Salvar
-                                            </button>
-                                        </div>
+                                    <div class="col-md-6">
+                                        <label for="paymentType" id="paymentType" class="form-label"><b>Forma de Pagamento:</b></label>
+                                        <select id="paymentType" name="paymentType" class="form-control">
+                                            <option></option>
+                                            <option value="Pix">Pix</option>
+                                            <option value="Dinheiro">Dinheiro</option>
+                                            <option value="Cartão de Crédito">Cartão de Crédito</option>
+                                            <option value="Cartão de Débito">Cartão de Débito</option>
+                                            <option value="Transferência Bancária">Transferência Bancária</option>
+                                        </select>
                                     </div>
+                                </div>
+                                <div class="row g-3 mt-2">
+                                    <div class="col-md-10">
+                                        <label for="dates" id="dates" class="form-label"><b>Meses a serem pagos:</b></label>
+                                        <select class="form-control js-example-basic-multiple" name="dates[]" multiple="multiple">
+                                            <option></option>
+                                            @foreach (var date in dates)
+                                            {
+                                                <option value="@date.ToString("yyyy-MM")">@date.ToString("MM/yyyy")</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
