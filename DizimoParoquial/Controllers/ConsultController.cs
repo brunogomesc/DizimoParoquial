@@ -8,7 +8,7 @@ namespace DizimoParoquial.Controllers
     public class ConsultController : Controller
     {
 
-        private const string ROUTE_SCREEN_CONSULT = "/Views/Consult/Index.cshtml";
+        private const string ROUTE_SCREEN_CONSULT_ALL_USERS = "/Views/Consult/ConsultAllUsers.cshtml";
         private readonly IToastNotification _notification;
         private readonly TitheService _titheService;
 
@@ -31,16 +31,19 @@ namespace DizimoParoquial.Controllers
             return View();
         }
 
-        public async Task<IActionResult> SearchTithes(string name, int tithePayerCode, string document)
+        #region Public Methods - All Users
+
+        public async Task<IActionResult> SearchTithesAllUsers(string name, int tithePayerCode, string document)
         {
             ViewBag.UserName = HttpContext.Session.GetString("Username");
+
             try
             {
 
                 if (string.IsNullOrWhiteSpace(name) && tithePayerCode == 0 && string.IsNullOrWhiteSpace(document))
                 {
                     _notification.AddErrorToastMessage("Informe o nome ou código do dizimista.");
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(ConsultAllUsers));
                 }
 
                 if(document != null)
@@ -51,14 +54,14 @@ namespace DizimoParoquial.Controllers
                 if (tithes == null || tithes.Count == 0)
                 {
                     _notification.AddErrorToastMessage("Dizimista não encontrado.");
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(ConsultAllUsers));
                 }
 
                 List<TitheDTO> tithesOrdered = tithes.OrderByDescending(t => t.PaymentMonth).ToList();
 
                 List<TitheDTO> latestTithes = tithesOrdered.Take(3).ToList();
 
-                return View(ROUTE_SCREEN_CONSULT, latestTithes);
+                return View(ROUTE_SCREEN_CONSULT_ALL_USERS, latestTithes);
 
             }
             catch (Exception ex)
@@ -66,8 +69,11 @@ namespace DizimoParoquial.Controllers
                 _notification.AddErrorToastMessage(ex.Message);
             }
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(ConsultAllUsers));
 
         }
+
+        #endregion
+
     }
 }

@@ -44,6 +44,8 @@ namespace DizimoParoquial.Controllers
             return View();
         }
 
+        #region Public Methods - All Users
+
         [HttpGet]
         public async Task<IActionResult> SearchTithePayerAllUsers(int code)
         {
@@ -56,7 +58,7 @@ namespace DizimoParoquial.Controllers
                 if (code == 0)
                 {
                     _notification.AddErrorToastMessage("Informe o nome ou código do dizimista.");
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(LaunchAllUsers));
                 }
 
                 TithePayerLaunchDTO tithePayer = await _tithePayerService.GetTithePayersLauchingWithFilters(code);
@@ -64,7 +66,7 @@ namespace DizimoParoquial.Controllers
                 if (tithePayer == null)
                 {
                     _notification.AddErrorToastMessage("Dizimista não encontrado.");
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(LaunchAllUsers));
                 }
 
                 return Json(tithePayer);
@@ -74,11 +76,11 @@ namespace DizimoParoquial.Controllers
                 _notification.AddErrorToastMessage(ex.Message);
             }
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(LaunchAllUsers));
 
         }
 
-        public async Task<IActionResult> SearchTithePayerLaunch(string name, int code)
+        public async Task<IActionResult> SearchTithePayerLaunchAllUsers(string name, int code)
         {
 
             ViewBag.UserName = HttpContext.Session.GetString("Username");
@@ -89,7 +91,7 @@ namespace DizimoParoquial.Controllers
                 if (name == null && code == 0)
                 {
                     _notification.AddErrorToastMessage("Informe o nome ou código do dizimista.");
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(LaunchAllUsers));
                 }
 
                 List<TithePayerLaunchDTO> tithePayer = await _tithePayerService.GetTithePayersLauchingWithFilters(name, code);
@@ -111,7 +113,7 @@ namespace DizimoParoquial.Controllers
 
         }
 
-        public async Task<IActionResult> SaveTithe(string value, string agentCode, string paymentType, int tithePayerId, DateTime[] dates)
+        public async Task<IActionResult> SaveTitheAllUsers(string value, string agentCode, string paymentType, int tithePayerId, DateTime[] dates)
         {
 
             ViewBag.UserName = HttpContext.Session.GetString("Username");
@@ -122,39 +124,39 @@ namespace DizimoParoquial.Controllers
                 if (string.IsNullOrWhiteSpace(value))
                 {
                     _notification.AddErrorToastMessage("Valor é obrigatório!");
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(LaunchAllUsers));
                 }
 
                 if (string.IsNullOrWhiteSpace(agentCode))
                 {
                     _notification.AddErrorToastMessage("Código do Agente do Dizimo é obrigatório!");
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(LaunchAllUsers));
                 }
 
                 if (string.IsNullOrWhiteSpace(paymentType))
                 {
                     _notification.AddErrorToastMessage("Tipo de Pagamento é obrigatório!");
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(LaunchAllUsers));
                 }
 
                 if (dates == null || dates.Length == 0)
                 {
                     _notification.AddErrorToastMessage("Data de Pagamento é obrigatório!");
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(LaunchAllUsers));
                 }
 
                 if (tithePayerId == 0)
                 {
                     _notification.AddErrorToastMessage("Dizimista é obrigatório!");
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(LaunchAllUsers));
                 }
 
                 AgentDTO agent = await _agentService.GetAgentByCode(agentCode);
 
-                if (agent == null)
+                if (agent == null || !agent.Active)
                 {
-                    _notification.AddErrorToastMessage("Agente do Dizimo não localizado!");
-                    return RedirectToAction(nameof(Index));
+                    _notification.AddErrorToastMessage("Agente do Dizimo não localizado ou inativo!");
+                    return RedirectToAction(nameof(LaunchAllUsers));
                 }
 
                 decimal decimalValue;
@@ -183,8 +185,10 @@ namespace DizimoParoquial.Controllers
                 _notification.AddErrorToastMessage(ex.Message);
             }
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(LaunchAllUsers));
         }
+
+        #endregion
 
     }
 }

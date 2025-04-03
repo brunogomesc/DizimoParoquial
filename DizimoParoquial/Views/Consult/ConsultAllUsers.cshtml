@@ -19,7 +19,7 @@
                     <i class="fa fa-search" aria-hidden="true"></i>
                     Consultar Dizimo
                 </h2>
-                @using (Html.BeginForm("SearchTithes","Consult", FormMethod.Post, new { enctype = "multipart/form-data"}))
+                @using (Html.BeginForm("SearchTithesAllUsers", "Consult", FormMethod.Post, new { enctype = "multipart/form-data" }))
                 {
                     <div class="row g-3">
                         <div class="col-md-5">
@@ -64,14 +64,28 @@
                 <tbody>
                     @foreach (var tithe in Model)
                     {
-                        <tr>
-                            <td>@tithe.NameTithePayer</td>
-                            <td>@tithe.NameAgent</td>
-                            <td>@tithe.PaymentMonth.ToString("MM/yyyy")</td>
-                            <td>R$ @tithe.Value.ToString("N2")</td>
-                            <td>@tithe.PaymentType</td>
-                            <td>@tithe.RegistrationDate.ToString("dd/MM/yyyy")</td>
-                        </tr>
+                        @if(tithe.NameAgent == "")
+                        {
+                            <tr>
+                                <td>@tithe.NameTithePayer</td>
+                                <td>Nenhum Dizimo Pago</td>
+                                <td>Nenhum Dizimo Pago</td>
+                                <td>Nenhum Dizimo Pago</td>
+                                <td>Nenhum Dizimo Pago</td>
+                                <td>Nenhum Dizimo Pago</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td>@tithe.NameTithePayer</td>
+                                <td>@tithe.NameAgent</td>
+                                <td>@tithe.PaymentMonth.ToString("MM/yyyy")</td>
+                                <td>R$ @tithe.Value.ToString("N2")</td>
+                                <td>@tithe.PaymentType</td>
+                                <td>@tithe.RegistrationDate.ToString("dd/MM/yyyy")</td>
+                            </tr>
+                        }
                     }
                 </tbody>
             </table>

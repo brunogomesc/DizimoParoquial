@@ -93,10 +93,10 @@ namespace DizimoParoquial.Data.Repositories
                 query.Append("T.Value, ");
                 query.Append("T.PaymentMonth, ");
                 query.Append("T.RegistrationDate ");
-                query.Append("FROM Tithe T ");
-                query.Append("INNER JOIN TithePayer TP ");
+                query.Append("FROM TithePayer TP ");
+                query.Append("LEFT JOIN Tithe T ");
                 query.Append("ON T.TithePayerId = TP.TithePayerId ");
-                query.Append("INNER JOIN Agent A ");
+                query.Append("LEFT JOIN Agent A ");
                 query.Append("ON T.AgentCode = A.AgentCode ");
                 query.Append("WHERE 1 = 1 ");
 
