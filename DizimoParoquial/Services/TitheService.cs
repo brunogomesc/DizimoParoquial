@@ -91,14 +91,48 @@ namespace DizimoParoquial.Services
             }
         }
 
-        public async Task<List<TitheDTO>> GetTithesWithFilters(string? name, int tithePayerCode, string? document)
+        public async Task<List<TithePayerLaunchDTO>> GetTithesWithFilters(string? name, int tithePayerCode, string? document)
+        {
+            List<TithePayerLaunchDTO> tithes = new List<TithePayerLaunchDTO>();
+
+            try
+            {
+
+                tithes = await GetTithesWithFiltersRepository(name, tithePayerCode, document);
+
+                return tithes;
+
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consultar Dizimos - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Consultar Dizimos - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Consultar Dizimos - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Consultar Dizimos - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Consultar Dizimos - Dados vazios.");
+            }
+        }
+
+        public async Task<List<TitheDTO>> GetTithesByTithePayerId(int tithePayerId)
         {
             List<TitheDTO> tithes = new List<TitheDTO>();
 
             try
             {
 
-                tithes = await GetTithesWithFiltersRepository(name, tithePayerCode, document);
+                tithes = await GetTithesByTithePayerIdRepository(tithePayerId);
 
                 return tithes;
 
@@ -159,13 +193,45 @@ namespace DizimoParoquial.Services
             }
         }
 
-        private async Task<List<TitheDTO>> GetTithesWithFiltersRepository(string? name, int tithePayerCode, string? document)
+        private async Task<List<TithePayerLaunchDTO>> GetTithesWithFiltersRepository(string? name, int tithePayerCode, string? document)
+        {
+            List<TithePayerLaunchDTO> tithes = new List<TithePayerLaunchDTO>();
+
+            try
+            {
+                tithes = await _titheRepository.GetTithesWithFilters(name, tithePayerCode, document);
+
+                return tithes;
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consultar Dizimos - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Consultar Dizimos - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Consultar Dizimos - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Consultar Dizimos - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Consultar Dizimos - Dados vazios.");
+            }
+        }
+
+        private async Task<List<TitheDTO>> GetTithesByTithePayerIdRepository(int tithePayerId)
         {
             List<TitheDTO> tithes = new List<TitheDTO>();
 
             try
             {
-                tithes = await _titheRepository.GetTithesWithFilters(name, tithePayerCode, document);
+                tithes = await _titheRepository.GetTithesByTithePayerId(tithePayerId);
 
                 return tithes;
             }

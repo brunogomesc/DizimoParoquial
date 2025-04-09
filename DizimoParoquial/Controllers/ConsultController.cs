@@ -27,7 +27,6 @@ namespace DizimoParoquial.Controllers
         [Route("ConsultarDizimo")]
         public IActionResult ConsultAllUsers()
         {
-            ViewBag.UserName = HttpContext.Session.GetString("Username");
             return View();
         }
 
@@ -49,19 +48,15 @@ namespace DizimoParoquial.Controllers
                 if(document != null)
                     document = document.Replace(".", "").Replace("-", "");
 
-                List<TitheDTO> tithes = await _titheService.GetTithesWithFilters(name, tithePayerCode, document);
+                List<TithePayerLaunchDTO> tithePayers = await _titheService.GetTithesWithFilters(name, tithePayerCode, document);
 
-                if (tithes == null || tithes.Count == 0)
+                if (tithePayers == null || tithePayers.Count == 0)
                 {
                     _notification.AddErrorToastMessage("Dizimista não encontrado.");
                     return RedirectToAction(nameof(ConsultAllUsers));
                 }
 
-                List<TitheDTO> tithesOrdered = tithes.OrderByDescending(t => t.PaymentMonth).ToList();
-
-                List<TitheDTO> latestTithes = tithesOrdered.Take(3).ToList();
-
-                return View(ROUTE_SCREEN_CONSULT_ALL_USERS, latestTithes);
+                return View(ROUTE_SCREEN_CONSULT_ALL_USERS, tithePayers);
 
             }
             catch (Exception ex)
@@ -72,6 +67,39 @@ namespace DizimoParoquial.Controllers
             return RedirectToAction(nameof(ConsultAllUsers));
 
         }
+
+        [HttpGet]
+        public async Task<IActionResult> SearchTithePayerAllUsers(int code)
+        {
+
+            try
+            {
+
+                if (code == 0)
+                {
+                    _notification.AddErrorToastMessage("Informe o nome ou código do dizimista.");
+                    return RedirectToAction(nameof(ConsultAllUsers));
+                }
+
+                List<TitheDTO> tithes = await _titheService.GetTithesByTithePayerId(code);
+
+                if (tithes == null)
+                {
+                    _notification.AddErrorToastMessage("Dizimista não encontrado.");
+                    return RedirectToAction(nameof(ConsultAllUsers));
+                }
+
+                return Json(tithes);
+            }
+            catch (Exception ex)
+            {
+                _notification.AddErrorToastMessage(ex.Message);
+            }
+
+            return RedirectToAction(nameof(ConsultAllUsers));
+
+        }
+
 
         #endregion
 

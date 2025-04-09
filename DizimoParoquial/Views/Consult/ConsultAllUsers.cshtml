@@ -1,4 +1,4 @@
-﻿@model List<TitheDTO>
+﻿@model List<TithePayerLaunchDTO>
 @{
 
     ViewData["Username"] = @ViewBag.UserName;
@@ -47,49 +47,144 @@
         </div>
     </div>
     <br />
-    @if (Model != null && Model.Any())
+    @if (Model != null)
     {
         <div class="card mt-4">
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
-                        <th>Nome Dizimista</th>
-                        <th>Nome Agente do Dizimo</th>
-                        <th>Mês pago</th>
-                        <th>Valor</th>
-                        <th>Forma de Pagamento</th>
-                        <th>Data de Pagamento</th>
+                        <th>Código Dizimista</th>
+                        <th>Nome</th>
+                        <th>CPF</th>
+                        <th>Data Nascimento</th>
+                        <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var tithe in Model)
+                    @foreach (var tithePayer in Model)
                     {
-                        @if(tithe.NameAgent == "")
-                        {
-                            <tr>
-                                <td>@tithe.NameTithePayer</td>
-                                <td>Nenhum Dizimo Pago</td>
-                                <td>Nenhum Dizimo Pago</td>
-                                <td>Nenhum Dizimo Pago</td>
-                                <td>Nenhum Dizimo Pago</td>
-                                <td>Nenhum Dizimo Pago</td>
-                            </tr>
-                        }
-                        else
-                        {
-                            <tr>
-                                <td>@tithe.NameTithePayer</td>
-                                <td>@tithe.NameAgent</td>
-                                <td>@tithe.PaymentMonth.ToString("MM/yyyy")</td>
-                                <td>R$ @tithe.Value.ToString("N2")</td>
-                                <td>@tithe.PaymentType</td>
-                                <td>@tithe.RegistrationDate.ToString("dd/MM/yyyy")</td>
-                            </tr>
-                        }
+                        <tr>
+                            <td>@Html.DisplayFor(item => tithePayer.TithePayerId)</td>
+                            <td>@Html.DisplayFor(item => tithePayer.Name)</td>
+                            <td>@Html.DisplayFor(item => tithePayer.Document)</td>
+                            <td>@(tithePayer.DateBirth.ToString("dd/MM/yyyy"))</td>
+                            <td>
+                                <a data-toggle="tooltip" class="bs-tooltip" data-placement="top" href="javascript:void(0);" onclick="openModalConsult(@tithePayer.TithePayerId)" title="Consultar"><i class="fa-regular fa-search" style="color: #000000"></i></a>
+                            </td>
+                        </tr>
                     }
                 </tbody>
             </table>
         </div>
     }
+    else
+    {
+        <h4 class="text-center">Sem resultados para serem exibidos</h4>
+    }
+
+    @* Modal Launch Tithe *@
+
+    <div class="modal fade" id="modal_tithe_consult">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"><i class="fa-solid fa-user-pen"></i> Dizimos Pagos Recentemente</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="card">
+                        <div class="card-body" id="modalTitheConsultBody">
+                            <h5 class="card-title">Lançamentos Registrados</h5>
+                        </div>
+                    </div>
+                    <!-- Mensagem de erro -->
+                    <div id="passwordMessageEdit"></div>
+                    <input hidden type="text" name="userId" id="userIdEdit" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <a class="btn btn-primary" href="@Url.Action("LaunchAllUsers","Launch")" id="saveButtonEdit">Lançar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* End Modal Launch Tithe *@
 </body>
 </html>
+
+<script>
+    function openModalConsult(id) {
+        $.ajax({
+            // Ajuste a URL se necessário. Ela deve retornar a LISTA de lançamentos para o dizimista 'id'
+            url: '/Launch/SearchTithePayerAllUsers',
+            type: 'GET',
+            data: { code: id }, // Enviando o ID do dizimista como parâmetro 'code'
+            success: function (data) {
+                // Seleciona o corpo do card dentro do modal onde a tabela será inserida
+                var modalBodyContent = $('#modalTitheConsultBody');
+                modalBodyContent.empty(); // Limpa qualquer conteúdo anterior (tabelas antigas, mensagens)
+
+                // Adiciona o título novamente, caso tenha sido removido pelo empty()
+                modalBodyContent.append('<h5 class="card-title">Lançamentos Registrados</h5>');
+
+                // Verifica se 'data' é um array e tem itens
+                if (data && Array.isArray(data) && data.length > 0) {
+
+                    // Cria a estrutura inicial da tabela
+                    var tableHtml = '<table class="table table-bordered table-striped mt-3">';
+                    tableHtml += '<thead><tr>';
+                    // === AJUSTE AQUI: Defina os cabeçalhos da sua tabela ===
+                    tableHtml += '<th>Data Lançamento</th>';
+                    tableHtml += '<th>Competência</th>';
+                    tableHtml += '<th>Valor (R$)</th>';
+                    // Adicione mais cabeçalhos conforme necessário
+                    tableHtml += '</tr></thead>';
+                    tableHtml += '<tbody>';
+
+                    // Itera sobre cada item retornado na lista 'data'
+                    data.forEach(function(item) {
+                        tableHtml += '<tr>';
+                        // === AJUSTE AQUI: Use os nomes corretos das propriedades do seu objeto 'item' ===
+                        // Formata a data (exemplo: dd/mm/yyyy)
+                        var dataLancamentoFormatada = item.dataLancamento ? new Date(item.dataLancamento).toLocaleDateString('pt-BR') : 'N/A';
+                        // Formata o valor como moeda (exemplo: R$ 100,00)
+                        var valorFormatado = item.valor ? item.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'N/A';
+                        var competencia = item.competencia || 'N/A'; // Ex: "04/2025"
+
+                        tableHtml += '<td>' + dataLancamentoFormatada + '</td>';
+                        tableHtml += '<td>' + competencia + '</td>';
+                        tableHtml += '<td>' + valorFormatado + '</td>';
+                        // Adicione mais células <td> correspondendo aos cabeçalhos
+                        tableHtml += '</tr>';
+                    });
+
+                    tableHtml += '</tbody></table>';
+
+                    // Adiciona a tabela completa ao corpo do modal
+                    modalBodyContent.append(tableHtml);
+
+                } else {
+                    // Se não houver dados, exibe uma mensagem
+                    modalBodyContent.append('<p class="text-center mt-3">Nenhum lançamento encontrado para este dizimista.</p>');
+                }
+
+                // Exibe o modal após o conteúdo ser preparado
+                $('#modal_tithe_consult').modal('show');
+
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                 // Melhora o feedback de erro
+                var modalBodyContent = $('#modalTitheConsultBody');
+                modalBodyContent.empty();
+                modalBodyContent.append('<h5 class="card-title text-danger">Erro</h5>');
+                modalBodyContent.append('<p class="text-center mt-3 text-danger">Ocorreu um erro ao buscar os lançamentos. Tente novamente.</p>');
+                console.error("Erro AJAX:", textStatus, errorThrown, jqXHR.responseText); // Log detalhado no console
+
+                // Exibe o modal mesmo com erro para mostrar a mensagem
+                $('#modal_tithe_consult').modal('show');
+                // alert("Erro ao buscar os dados."); // Alert original opcional
+            }
+        });
+    }
+</script>

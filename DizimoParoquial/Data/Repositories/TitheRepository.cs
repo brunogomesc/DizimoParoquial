@@ -78,7 +78,47 @@ namespace DizimoParoquial.Data.Repositories
             }
         }
 
-        public async Task<List<TitheDTO>> GetTithesWithFilters(string? name, int tithePayerCode, string? document)
+        public async Task<List<TithePayerLaunchDTO>> GetTithesWithFilters(string? name, int tithePayerCode, string? document)
+        {
+
+            List<TithePayerLaunchDTO> tithes = new List<TithePayerLaunchDTO>();
+
+            try
+            {
+                StringBuilder query = new StringBuilder();
+
+                query.Append("SELECT * FROM TithePayer TP ");
+                query.Append("WHERE 1 = 1 ");
+
+                if (name != null)
+                    query.Append($" AND TP.Name LIKE '%{name.TrimEnd().TrimStart()}%'");
+
+                if (tithePayerCode != 0)
+                    query.Append($" AND TP.TithePayerId = {tithePayerCode} ");
+
+                if (document != null)
+                    query.Append($" AND TP.Document = '{document}'");
+
+                using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
+                {
+                    var result = await connection.QueryAsync<TithePayerLaunchDTO>(query.ToString());
+
+                    tithes = result.ToList();
+
+                    return tithes;
+                }
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consulta Dizimista - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("Consulta Dizimista - Erro interno.", ex);
+            }
+        }
+
+        public async Task<List<TitheDTO>> GetTithesByTithePayerId(int tithePayerId)
         {
 
             List<TitheDTO> tithes = new List<TitheDTO>();
@@ -100,14 +140,8 @@ namespace DizimoParoquial.Data.Repositories
                 query.Append("ON T.AgentCode = A.AgentCode ");
                 query.Append("WHERE 1 = 1 ");
 
-                if (name != null)
-                    query.Append($" AND TP.Name LIKE '%{name.TrimEnd().TrimStart()}%'");
-
-                if (tithePayerCode != 0)
-                    query.Append($" AND T.TithePayerId = {tithePayerCode} ");
-
-                if (document != null)
-                    query.Append($" AND TP.Document = '{document}'");
+                if (tithePayerId != 0)
+                    query.Append($" AND T.TithePayerId = {tithePayerId}");
 
                 using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
                 {

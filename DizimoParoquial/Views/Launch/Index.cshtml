@@ -21,48 +21,99 @@
                     <i class="fa fa-search" aria-hidden="true"></i>
                     Lançar Dizimo
                 </h2>
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label for="Name" class="form-label"><b>Nome:</b></label>
-                        <input name="name" id="name" class="form-control" type="text" />
+                @using (Html.BeginForm("SearchTithePayerLaunchAllUsers", "Launch", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="Name" class="form-label"><b>Nome:</b></label>
+                            <input name="name" id="name" class="form-control" type="text" />
+                        </div>
+                        <div class="col-md-3">
+                            <label for="tithePayerCode" class="form-label"><b>Código Dizimista:</b></label>
+                            <input name="tithePayerCode" id="tithePayerCode" class="form-control" type="number" />
+                        </div>
                     </div>
-                    <div class="col-md-3">
-                        <label for="tithePayerCode" class="form-label"><b>Código Dizimista:</b></label>
-                        <input name="tithePayerCode" id="tithePayerCode" class="form-control" type="number" />
+                    <div class="row g-3 mt-3">
+                        <div class="col-md-3">
+                            <button class="btn btn-primary w-100">
+                                Pesquisar
+                            </button>
+                        </div>
                     </div>
+                }
+            </div>
+        </div>
+    </div>
+    <br />
+    @if (Model != null)
+    {
+        <div class="card mt-4">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Código Dizimista</th>
+                        <th>Nome</th>
+                        <th>CPF</th>
+                        <th>Data Nascimento</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var tithePayer in Model)
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(item => tithePayer.TithePayerId)</td>
+                            <td>@Html.DisplayFor(item => tithePayer.Name)</td>
+                            <td>@Html.DisplayFor(item => tithePayer.Document)</td>
+                            <td>@(tithePayer.DateBirth.ToString("dd/MM/yyyy"))</td>
+                            <td>
+                                <a data-toggle="tooltip" class="bs-tooltip" data-placement="top" href="javascript:void(0);" onclick="openModalLaunch(@tithePayer.TithePayerId)" title="Lançar"><i class="fa-regular fa-clipboard" style="color: #000000"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <h4 class="text-center">Sem resultados para serem exibidos</h4>
+    }
+
+    @* Modal Launch Tithe *@
+
+    <div class="modal fade" id="modal_tithe_launch">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"><i class="fa-solid fa-user-pen"></i> Editar Usuário</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="row g-3 mt-3">
-                    <div class="col-md-3">
-                        <button class="btn btn-primary w-100" onclick="filterTithePayer()">
-                            Pesquisar
-                        </button>
-                    </div>
-                </div>
-                <div id="resultDiv" class="mt-4" style="display: none;">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Resultados da Pesquisa</h5>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label for="resultName" class="form-label"><b>Nome:</b></label>
-                                    <input id="resultName" class="form-control" type="text" readonly />
-                                </div>
-                                <div class="col-md-3">
-                                    <label for="resultCode" class="form-label"><b>Código Dizimista:</b></label>
-                                    <input id="resultCode" class="form-control" type="number" readonly />
-                                </div>
-                                <div class="col-md-3">
-                                    <label for="resultDateBirth" class="form-label"><b>Data de Nascimento:</b></label>
-                                    <input id="resultDateBirth" class="form-control" type="datetime" readonly />
+                @using (Html.BeginForm("SaveTitheAllUsers", "Launch", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    <div class="modal-body">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Resultados da Pesquisa</h5>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="resultName" class="form-label"><b>Nome:</b></label>
+                                        <input id="resultName" class="form-control" type="text" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="resultCode" class="form-label"><b>Código Dizimista:</b></label>
+                                        <input id="resultCode" class="form-control" type="number" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="resultDateBirth" class="form-label"><b>Data de Nascimento:</b></label>
+                                        <input id="resultDateBirth" class="form-control" type="datetime" readonly />
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Registrar Dizimo</h5>
-                            @using (Html.BeginForm("SaveTithe", "Launch", FormMethod.Post, new { enctype = "multipart/form-data" }))
-                            {
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Registrar Dizimo</h5>
                                 <input id="tithePayerId" name="tithePayerId" type="number" hidden />
                                 <div class="row g-3">
                                     <div class="col-md-3">
@@ -100,31 +151,32 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="row g-3 mt-3">
-                                    <div class="col-md-3">
-                                        <button class="btn btn-primary w-100" type="submit">
-                                            Salvar
-                                        </button>
-                                    </div>
-                                </div>
-                            }
+                            </div>
                         </div>
+
+                        <!-- Mensagem de erro -->
+                        <div id="passwordMessageEdit"></div>
+                        <input hidden type="text" name="userId" id="userIdEdit" />
                     </div>
-                </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                        <button type="submit" class="btn btn-primary" id="saveButtonEdit">Salvar Alterações</button>
+                    </div>
+                }
             </div>
         </div>
     </div>
+
+    @* End Modal Launch Tithe *@
 </body>
 </html>
 
 <script>
-    function filterTithePayer() {
-        var searchName = document.getElementById("name").value;
-        var searchCode = document.getElementById("tithePayerCode").value;
+    function openModalLaunch(id) {
         $.ajax({
-            url: '/Launch/SearchTithePayer', // Rota para o método do controlador que retornará os dados
+            url: '/Launch/SearchTithePayerAllUsers', // Rota para o método do controlador que retornará os dados
             type: 'GET',
-            data: { name: searchName, code: searchCode },
+            data: { code: id },
             success: function (data) {
                 if (data) { // Verifica se há dados retornados
                     document.getElementById("resultName").value = data.name;
@@ -133,15 +185,13 @@
                     document.getElementById("resultDateBirth").value = data.dateBirth ? new Date(data.dateBirth).toISOString().split('T')[0] : '';
 
                     // Exibe a div de resultados
-                    document.getElementById("resultDiv").style.display = "block";
+                    $('#modal_tithe_launch').modal('show');
                 } else {
                     alert("Nenhum resultado encontrado.");
-                    document.getElementById("resultDiv").style.display = "none"; // Oculta a div se não houver resultados
                 }
             },
             error: function () {
                 alert("Erro ao buscar os dados.");
-                document.getElementById("resultDiv").style.display = "none";
             }
         });
     }
