@@ -89,7 +89,9 @@ namespace DizimoParoquial.Controllers
                     return RedirectToAction(nameof(ConsultAllUsers));
                 }
 
-                return Json(tithes);
+                List<TitheDTO> tithesOrganized = tithes.OrderByDescending(t => t.PaymentMonth).ToList();
+
+                return Json(tithesOrganized.Take(3));
             }
             catch (Exception ex)
             {

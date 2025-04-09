@@ -116,60 +116,52 @@
 <script>
     function openModalConsult(id) {
         $.ajax({
-            // Ajuste a URL se necessário. Ela deve retornar a LISTA de lançamentos para o dizimista 'id'
-            url: '/Launch/SearchTithePayerAllUsers',
+            url: '/Consult/SearchTithePayerAllUsers',
             type: 'GET',
-            data: { code: id }, // Enviando o ID do dizimista como parâmetro 'code'
+            data: { code: id },
             success: function (data) {
-                // Seleciona o corpo do card dentro do modal onde a tabela será inserida
                 var modalBodyContent = $('#modalTitheConsultBody');
-                modalBodyContent.empty(); // Limpa qualquer conteúdo anterior (tabelas antigas, mensagens)
+                modalBodyContent.empty(); 
 
-                // Adiciona o título novamente, caso tenha sido removido pelo empty()
                 modalBodyContent.append('<h5 class="card-title">Lançamentos Registrados</h5>');
 
-                // Verifica se 'data' é um array e tem itens
                 if (data && Array.isArray(data) && data.length > 0) {
 
-                    // Cria a estrutura inicial da tabela
                     var tableHtml = '<table class="table table-bordered table-striped mt-3">';
                     tableHtml += '<thead><tr>';
                     // === AJUSTE AQUI: Defina os cabeçalhos da sua tabela ===
-                    tableHtml += '<th>Data Lançamento</th>';
+                    tableHtml += '<th>Nome Dizimista</th>';
+                    tableHtml += '<th>Nome Agente</th>';
                     tableHtml += '<th>Competência</th>';
                     tableHtml += '<th>Valor (R$)</th>';
-                    // Adicione mais cabeçalhos conforme necessário
+                    tableHtml += '<th>Forma de Pagamento</th>';
+                    tableHtml += '<th>Data de Pagamento</th>';
                     tableHtml += '</tr></thead>';
                     tableHtml += '<tbody>';
 
-                    // Itera sobre cada item retornado na lista 'data'
                     data.forEach(function(item) {
                         tableHtml += '<tr>';
-                        // === AJUSTE AQUI: Use os nomes corretos das propriedades do seu objeto 'item' ===
-                        // Formata a data (exemplo: dd/mm/yyyy)
-                        var dataLancamentoFormatada = item.dataLancamento ? new Date(item.dataLancamento).toLocaleDateString('pt-BR') : 'N/A';
-                        // Formata o valor como moeda (exemplo: R$ 100,00)
-                        var valorFormatado = item.valor ? item.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'N/A';
-                        var competencia = item.competencia || 'N/A'; // Ex: "04/2025"
+                        var registrationDate = item.registrationDate ? new Date(item.registrationDate).toLocaleDateString('pt-BR') : 'N/A';
+                        var valueFormated = item.value ? item.value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'N/A';
+                        var paymentMonth = item.paymentMonth || 'N/A';
 
-                        tableHtml += '<td>' + dataLancamentoFormatada + '</td>';
-                        tableHtml += '<td>' + competencia + '</td>';
-                        tableHtml += '<td>' + valorFormatado + '</td>';
-                        // Adicione mais células <td> correspondendo aos cabeçalhos
+                        tableHtml += '<td>' + item.nameTithePayer + '</td>';
+                        tableHtml += '<td>' + item.nameAgent + '</td>';
+                        tableHtml += '<td>' + paymentMonth + '</td>';
+                        tableHtml += '<td>' + valueFormated + '</td>';
+                        tableHtml += '<td>' + item.paymentType + '</td>';
+                        tableHtml += '<td>' + registrationDate + '</td>';
                         tableHtml += '</tr>';
                     });
 
                     tableHtml += '</tbody></table>';
 
-                    // Adiciona a tabela completa ao corpo do modal
                     modalBodyContent.append(tableHtml);
 
                 } else {
-                    // Se não houver dados, exibe uma mensagem
                     modalBodyContent.append('<p class="text-center mt-3">Nenhum lançamento encontrado para este dizimista.</p>');
                 }
 
-                // Exibe o modal após o conteúdo ser preparado
                 $('#modal_tithe_consult').modal('show');
 
             },
@@ -179,11 +171,9 @@
                 modalBodyContent.empty();
                 modalBodyContent.append('<h5 class="card-title text-danger">Erro</h5>');
                 modalBodyContent.append('<p class="text-center mt-3 text-danger">Ocorreu um erro ao buscar os lançamentos. Tente novamente.</p>');
-                console.error("Erro AJAX:", textStatus, errorThrown, jqXHR.responseText); // Log detalhado no console
+                console.error("Erro AJAX:", textStatus, errorThrown, jqXHR.responseText); 
 
-                // Exibe o modal mesmo com erro para mostrar a mensagem
                 $('#modal_tithe_consult').modal('show');
-                // alert("Erro ao buscar os dados."); // Alert original opcional
             }
         });
     }
