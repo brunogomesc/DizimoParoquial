@@ -48,7 +48,7 @@
     @if (Model != null)
     {
         <div class="card mt-4">
-            <table class="table table-bordered table-striped">
+            <table class="table table-bordered table-striped table-hover mb-0">
                 <thead>
                     <tr>
                         <th>Código Dizimista</th>
@@ -75,9 +75,13 @@
             </table>
         </div>
     }
-    else
+    else if (Model != null)
     {
-        <h4 class="text-center">Sem resultados para serem exibidos</h4>
+        <div class="container my-4">
+            <div class="alert alert-warning text-center" role="alert">
+                Nenhum dizimista encontrado com os critérios informados.
+            </div>
+        </div>
     }
 
     @* Modal Launch Tithe *@
