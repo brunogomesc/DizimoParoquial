@@ -69,7 +69,7 @@
                             <td>@Html.DisplayFor(item => tithePayer.Document)</td>
                             <td>@(tithePayer.DateBirth.ToString("dd/MM/yyyy"))</td>
                             <td>
-                                <a data-toggle="tooltip" class="bs-tooltip" data-placement="top" href="javascript:void(0);" onclick="openModalConsult(@tithePayer.TithePayerId)" title="Consultar"><i class="fa-regular fa-search" style="color: #000000"></i></a>
+                                <a data-toggle="tooltip" class="bs-tooltip" data-placement="top" href="javascript:void(0);" onclick="openModalConsult(@tithePayer.TithePayerId)" title="Consultar"><i class="fa-solid fa-magnifying-glass"></i></a>
                             </td>
                         </tr>
                     }
@@ -141,17 +141,54 @@
 
                     data.forEach(function(item) {
                         tableHtml += '<tr>';
-                        var registrationDate = item.registrationDate ? new Date(item.registrationDate).toLocaleDateString('pt-BR') : 'N/A';
-                        var valueFormated = item.value ? item.value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'N/A';
-                        var paymentMonth = item.paymentMonth || 'N/A';
 
-                        tableHtml += '<td>' + item.nameTithePayer + '</td>';
-                        tableHtml += '<td>' + item.nameAgent + '</td>';
-                        tableHtml += '<td>' + paymentMonth + '</td>';
+                        var registrationDate = 'N/A';
+                        if (item.registrationDate) {
+                            try {
+                                var regDateObj = new Date(item.registrationDate);
+                                if (!isNaN(regDateObj.getTime())) { 
+                                    registrationDate = regDateObj.toLocaleDateString('pt-BR');
+                                }
+                            } catch (e) { console.error("Erro ao formatar registrationDate:", item.registrationDate, e); }
+                        }
+
+                        
+                        var valueFormated = 'N/A';
+                        if (item.value != null && !isNaN(item.value)) { 
+                             try {
+                                valueFormated = item.value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                             } catch (e) { console.error("Erro ao formatar value:", item.value, e); }
+                        }
+
+                        
+                        var paymentMonthFormated = 'N/A';
+                        if (item.paymentMonth) { 
+                            try {
+                                var dateObj = new Date(item.paymentMonth); 
+                                if (!isNaN(dateObj.getTime())) { 
+                                    var month = dateObj.getMonth() + 1; 
+                                    var year = dateObj.getFullYear();
+                                    
+                                    var monthPadded = month.toString().padStart(2, '0');
+                                    
+                                    paymentMonthFormated = `${monthPadded}/${year}`;
+                                }
+                            } catch (e) {
+                                console.error("Erro ao processar paymentMonth:", item.paymentMonth, e);
+                                
+                            }
+                        }
+
+                        tableHtml += '<td>' + (item.nameTithePayer || 'N/A') + '</td>';
+                        tableHtml += '<td>' + (item.nameAgent || 'N/A') + '</td>';
+                        tableHtml += '<td>' + paymentMonthFormated + '</td>'; // Usa a variável formatada
                         tableHtml += '<td>' + valueFormated + '</td>';
-                        tableHtml += '<td>' + item.paymentType + '</td>';
+                        tableHtml += '<td>' + (item.paymentType || 'N/A') + '</td>';
                         tableHtml += '<td>' + registrationDate + '</td>';
                         tableHtml += '</tr>';
+
+                        document.getElementById("userIdEdit").value = item.nameTithePayer;
+
                     });
 
                     tableHtml += '</tbody></table>';
