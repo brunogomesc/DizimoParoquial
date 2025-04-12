@@ -83,13 +83,13 @@ namespace DizimoParoquial.Controllers
             try
             {
 
-                if (name == null && code == 0)
+                if (name == null && tithePayerCode == 0)
                 {
                     _notification.AddErrorToastMessage("Informe o nome ou código do dizimista.");
                     return RedirectToAction(nameof(LaunchAllUsers));
                 }
 
-                List<TithePayerLaunchDTO> tithePayer = await _tithePayerService.GetTithePayersLauchingWithFilters(name, code);
+                List<TithePayerLaunchDTO> tithePayer = await _tithePayerService.GetTithePayersLauchingWithFilters(name, tithePayerCode);
 
                 if (tithePayer == null)
                 {
@@ -227,13 +227,13 @@ namespace DizimoParoquial.Controllers
             try
             {
 
-                if (name == null && code == 0)
+                if (name == null && tithePayerCode == 0)
                 {
                     _notification.AddErrorToastMessage("Informe o nome ou código do dizimista.");
                     return RedirectToAction(nameof(Index));
                 }
 
-                List<TithePayerLaunchDTO> tithePayer = await _tithePayerService.GetTithePayersLauchingWithFilters(name, code);
+                List<TithePayerLaunchDTO> tithePayer = await _tithePayerService.GetTithePayersLauchingWithFilters(name, tithePayerCode);
 
                 if (tithePayer == null)
                 {
