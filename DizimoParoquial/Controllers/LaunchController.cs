@@ -77,7 +77,7 @@ namespace DizimoParoquial.Controllers
 
         }
 
-        public async Task<IActionResult> SearchTithePayerLaunchAllUsers(string name, int code)
+        public async Task<IActionResult> SearchTithePayerLaunchAllUsers(string name, int tithePayerCode)
         {
 
             try
@@ -219,7 +219,7 @@ namespace DizimoParoquial.Controllers
 
         }
 
-        public async Task<IActionResult> SearchTithePayerLaunch(string name, int code)
+        public async Task<IActionResult> SearchTithePayerLaunch(string name, int tithePayerCode)
         {
 
             ViewBag.UserName = HttpContext.Session.GetString("Username");
