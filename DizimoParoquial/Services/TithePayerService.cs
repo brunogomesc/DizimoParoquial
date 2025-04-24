@@ -217,9 +217,43 @@ namespace DizimoParoquial.Services
             }
         }
 
-        public async Task<TithePayerLaunchDTO> GetTithePayersLauchingWithFilters(string? name, int code)
+        public async Task<TithePayerLaunchDTO> GetTithePayersLauchingWithFilters(int code)
         {
             TithePayerLaunchDTO tithePayer = new TithePayerLaunchDTO();
+
+            try
+            {
+
+                tithePayer = await GetTithePayersLauchingWithFiltersRepository(code);
+
+                return tithePayer;
+
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consultar Dizimista Lançamento - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Consultar Dizimista Lançamento - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Consultar Dizimista Lançamento - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Consultar Dizimista Lançamento - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Consultar Dizimista Lançamento - Dados vazios.");
+            }
+        }
+
+        public async Task<List<TithePayerLaunchDTO>> GetTithePayersLauchingWithFilters(string? name, int code)
+        {
+            List<TithePayerLaunchDTO> tithePayer = new List<TithePayerLaunchDTO>();
 
             try
             {
@@ -260,7 +294,7 @@ namespace DizimoParoquial.Services
 
                 TithePayer tithePayerExists = await GetTithePayerById(tithePayer.TithePayerId);
 
-                if (tithePayerExists == null && tithePayerExists.TithePayerId == 0)
+                if (tithePayerExists == null || tithePayerExists.TithePayerId == 0)
                     throw new ValidationException("Dizimista não existente");
 
                 tithePayer.UpdatedAt = DateTime.Now;
@@ -449,9 +483,41 @@ namespace DizimoParoquial.Services
             }
         }
 
-        private async Task<TithePayerLaunchDTO> GetTithePayersLauchingWithFiltersRepository(string? name, int code)
+        private async Task<TithePayerLaunchDTO> GetTithePayersLauchingWithFiltersRepository(int code)
         {
             TithePayerLaunchDTO tithePayer = new TithePayerLaunchDTO();
+
+            try
+            {
+                tithePayer = await _tithePayerRepository.GetTithePayersLauchingWithFilters(code);
+
+                return tithePayer;
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consultar Dizimista Lançamento - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Consultar Dizimista Lançamento - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Consultar Dizimista Lançamento - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Consultar Dizimista Lançamento - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Consultar Dizimista Lançamento - Dados vazios.");
+            }
+        }
+
+        private async Task<List<TithePayerLaunchDTO>> GetTithePayersLauchingWithFiltersRepository(string? name, int code)
+        {
+            List<TithePayerLaunchDTO> tithePayer = new List<TithePayerLaunchDTO>();
 
             try
             {

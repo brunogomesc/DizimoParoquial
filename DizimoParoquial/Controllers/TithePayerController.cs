@@ -2,10 +2,8 @@
 using DizimoParoquial.Models;
 using DizimoParoquial.Services;
 using DizimoParoquial.Utils;
-using DizimoParoquial.Utils.Filters;
 using Microsoft.AspNetCore.Mvc;
 using NToastNotify;
-using System.Threading.Tasks;
 
 namespace DizimoParoquial.Controllers
 {
@@ -29,11 +27,7 @@ namespace DizimoParoquial.Controllers
 
             List<TithePayer> tithePayers = await _tithePayerService.GetTithePayersWithouthFilters();
 
-            int pageSize = 10;
-
-            var paginatedTithePayers = PaginatedList<TithePayer>.CreateAsync(tithePayers.AsQueryable(), pageNumber, pageSize);
-
-            return View(paginatedTithePayers);
+            return View(ROUTE_SCREEN_TITHEPAYERS, tithePayers);
         }
 
         public async Task<IActionResult> SearchTithePayer(string name, string document, int pageNumber = 1)
@@ -56,11 +50,7 @@ namespace DizimoParoquial.Controllers
                 _notification.AddErrorToastMessage(ex.Message);
             }
 
-            int pageSize = 10;
-
-            var paginatedTithePayers = PaginatedList<TithePayer>.CreateAsync(tithePayers.AsQueryable(), pageNumber, pageSize);
-
-            return View(ROUTE_SCREEN_TITHEPAYERS, paginatedTithePayers);
+            return View(ROUTE_SCREEN_TITHEPAYERS, tithePayers);
         }
 
         public async Task<IActionResult> SaveTithePayer(TithePayerDTO tithePayer)
@@ -72,7 +62,7 @@ namespace DizimoParoquial.Controllers
 
                 if (string.IsNullOrWhiteSpace(tithePayer.Name)
                     || string.IsNullOrWhiteSpace(tithePayer.Document)
-                    || tithePayer.DateBirth != DateTime.MinValue
+                    || tithePayer.DateBirth == DateTime.MinValue
                     || string.IsNullOrWhiteSpace(tithePayer.PhoneNumber))
                 {
                     _notification.AddErrorToastMessage("Nome, Documento, Data de Nascimento e Telefone são obrigatórios!");

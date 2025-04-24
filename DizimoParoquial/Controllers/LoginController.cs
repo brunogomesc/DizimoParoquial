@@ -47,6 +47,7 @@ namespace DizimoParoquial.Controllers
 
                 HttpContext.Session.SetInt32("User", userAuthenticated.UserId);
                 HttpContext.Session.SetString("Username", userAuthenticated.Username);
+                HttpContext.Session.SetString("Profile", userAuthenticated.Profile);
 
                 ViewBag.UserName = userAuthenticated.Username;
 

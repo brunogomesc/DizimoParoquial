@@ -177,7 +177,7 @@ namespace DizimoParoquial.Data.Repositories
             }
         }
 
-        public async Task<TithePayerLaunchDTO> GetTithePayersLauchingWithFilters(string? name, int code)
+        public async Task<TithePayerLaunchDTO> GetTithePayersLauchingWithFilters(int code)
         {
 
             TithePayerLaunchDTO tithePayer = new TithePayerLaunchDTO();
@@ -191,14 +191,47 @@ namespace DizimoParoquial.Data.Repositories
                 if (code != 0)
                     query.Append($" AND TithePayerId = {code}");
 
-                if (name != null)
-                    query.Append($" AND Name LIKE '%{name}%' ");
-
                 using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
                 {
                     var result = await connection.QueryAsync<TithePayerLaunchDTO>(query.ToString());
 
                     tithePayer = result.FirstOrDefault();
+
+                    return tithePayer;
+                }
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consulta Dizimista Lançamento - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("Consulta Dizimista Lançamento - Erro interno.", ex);
+            }
+        }
+
+        public async Task<List<TithePayerLaunchDTO>> GetTithePayersLauchingWithFilters(string? name, int code)
+        {
+
+            List<TithePayerLaunchDTO> tithePayer = new List<TithePayerLaunchDTO>();
+
+            try
+            {
+                StringBuilder query = new StringBuilder();
+
+                query.Append("SELECT * FROM TithePayer WHERE 1 = 1 ");
+
+                if (code != 0)
+                    query.Append($" AND TithePayerId = {code}");
+
+                if (name != null)
+                    query.Append($" AND Name LIKE '%{name}%'");
+
+                using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
+                {
+                    var result = await connection.QueryAsync<TithePayerLaunchDTO>(query.ToString());
+
+                    tithePayer = result.ToList();
 
                     return tithePayer;
                 }

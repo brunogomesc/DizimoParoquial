@@ -70,8 +70,8 @@ namespace DizimoParoquial.Data.Repositories
 
                     try
                     {
-                        var query = @"INSERT INTO User(Name, Username, Password, Active, CreatedAt, UpdatedAt) 
-                                    VALUES(@Name, @Username, @Password, @Active, @CreatedAt, @UpdatedAt)";
+                        var query = @"INSERT INTO User(Name, Username, Password, Active, CreatedAt, UpdatedAt, Profile) 
+                                    VALUES(@Name, @Username, @Password, @Active, @CreatedAt, @UpdatedAt, @Profile)";
 
                         var result = await connection.ExecuteAsync(query,
                             new
@@ -81,7 +81,8 @@ namespace DizimoParoquial.Data.Repositories
                                 user.Password,
                                 user.Active,
                                 user.CreatedAt,
-                                user.UpdatedAt
+                                user.UpdatedAt,
+                                user.Profile
                             }
                         );
 
@@ -301,7 +302,8 @@ namespace DizimoParoquial.Data.Repositories
                                         Username = @Username, 
                                         Password = @Password, 
                                         Active = @Active, 
-                                        UpdatedAt = @UpdatedAt 
+                                        UpdatedAt = @UpdatedAt,
+                                        Profile = @Profile,
                                     WHERE UserId = @UserId";
 
                         var result = await connection.ExecuteAsync(query,
@@ -312,7 +314,8 @@ namespace DizimoParoquial.Data.Repositories
                                 user.Password,
                                 user.Active,
                                 user.UpdatedAt,
-                                user.UserId
+                                user.UserId,
+                                user.Profile
                             }
                         );
 
