@@ -61,11 +61,9 @@ namespace DizimoParoquial.Controllers
                 ViewBag.UserName = HttpContext.Session.GetString("Username");
 
                 if (string.IsNullOrWhiteSpace(tithePayer.Name)
-                    || string.IsNullOrWhiteSpace(tithePayer.Document)
-                    || tithePayer.DateBirth == DateTime.MinValue
-                    || string.IsNullOrWhiteSpace(tithePayer.PhoneNumber))
+                    || tithePayer.DateBirth == DateTime.MinValue)
                 {
-                    _notification.AddErrorToastMessage("Nome, Documento, Data de Nascimento e Telefone são obrigatórios!");
+                    _notification.AddErrorToastMessage("Nome e Data de Nascimento são obrigatórios!");
                     return RedirectToAction(nameof(Index));
                 }
 

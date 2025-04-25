@@ -41,7 +41,7 @@ namespace DizimoParoquial.Services
                 TithePayer tithePayerInsert = new TithePayer
                 {
                     Name = tithePayer.Name,
-                    Document = tithePayer.Document.Replace(".","").Replace("-",""),
+                    Document = tithePayer.Document != null ? tithePayer.Document.Replace(".", "").Replace("-", "") : null,
                     DateBirth = tithePayer.DateBirth,
                     Email = tithePayer.Email,
                     PhoneNumber = tithePayer.PhoneNumber,
