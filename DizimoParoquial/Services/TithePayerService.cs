@@ -217,6 +217,40 @@ namespace DizimoParoquial.Services
             }
         }
 
+        public async Task<List<ReportBirthday>> GetReportTithePayersBirthdays(string? name, DateTime startBirthdayDate, DateTime endBirthdayDate)
+        {
+            List<ReportBirthday> report = new List<ReportBirthday>();
+
+            try
+            {
+
+                report = await GetReportTithePayersBirthdaysRepository(name, startBirthdayDate, endBirthdayDate);
+
+                return report;
+
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consultar Aniversariante - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Consultar Aniversariante - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Consultar Aniversariante - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Consultar Aniversariante - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Consultar Aniversariante - Dados vazios.");
+            }
+        }
+
         public async Task<TithePayerLaunchDTO> GetTithePayersLauchingWithFilters(int code)
         {
             TithePayerLaunchDTO tithePayer = new TithePayerLaunchDTO();
@@ -608,6 +642,38 @@ namespace DizimoParoquial.Services
             catch (ArgumentNullException)
             {
                 throw new NullException("Consultar Relatório Dizimista - Dados vazios.");
+            }
+        }
+
+        private async Task<List<ReportBirthday>> GetReportTithePayersBirthdaysRepository(string? name, DateTime startBirthdayDate, DateTime endBirthdayDate)
+        {
+            List<ReportBirthday> report = new List<ReportBirthday>();
+
+            try
+            {
+                report = await _tithePayerRepository.GetReportTithePayersBirthdays(name, startBirthdayDate, endBirthdayDate);
+
+                return report;
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consultar Relatório Aniversariante - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Consultar Relatório Aniversariante - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Consultar Relatório Aniversariante - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Consultar Relatório Aniversariante - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Consultar Relatório Aniversariante - Dados vazios.");
             }
         }
 

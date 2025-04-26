@@ -22,5 +22,6 @@ namespace DizimoParoquial.Data.Interface
 
         public Task<List<ReportTithePayer>> GetReportTithePayers(string? paymentType, string? name, DateTime startPaymentDate, DateTime endPaymentDate);
 
+        public Task<List<ReportBirthday>> GetReportTithePayersBirthdays(string? name, DateTime startBirthdayDate, DateTime endBirthdayDate);
     }
 }

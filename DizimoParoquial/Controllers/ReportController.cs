@@ -11,6 +11,8 @@ namespace DizimoParoquial.Controllers
 
         private const string ROUTE_SCREEN_REPORTS = "/Views/Report/ReportTithePayer.cshtml";
         private const string ROUTE_SCREEN_TITHE_PER_TITHEPAYER = "/Views/Report/ReportTithePayerPerTithe.cshtml";
+        private const string ROUTE_SCREEN_BIRTHDAYS = "/Views/Report/ReportBirthdays.cshtml";
+        
         private readonly IToastNotification _notification;
         private readonly TithePayerService _tithePayer;
         private readonly TitheService _titheService;
@@ -40,6 +42,12 @@ namespace DizimoParoquial.Controllers
         }
 
         public IActionResult ReportTithePayerPerTithe()
+        {
+            ViewBag.UserName = HttpContext.Session.GetString("Username");
+            return View();
+        }
+
+        public IActionResult ReportBirthdays()
         {
             ViewBag.UserName = HttpContext.Session.GetString("Username");
             return View();
@@ -108,6 +116,31 @@ namespace DizimoParoquial.Controllers
 
             return RedirectToAction(nameof(ReportTithePayerPerTithe));
 
+        }
+
+        public async Task<IActionResult> SearchReportBirthdays(string name, DateTime startBirthdayDate, DateTime endBirthdayDate)
+        {
+            ViewBag.UserName = HttpContext.Session.GetString("Username");
+
+            if (startBirthdayDate == DateTime.MinValue)
+            {
+                startBirthdayDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            }
+
+            if (endBirthdayDate == DateTime.MinValue)
+            {
+                endBirthdayDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+            }
+
+            if (startBirthdayDate > endBirthdayDate)
+            {
+                _notification.AddErrorToastMessage("Data de inicio não pode ser maior que a data de término.");
+                return RedirectToAction(nameof(Index));
+            }
+
+            var reportTithePayers = await _tithePayer.GetReportTithePayersBirthdays(name, startBirthdayDate, endBirthdayDate);
+
+            return View(ROUTE_SCREEN_BIRTHDAYS, reportTithePayers);
         }
 
     }
