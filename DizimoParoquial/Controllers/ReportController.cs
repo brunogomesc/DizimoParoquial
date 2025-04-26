@@ -98,17 +98,17 @@ namespace DizimoParoquial.Controllers
 
                 List<TithePayerLaunchDTO> tithePayers = await _titheService.GetTithesWithFilters(null, tithePayerCode, document);
 
-                if (tithePayers == null || tithePayers.Count == 0)
-                {
-                    _notification.AddErrorToastMessage("Dizimista não encontrado.");
-                    return RedirectToAction(nameof(ReportTithePayerPerTithe));
-                }
+                //if (tithePayers == null || tithePayers.Count == 0)
+                //{
+                //    _notification.AddErrorToastMessage("Dizimista não encontrado.");
+                //    return RedirectToAction(nameof(ReportTithePayerPerTithe));
+                //}
 
-                List<TitheDTO> tithes = await _titheService.GetTithesByTithePayerId(tithePayers.First().TithePayerId);
+                //List<TitheDTO> tithes = await _titheService.GetTithesByTithePayerId(tithePayers.First().TithePayerId);
 
-                List<TitheDTO> tithesOrganized = tithes.OrderByDescending(t => t.PaymentMonth).ToList();
+                //List<TitheDTO> tithesOrganized = tithes.OrderByDescending(t => t.PaymentMonth).ToList();
 
-                return View(ROUTE_SCREEN_TITHE_PER_TITHEPAYER, tithesOrganized);
+                return View(ROUTE_SCREEN_TITHE_PER_TITHEPAYER, tithePayers);
 
             }
             catch (Exception ex)

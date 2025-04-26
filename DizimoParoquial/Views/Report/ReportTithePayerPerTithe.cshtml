@@ -1,4 +1,4 @@
-﻿@model List<TitheDTO>
+﻿@model List<TithePayerLaunchDTO>
 
 @{
     ViewData["Username"] = @ViewBag.UserName;
@@ -59,12 +59,12 @@
                     @foreach (var tithePayer in Model)
                     {
                         <tr>
-                            <td>@Html.DisplayFor(item => tithePayer.NameTithePayer)</td>
-                            <td>@Html.DisplayFor(item => tithePayer.NameAgent)</td>
-                            <td>@Html.DisplayFor(item => tithePayer.PaymentMonth.ToString("MM/yyyy"))</td>
-                            <td>@Html.DisplayFor(item => tithePayer.Value)</td>
-                            <td>@Html.DisplayFor(item => tithePayer.PaymentType)</td>
-                            <td>@Html.DisplayFor(item => tithePayer.RegistrationDate.ToString("dd/MM/yyyy"))</td>
+                            <td>@Html.DisplayFor(item => tithePayer.Name)</td>
+                            <td>@Html.DisplayFor(item => tithePayer.Name)</td>
+                            <td>@Html.DisplayFor(item => tithePayer.DateBirth.ToString("MM/yyyy"))</td>
+                            <td>@Html.DisplayFor(item => tithePayer.Name)</td>
+                            <td>@Html.DisplayFor(item => tithePayer.Name)</td>
+                            <td>@Html.DisplayFor(item => tithePayer.DateBirth.ToString("dd/MM/yyyy"))</td>
                         </tr>
                     }
                 </tbody>
