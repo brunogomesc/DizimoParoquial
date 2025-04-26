@@ -1,5 +1,6 @@
-﻿@model List<TithePayerLaunchDTO>
+﻿@using DizimoParoquial.Utils;
 
+@model List<TitheDTO>
 @{
     ViewData["Username"] = @ViewBag.UserName;
 }
@@ -15,13 +16,13 @@
             <div class="card-body">
                 <h2 class="d-flex align-items-center border-bottom pb-2 mb-3" style="font-family: system-ui; font-weight: bold;">
                     <i class="fa fa-search" aria-hidden="true"></i>
-                    Consultar Dizimo
+                    Consultar Dizimista
                 </h2>
                 @using (Html.BeginForm("SearchTithes", "Report", FormMethod.Post, new { enctype = "multipart/form-data" }))
                 {
                     <div class="row g-3">
                         <div class="col-md-5">
-                            <label for="Document" class="form-label"><b>Documento:</b></label>
+                            <label for="document" class="form-label"><b>Documento:</b></label>
                             <input name="document" id="document" class="form-control" type="text" />
                         </div>
                         <div class="col-md-2">
@@ -33,6 +34,11 @@
                         <div class="col-md-3">
                             <button class="btn btn-primary w-100" type="submit">
                                 Pesquisar
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-primary w-100" type="submit" name="generateExcel" value="true">
+                                Gerar Excel
                             </button>
                         </div>
                     </div>
@@ -59,12 +65,12 @@
                     @foreach (var tithePayer in Model)
                     {
                         <tr>
-                            <td>@Html.DisplayFor(item => tithePayer.Name)</td>
-                            <td>@Html.DisplayFor(item => tithePayer.Name)</td>
-                            <td>@Html.DisplayFor(item => tithePayer.DateBirth.ToString("MM/yyyy"))</td>
-                            <td>@Html.DisplayFor(item => tithePayer.Name)</td>
-                            <td>@Html.DisplayFor(item => tithePayer.Name)</td>
-                            <td>@Html.DisplayFor(item => tithePayer.DateBirth.ToString("dd/MM/yyyy"))</td>
+                            <td>@tithePayer.NameTithePayer</td>
+                            <td>@tithePayer.NameAgent</td>
+                            <td>@tithePayer.PaymentMonth.ToString("MM/yyyy")</td>
+                            <td>R$ @tithePayer.Value.ToString("F2")</td>
+                            <td>@tithePayer.PaymentType</td>
+                            <td>@tithePayer.RegistrationDate.ToString("dd/MM/yyyy")</td>
                         </tr>
                     }
                 </tbody>

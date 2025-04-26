@@ -366,7 +366,8 @@ namespace DizimoParoquial.Data.Repositories
 
                 query.Append("SELECT TP.TithePayerId, TP.Name, TP.Document, TP.DateBirth, TP.PhoneNumber, TP.Email ");
                 query.Append("FROM TithePayer TP ");
-                query.Append($"WHERE TP.DateBirth BETWEEN '{startBirthdayDate.ToString("yyyy-MM-dd HH:mm:ss")}' AND '{endBirthdayDate.AddDays(1).ToString("yyyy-MM-dd HH:mm:ss")}' ");
+                query.Append($"WHERE MONTH(TP.DateBirth) BETWEEN '{startBirthdayDate.Month}' AND '{endBirthdayDate.Month}' ");
+                query.Append($"AND DAY(TP.DateBirth) BETWEEN '{startBirthdayDate.Day}' AND '{endBirthdayDate.Day}' ");
 
                 if (name != null)
                     query.Append($"AND TP.Name LIKE '%{name}%' ");

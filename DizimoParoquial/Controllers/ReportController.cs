@@ -3,6 +3,7 @@ using DizimoParoquial.Models;
 using DizimoParoquial.Services;
 using Microsoft.AspNetCore.Mvc;
 using NToastNotify;
+using OfficeOpenXml;
 
 namespace DizimoParoquial.Controllers
 {
@@ -55,7 +56,7 @@ namespace DizimoParoquial.Controllers
 
         #endregion
 
-        public async Task<IActionResult> SearchReportTithePayer(string paymentType, string name, DateTime startPaymentDate, DateTime endPaymentDate)
+        public async Task<IActionResult> SearchReportTithePayer(string paymentType, string name, DateTime startPaymentDate, DateTime endPaymentDate, bool generateExcel)
         {
             ViewBag.UserName = HttpContext.Session.GetString("Username");
 
@@ -72,15 +73,18 @@ namespace DizimoParoquial.Controllers
             if(startPaymentDate > endPaymentDate)
             {
                 _notification.AddErrorToastMessage("Data de inicio não pode ser maior que a data de término.");
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(ReportTithePayer));
             }
 
             var reportTithePayers = await _tithePayer.GetReportTithePayers(paymentType, name, startPaymentDate, endPaymentDate);
 
+            if (generateExcel)
+                return GenerateExcelTithePayers(reportTithePayers);
+
             return View(ROUTE_SCREEN_REPORTS, reportTithePayers);
         }
 
-        public async Task<IActionResult> SearchTithes(int tithePayerCode, string document)
+        public async Task<IActionResult> SearchTithes(int tithePayerCode, string document, bool generateExcel)
         {
             ViewBag.UserName = HttpContext.Session.GetString("Username");
 
@@ -98,17 +102,20 @@ namespace DizimoParoquial.Controllers
 
                 List<TithePayerLaunchDTO> tithePayers = await _titheService.GetTithesWithFilters(null, tithePayerCode, document);
 
-                //if (tithePayers == null || tithePayers.Count == 0)
-                //{
-                //    _notification.AddErrorToastMessage("Dizimista não encontrado.");
-                //    return RedirectToAction(nameof(ReportTithePayerPerTithe));
-                //}
+                if (tithePayers == null || tithePayers.Count == 0)
+                {
+                    _notification.AddErrorToastMessage("Dizimista não encontrado.");
+                    return RedirectToAction(nameof(ReportTithePayerPerTithe));
+                }
 
-                //List<TitheDTO> tithes = await _titheService.GetTithesByTithePayerId(tithePayers.First().TithePayerId);
+                List<TitheDTO> tithes = await _titheService.GetTithesByTithePayerId(tithePayers.First().TithePayerId);
 
-                //List<TitheDTO> tithesOrganized = tithes.OrderByDescending(t => t.PaymentMonth).ToList();
+                var tithesOrganized = tithes.OrderByDescending(t => t.PaymentMonth).ToList();
 
-                return View(ROUTE_SCREEN_TITHE_PER_TITHEPAYER, tithePayers);
+                if (generateExcel)
+                    return GenerateExcelTithes(tithesOrganized);
+
+                return View(ROUTE_SCREEN_TITHE_PER_TITHEPAYER, tithesOrganized);
 
             }
             catch (Exception ex)
@@ -120,7 +127,7 @@ namespace DizimoParoquial.Controllers
 
         }
 
-        public async Task<IActionResult> SearchReportBirthdays(string name, DateTime startBirthdayDate, DateTime endBirthdayDate)
+        public async Task<IActionResult> SearchReportBirthdays(string name, DateTime startBirthdayDate, DateTime endBirthdayDate, bool generateExcel)
         {
             ViewBag.UserName = HttpContext.Session.GetString("Username");
 
@@ -137,13 +144,185 @@ namespace DizimoParoquial.Controllers
             if (startBirthdayDate > endBirthdayDate)
             {
                 _notification.AddErrorToastMessage("Data de inicio não pode ser maior que a data de término.");
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(ReportBirthdays));
             }
 
-            var reportTithePayers = await _tithePayer.GetReportTithePayersBirthdays(name, startBirthdayDate, endBirthdayDate);
+            var birthdays = await _tithePayer.GetReportTithePayersBirthdays(name, startBirthdayDate, endBirthdayDate);
 
-            return View(ROUTE_SCREEN_BIRTHDAYS, reportTithePayers);
+            if (generateExcel)
+                return GenerateExcelBirthdays(birthdays);
+
+            return View(ROUTE_SCREEN_BIRTHDAYS, birthdays);
         }
+
+        #region Excel
+
+        [HttpPost]
+        public IActionResult GenerateExcelBirthdays(List<ReportBirthday> birthdays)
+        {
+
+            if (birthdays == null || birthdays.Count == 0)
+            {
+                _notification.AddErrorToastMessage("Sem aniversariantes para exportar!");
+                return View(ROUTE_SCREEN_BIRTHDAYS);
+            }
+
+            // Configuração para permitir a geração do arquivo
+            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+            // Criar uma nova planilha
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Aniversariantes");
+
+                // Cabeçalhos
+                worksheet.Cells[1, 1].Value = "Código Dizimista";
+                worksheet.Cells[1, 2].Value = "Nome Dizimista";
+                worksheet.Cells[1, 3].Value = "Documento";
+                worksheet.Cells[1, 4].Value = "Date de Aniversário";
+                worksheet.Cells[1, 5].Value = "Telefone";
+                worksheet.Cells[1, 6].Value = "E-mail";
+
+                // Preencher os dados a partir da lista de objetos
+                int row = 2;
+
+                foreach (var birthday in birthdays)
+                {
+                    worksheet.Cells[row, 1].Value = birthday.TithePayerId;
+                    worksheet.Cells[row, 2].Value = birthday.Name;
+                    worksheet.Cells[row, 3].Value = birthday.Document;
+                    worksheet.Cells[row, 4].Value = birthday.DateBirth.ToString("dd/MM/yyyy");
+                    worksheet.Cells[row, 5].Value = birthday.PhoneNumber;
+                    worksheet.Cells[row, 6].Value = birthday.Email;
+
+                    row++;
+                }
+
+                // Formatar cabeçalhos
+                worksheet.Cells[1, 1, 1, 6].Style.Font.Bold = true;
+                worksheet.Cells[1, 1, 1, 6].AutoFitColumns();
+
+                var excelBytes = package.GetAsByteArray();
+
+                // Retornar o arquivo para download
+                string excelFileName = $"Aniversariantes_{DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss").Replace("/", "").Replace(" ", "").Replace(":", "")}.xlsx";
+
+               
+                return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelFileName);
+            }
+
+        }
+
+        [HttpPost]
+        public IActionResult GenerateExcelTithes(List<TitheDTO> tithes)
+        {
+
+            if (tithes == null || tithes.Count == 0)
+            {
+                _notification.AddErrorToastMessage("Sem dizimos para exportar!");
+                return View(ROUTE_SCREEN_TITHE_PER_TITHEPAYER);
+            }
+
+            // Configuração para permitir a geração do arquivo
+            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+            // Criar uma nova planilha
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Dizimo");
+
+                // Cabeçalhos
+                worksheet.Cells[1, 1].Value = "Nome Dizimista";
+                worksheet.Cells[1, 2].Value = "Nome Agente";
+                worksheet.Cells[1, 3].Value = "Forma de Pagamento";
+                worksheet.Cells[1, 4].Value = "Valor";
+                worksheet.Cells[1, 5].Value = "Competência";
+                worksheet.Cells[1, 6].Value = "Data de Pagamento";
+
+                // Preencher os dados a partir da lista de objetos
+                int row = 2;
+
+                foreach (var tithe in tithes)
+                {
+                    worksheet.Cells[row, 1].Value = tithe.NameTithePayer;
+                    worksheet.Cells[row, 2].Value = tithe.NameAgent;
+                    worksheet.Cells[row, 3].Value = tithe.PaymentType;
+                    worksheet.Cells[row, 4].Value = $"R$ {tithe.Value.ToString("F2")}";
+                    worksheet.Cells[row, 5].Value = tithe.PaymentMonth.ToString("MM/yyyy");
+                    worksheet.Cells[row, 6].Value = tithe.RegistrationDate.ToString("dd/MM/yyyy");
+
+                    row++;
+                }
+
+                // Formatar cabeçalhos
+                worksheet.Cells[1, 1, 1, 6].Style.Font.Bold = true;
+                worksheet.Cells[1, 1, 1, 6].AutoFitColumns();
+
+                var excelBytes = package.GetAsByteArray();
+
+                string tithePayerName = tithes.First().NameTithePayer.Split(' ').First();
+
+                // Retornar o arquivo para download
+                string excelFileName = $"Dizimos_{tithePayerName}_{DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss").Replace("/", "").Replace(" ", "").Replace(":", "")}.xlsx";
+
+
+                return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelFileName);
+            }
+
+        }
+
+        [HttpPost]
+        public IActionResult GenerateExcelTithePayers(List<ReportTithePayer> tithePayers)
+        {
+
+            if (tithePayers == null || tithePayers.Count == 0)
+            {
+                _notification.AddErrorToastMessage("Sem dizimistas para exportar!");
+                return View(ROUTE_SCREEN_TITHE_PER_TITHEPAYER);
+            }
+
+            // Configuração para permitir a geração do arquivo
+            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+            // Criar uma nova planilha
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Dizimistas x Periodo");
+
+                // Cabeçalhos
+                worksheet.Cells[1, 1].Value = "Nome Dizimista";
+                worksheet.Cells[1, 2].Value = "Valor";
+                worksheet.Cells[1, 3].Value = "Data de Pagamento";
+                worksheet.Cells[1, 4].Value = "Forma de Pagamento";
+
+                // Preencher os dados a partir da lista de objetos
+                int row = 2;
+
+                foreach (var tithePayer in tithePayers)
+                {
+                    worksheet.Cells[row, 1].Value = tithePayer.Name;
+                    worksheet.Cells[row, 2].Value = $"R$ {tithePayer.Value.ToString("F2")}";
+                    worksheet.Cells[row, 3].Value = tithePayer.PaymentDate.ToString("dd/MM/yyyy");
+                    worksheet.Cells[row, 4].Value = tithePayer.PaymentType;
+
+                    row++;
+                }
+
+                // Formatar cabeçalhos
+                worksheet.Cells[1, 1, 1, 4].Style.Font.Bold = true;
+                worksheet.Cells[1, 1, 1, 4].AutoFitColumns();
+
+                var excelBytes = package.GetAsByteArray();
+
+                // Retornar o arquivo para download
+                string excelFileName = $"Dizimistas_{DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss").Replace("/", "").Replace(" ", "").Replace(":", "")}.xlsx";
+
+                return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelFileName);
+            }
+
+        }
+
+        #endregion
 
     }
 }
