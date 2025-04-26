@@ -106,7 +106,9 @@ namespace DizimoParoquial.Controllers
 
                 List<TitheDTO> tithes = await _titheService.GetTithesByTithePayerId(tithePayers.First().TithePayerId);
 
-                return View(ROUTE_SCREEN_TITHE_PER_TITHEPAYER, tithes.OrderByDescending(t => t.PaymentMonth).ToList());
+                List<TitheDTO> tithesOrganized = tithes.OrderByDescending(t => t.PaymentMonth).ToList();
+
+                return View(ROUTE_SCREEN_TITHE_PER_TITHEPAYER, tithesOrganized);
 
             }
             catch (Exception ex)
