@@ -12,5 +12,7 @@ namespace DizimoParoquial.Data.Interface
 
         public Task<List<TitheDTO>> GetTithesByTithePayerId(int tithePayerId);
 
+        public Task<TitheDTO> GetTitheByTitheId(int id);
+
     }
 }

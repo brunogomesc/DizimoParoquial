@@ -159,6 +159,40 @@ namespace DizimoParoquial.Services
             }
         }
 
+        public async Task<TitheDTO> GetTitheById(int id)
+        {
+            TitheDTO tithe = new TitheDTO();
+
+            try
+            {
+
+                tithe = await GetTitheByTitheIdRepository(id);
+
+                return tithe;
+
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consultar Dizimos Detalhes - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Consultar Dizimos Detalhes - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Consultar Dizimos Detalhes - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Consultar Dizimos Detalhes - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Consultar Dizimos Detalhes - Dados vazios.");
+            }
+        }
+
         #region Repositories Methods
 
         private async Task<bool> SaveTithesRepository(List<Tithe> tithes)
@@ -254,6 +288,38 @@ namespace DizimoParoquial.Services
             catch (ArgumentNullException)
             {
                 throw new NullException("Consultar Dizimos - Dados vazios.");
+            }
+        }
+
+        private async Task<TitheDTO> GetTitheByTitheIdRepository(int id)
+        {
+            TitheDTO tithe = new TitheDTO();
+
+            try
+            {
+                tithe = await _titheRepository.GetTitheByTitheId(id);
+
+                return tithe;
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consultar Dizimos Detalhes - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Consultar Dizimos Detalhes - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Consultar Dizimos Detalhes - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Consultar Dizimos Detalhes - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Consultar Dizimos Detalhes - Dados vazios.");
             }
         }
 

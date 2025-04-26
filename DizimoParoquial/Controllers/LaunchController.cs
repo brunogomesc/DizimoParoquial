@@ -13,6 +13,7 @@ namespace DizimoParoquial.Controllers
 
         private const string ROUTE_SCREEN_LAUNCH_ALLUSERS = "/Views/Launch/LaunchAllUsers.cshtml";
         private const string ROUTE_SCREEN_LAUNCH = "/Views/Launch/Index.cshtml";
+        private const string ROUTE_SCREEN_EDIT_LAUNCH = "/Views/Launch/EditLaunch.cshtml";
         private readonly IToastNotification _notification;
         private readonly TithePayerService _tithePayerService;
         private readonly TitheService _titheService;
@@ -38,6 +39,12 @@ namespace DizimoParoquial.Controllers
         }
 
         public IActionResult Index()
+        {
+            ViewBag.UserName = HttpContext.Session.GetString("Username");
+            return View();
+        }
+
+        public IActionResult EditLaunch()
         {
             ViewBag.UserName = HttpContext.Session.GetString("Username");
             return View();
@@ -325,6 +332,78 @@ namespace DizimoParoquial.Controllers
             }
 
             return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> SearchTithesEditLaunch(int tithePayerCode, string document)
+        {
+            ViewBag.UserName = HttpContext.Session.GetString("Username");
+
+            try
+            {
+
+                if (tithePayerCode == 0 && string.IsNullOrWhiteSpace(document))
+                {
+                    _notification.AddErrorToastMessage("Informe o documento ou código do dizimista.");
+                    return RedirectToAction(nameof(EditLaunch));
+                }
+
+                if (document != null)
+                    document = document.Replace(".", "").Replace("-", "");
+
+                List<TithePayerLaunchDTO> tithePayers = await _titheService.GetTithesWithFilters(null, tithePayerCode, document);
+
+                if (tithePayers == null || tithePayers.Count == 0)
+                {
+                    _notification.AddErrorToastMessage("Dizimista não encontrado.");
+                    return RedirectToAction(nameof(EditLaunch));
+                }
+
+                List<TitheDTO> tithes = await _titheService.GetTithesByTithePayerId(tithePayers.First().TithePayerId);
+
+                var tithesOrganized = tithes.OrderByDescending(t => t.PaymentMonth).ToList();
+
+                return View(ROUTE_SCREEN_EDIT_LAUNCH, tithesOrganized);
+
+            }
+            catch (Exception ex)
+            {
+                _notification.AddErrorToastMessage(ex.Message);
+            }
+
+            return RedirectToAction(nameof(EditLaunch));
+
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetDetailsEdit(int id)
+        {
+
+            ViewBag.UserName = HttpContext.Session.GetString("Username");
+
+            try
+            {
+                TitheDTO tithe = await _titheService.GetTitheById(id);
+
+                if (tithe == null)
+                {
+                    _notification.AddErrorToastMessage("Dizimo não localizado!");
+                    return RedirectToAction(nameof(EditLaunch));
+                }
+
+                return Json(tithe);
+            }
+            catch (Exception ex)
+            {
+                _notification.AddErrorToastMessage(ex.Message);
+            }
+
+            return RedirectToAction(nameof(EditLaunch));
+
+        }
+
+        public async Task<IActionResult> SaveEditLaunch()
+        {
+            return View();
         }
 
         #endregion

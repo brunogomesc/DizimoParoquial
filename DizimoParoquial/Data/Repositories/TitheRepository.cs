@@ -127,7 +127,9 @@ namespace DizimoParoquial.Data.Repositories
             {
                 StringBuilder query = new StringBuilder();
 
-                query.Append("SELECT TP.Name as NameTithePayer, ");
+                query.Append("SELECT T.TitheId, ");
+                query.Append("TP.TithePayerId, ");
+                query.Append("TP.Name as NameTithePayer, ");
                 query.Append("A.Name as NameAgent, ");
                 query.Append("T.PaymentType, ");
                 query.Append("T.Value, ");
@@ -159,6 +161,52 @@ namespace DizimoParoquial.Data.Repositories
             catch (Exception ex)
             {
                 throw new RepositoryException("Consulta Dizimista - Erro interno.", ex);
+            }
+        }
+
+        public async Task<TitheDTO> GetTitheByTitheId(int id)
+        {
+
+            TitheDTO tithe = new TitheDTO();
+
+            try
+            {
+                StringBuilder query = new StringBuilder();
+
+                query.Append("SELECT T.TitheId, ");
+                query.Append("TP.TithePayerId, ");
+                query.Append("TP.Name as NameTithePayer, ");
+                query.Append("A.Name as NameAgent, ");
+                query.Append("T.PaymentType, ");
+                query.Append("T.Value, ");
+                query.Append("T.PaymentMonth, ");
+                query.Append("T.RegistrationDate ");
+                query.Append("FROM TithePayer TP ");
+                query.Append("LEFT JOIN Tithe T ");
+                query.Append("ON T.TithePayerId = TP.TithePayerId ");
+                query.Append("LEFT JOIN Agent A ");
+                query.Append("ON T.AgentCode = A.AgentCode ");
+                query.Append("WHERE 1 = 1 ");
+
+                if (id != 0)
+                    query.Append($" AND T.TitheId = {id}");
+
+                using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
+                {
+                    var result = await connection.QueryAsync<TitheDTO>(query.ToString());
+
+                    tithe = result.FirstOrDefault();
+
+                    return tithe;
+                }
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consulta Dizimista Detalhes - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("Consulta Dizimista Detalhes - Erro interno.", ex);
             }
         }
 

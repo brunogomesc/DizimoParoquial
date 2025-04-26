@@ -1,0 +1,236 @@
+﻿@inject DizimoParoquial.Services.TithePayerService _tithePayerService;
+@inject DizimoParoquial.Services.AgentService _agentService;
+
+@model List<TitheDTO>
+
+@{
+    ViewData["Username"] = @ViewBag.UserName;
+    List<TithePayer> tithes = await _tithePayerService.GetTithePayersWithouthFilters();
+    List<AgentDTO> agents = await _agentService.GetAgentsWithouthFilters();
+    List<DateTime> dates = GetDateTimes();
+}
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+</head>
+<body>
+    <div class="container my-4">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="d-flex align-items-center border-bottom pb-2 mb-3" style="font-family: system-ui; font-weight: bold;">
+                    <i class="fa fa-search" aria-hidden="true"></i>
+                    Consultar Dizimista
+                </h2>
+                @using (Html.BeginForm("SearchTithesEditLaunch", "Launch", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    <div class="row g-3">
+                        <div class="col-md-5">
+                            <label for="document" class="form-label"><b>Documento:</b></label>
+                            <input name="document" id="document" class="form-control" type="text" />
+                        </div>
+                        <div class="col-md-2">
+                            <label for="tithePayerCode" class="form-label"><b>Código Dizimista:</b></label>
+                            <input name="tithePayerCode" id="tithePayerCode" class="form-control" type="number" />
+                        </div>
+                    </div>
+                    <div class="row g-3 mt-3">
+                        <div class="col-md-3">
+                            <button class="btn btn-primary w-100" type="submit">
+                                Pesquisar
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <br />
+    @if (Model != null)
+    {
+        <div class="card mt-4">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Nome Dizimista</th>
+                        <th>Nome Agente</th>
+                        <th>Competência</th>
+                        <th>Valor (R$)</th>
+                        <th>Forma de Pagamento</th>
+                        <th>Data de Pagamento</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var tithePayer in Model)
+                    {
+                        <tr>
+                            <td>@tithePayer.NameTithePayer</td>
+                            <td>@tithePayer.NameAgent</td>
+                            <td>@tithePayer.PaymentMonth.ToString("MM/yyyy")</td>
+                            <td>R$ @tithePayer.Value.ToString("F2")</td>
+                            <td>@tithePayer.PaymentType</td>
+                            <td>@tithePayer.RegistrationDate.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                <a data-toggle="tooltip" class="bs-tooltip" data-placement="top" href="javascript:void(0);" onclick="openModal(@tithePayer.TithePayerId)" title="Editar"><i class="fa-solid fa-user-pen" style="color: #000000;"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <h4 class="text-center">Sem resultados para serem exibidos</h4>
+    }
+
+    @* Modal Edit User *@
+
+    <div class="modal fade" id="modal_launch_edit">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"><i class="fa-solid fa-user-pen"></i> Editar Lançamento</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                @using (Html.BeginForm("SaveEditLaunch", "Launch", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="row g-3 mt-2">
+                                <div class="col-md-10">
+                                    <label for="tithePayerEdit" class="form-label"><b>Dizimista:</b></label>
+                                    <select class="form-control" name="tithePayerEdit" id="tithePayerEdit">
+                                        <option></option>
+                                        @foreach (var tithe in tithes)
+                                        {
+                                            <option value="@tithe.TithePayerId">@tithe.Name</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row g-3 mt-2">
+                                <div class="col-md-10">
+                                    <label for="agentEdit" class="form-label"><b>Agente do Dizimo:</b></label>
+                                    <select class="form-control" name="agentEdit" id="agentEdit">
+                                        <option></option>
+                                        @foreach (var agent in agents)
+                                        {
+                                            <option value="@agent.Name">@agent.Name</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row g-3 mt-2">
+                                <div class="col-md-4">
+                                    <label for="valueEdit" class="form-label"><b>Valor (R$):</b></label>
+                                    <input data-mask="#.##0,00" data-mask-reverse="true" type="text" class="form-control" id="valueEdit" name="valueEdit">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="paymentTypeEdit"class="form-label"><b>Forma de Pagamento:</b></label>
+                                    <select id="paymentTypeEdit" name="paymentTypeEdit" class="form-control">
+                                        <option></option>
+                                        <option value="Pix">Pix</option>
+                                        <option value="Dinheiro">Dinheiro</option>
+                                        <option value="Cartão de Crédito">Cartão de Crédito</option>
+                                        <option value="Cartão de Débito">Cartão de Débito</option>
+                                        <option value="Transferência Bancária">Transferência Bancária</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row g-3 mt-2">
+                                <div class="col-md-10">
+                                    <label for="datesEdit"  class="form-label"><b>Competência:</b></label>
+                                    <select id="datesEdit" class="form-control" name="datesEdit">
+                                        <option></option>
+                                        @foreach (var date in dates)
+                                        {
+                                            <option value="@date.ToString("yyyy-MM")">@date.ToString("MM/yyyy")</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mensagem de erro -->
+                        <div id="passwordMessageEdit"></div>
+                        <input hidden type="text" name="titheId" id="titheIdEdit" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                        <button type="submit" class="btn btn-primary" id="saveButtonEdit">Salvar Alterações</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    @* End Modal Edit User *@
+
+</body>
+</html>
+
+<script>
+    function openModal(id) {
+        $.ajax({
+            url: '/Launch/GetDetailsEdit', // Rota para o método do controlador que retornará os dados
+            type: 'GET',
+            data: { id: id },
+            success: function (data) {
+                console.log(data);
+                $('#tithePayerEdit').val(data.tithePayerId);
+                $('#agentEdit').val(data.nameAgent);
+                $('#valueEdit').val(data.value);
+                $('#paymentTypeEdit').val(data.paymentType);
+                
+                const dateObj = new Date(data.paymentMonth);
+                const year = dateObj.getFullYear();
+                const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+                const formattedDate = `${year}-${month}`;
+                $('#datesEdit').val(formattedDate);
+                
+                $('#modal_launch_edit').modal('show');
+            },
+            error: function () {
+                alert("Erro ao buscar os dados.");
+            }
+        });
+    }
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('.js-example-basic-single').select2({
+            width: '100%'
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('#valueEdit').mask('#.##0,00', { reverse: true });
+    });
+</script>
+
+@functions {
+    private List<DateTime> GetDateTimes()
+    {
+        List<DateTime> dates = new List<DateTime>();
+        DateTime today = DateTime.Now;
+        for (int i = 12; i > 0; i--)
+        {
+            dates.Add(today.AddMonths(-i));
+        }
+        dates.Add(today);
+        for (int i = 1; i <= 12; i++)
+        {
+            dates.Add(today.AddMonths(i));
+        }
+        return dates;
+    }
+}
