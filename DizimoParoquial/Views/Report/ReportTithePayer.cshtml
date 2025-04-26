@@ -1,4 +1,6 @@
-﻿@model List<ReportTithePayer>
+﻿@using DizimoParoquial.Utils;
+
+@model List<ReportTithePayer>
 @{
     ViewData["Username"] = @ViewBag.UserName;
     DateTime startDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
@@ -51,6 +53,11 @@
                         <div class="col-md-3">
                             <button class="btn btn-primary w-100">
                                 Pesquisar
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-primary w-100" type="submit" name="generateExcel" value="true">
+                                Gerar Excel
                             </button>
                         </div>
                     </div>

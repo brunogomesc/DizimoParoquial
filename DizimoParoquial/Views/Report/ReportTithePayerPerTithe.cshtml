@@ -1,0 +1,85 @@
+﻿@using DizimoParoquial.Utils;
+
+@model List<TitheDTO>
+@{
+    ViewData["Username"] = @ViewBag.UserName;
+}
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<body>
+    <div class="container my-4">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="d-flex align-items-center border-bottom pb-2 mb-3" style="font-family: system-ui; font-weight: bold;">
+                    <i class="fa fa-search" aria-hidden="true"></i>
+                    Consultar Dizimista
+                </h2>
+                @using (Html.BeginForm("SearchTithes", "Report", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    <div class="row g-3">
+                        <div class="col-md-5">
+                            <label for="document" class="form-label"><b>Documento:</b></label>
+                            <input name="document" id="document" class="form-control" type="text" />
+                        </div>
+                        <div class="col-md-2">
+                            <label for="tithePayerCode" class="form-label"><b>Código Dizimista:</b></label>
+                            <input name="tithePayerCode" id="tithePayerCode" class="form-control" type="number" />
+                        </div>
+                    </div>
+                    <div class="row g-3 mt-3">
+                        <div class="col-md-3">
+                            <button class="btn btn-primary w-100" type="submit">
+                                Pesquisar
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-primary w-100" type="submit" name="generateExcel" value="true">
+                                Gerar Excel
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <br />
+    @if (Model != null)
+    {
+        <div class="card mt-4">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Nome Dizimista</th>
+                        <th>Nome Agente</th>
+                        <th>Competência</th>
+                        <th>Valor (R$)</th>
+                        <th>Forma de Pagamento</th>
+                        <th>Data de Pagamento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var tithePayer in Model)
+                    {
+                        <tr>
+                            <td>@tithePayer.NameTithePayer</td>
+                            <td>@tithePayer.NameAgent</td>
+                            <td>@tithePayer.PaymentMonth.ToString("MM/yyyy")</td>
+                            <td>R$ @tithePayer.Value.ToString("F2")</td>
+                            <td>@tithePayer.PaymentType</td>
+                            <td>@tithePayer.RegistrationDate.ToString("dd/MM/yyyy")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <h4 class="text-center">Sem resultados para serem exibidos</h4>
+    }
+</body>
+</html>

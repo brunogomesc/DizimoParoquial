@@ -1,0 +1,92 @@
+﻿
+@model List<ReportBirthday>
+@{
+    ViewData["Username"] = @ViewBag.UserName;
+    DateTime startDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+    DateTime endDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+}
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<body>
+    <div class="container my-4">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="d-flex align-items-center border-bottom pb-2 mb-3" style="font-family: system-ui; font-weight: bold;">
+                    <i class="fa fa-search" aria-hidden="true"></i>
+                    Aniversariantes
+                </h2>
+                @using (Html.BeginForm("SearchReportBirthdays", "Report", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="Name" class="form-label"><b>Nome Dizimista:</b></label>
+                            <input name="name" class="form-control" type="text" />
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="startBirthdayDate" class="form-label"><b>Data de Aniversário (Inicio): <b style="color:red;">*</b></b></label>
+                            <input name="startBirthdayDate" value="@startDateTime.ToString("yyyy-MM-dd")" type="date" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="endBirthdayDate" class="form-label"><b>Data de Aniversário (Final): <b style="color:red;">*</b></b></label>
+                            <input name="endBirthdayDate" value="@endDateTime.ToString("yyyy-MM-dd")" class="form-control" type="date" />
+                        </div>
+                    </div>
+                    <div class="row g-3 mt-3">
+                        <div class="col-md-3">
+                            <button class="btn btn-primary w-100">
+                                Pesquisar
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-primary w-100" type="submit" name="generateExcel" value="true">
+                                Gerar Excel
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <br />
+    @if (Model != null && Model.Any())
+    {
+        <div class="card mt-4">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Código Dizimista</th>
+                        <th>Nome</th>
+                        <th>Data de Aniversário</th>
+                        <th>Telefone</th>
+                        <th>E-mail</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var tithePayer in Model)
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(item => tithePayer.TithePayerId)</td>
+                            <td>@Html.DisplayFor(item => tithePayer.Name)</td>
+                            <td>@(tithePayer.DateBirth.ToString("dd/MM/yyyy"))</td>
+                            <td>@Html.DisplayFor(item => tithePayer.PhoneNumber)</td>
+                            <td>@Html.DisplayFor(item => tithePayer.Email)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <h4 class="text-center">Sem resultados para serem exibidos</h4>
+    }
+
+</body>
+</html>
+

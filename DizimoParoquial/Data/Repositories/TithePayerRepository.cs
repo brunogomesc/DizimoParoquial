@@ -355,5 +355,41 @@ namespace DizimoParoquial.Data.Repositories
             }
         }
 
+        public async Task<List<ReportBirthday>> GetReportTithePayersBirthdays(string? name, DateTime startBirthdayDate, DateTime endBirthdayDate)
+        {
+
+            List<ReportBirthday> report = new List<ReportBirthday>();
+
+            try
+            {
+                StringBuilder query = new StringBuilder();
+
+                query.Append("SELECT TP.TithePayerId, TP.Name, TP.Document, TP.DateBirth, TP.PhoneNumber, TP.Email ");
+                query.Append("FROM TithePayer TP ");
+                query.Append($"WHERE MONTH(TP.DateBirth) BETWEEN '{startBirthdayDate.Month}' AND '{endBirthdayDate.Month}' ");
+                query.Append($"AND DAY(TP.DateBirth) BETWEEN '{startBirthdayDate.Day}' AND '{endBirthdayDate.Day}' ");
+
+                if (name != null)
+                    query.Append($"AND TP.Name LIKE '%{name}%' ");
+
+                using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
+                {
+                    var result = await connection.QueryAsync<ReportBirthday>(query.ToString());
+
+                    report = result.ToList();
+
+                    return report;
+                }
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consulta Relatório Aniversariante - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("Consulta Relatório Aniversariante - Erro interno.", ex);
+            }
+        }
+
     }
 }
