@@ -159,7 +159,7 @@
 
                         <!-- Mensagem de erro -->
                         <div id="passwordMessageEdit"></div>
-                        <input hidden type="text" name="titheId" id="titheIdEdit" />
+                        <input hidden type="text" name="titheIdEdit" id="titheIdEdit" />
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
@@ -187,6 +187,7 @@
                 $('#agentEdit').val(data.nameAgent);
                 $('#valueEdit').val(data.value);
                 $('#paymentTypeEdit').val(data.paymentType);
+                $('#titheIdEdit').val(data.titheId);
                 
                 const dateObj = new Date(data.paymentMonth);
                 const year = dateObj.getFullYear();

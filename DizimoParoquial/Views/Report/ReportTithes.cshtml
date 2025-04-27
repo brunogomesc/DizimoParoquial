@@ -1,6 +1,6 @@
 ﻿@using DizimoParoquial.Utils;
 
-@model List<ReportTithePayer>
+@model List<TitheDTO>
 @{
     ViewData["Username"] = @ViewBag.UserName;
 }
@@ -16,16 +16,16 @@
             <div class="card-body">
                 <h2 class="d-flex align-items-center border-bottom pb-2 mb-3" style="font-family: system-ui; font-weight: bold;">
                     <i class="fa fa-report" aria-hidden="true"></i>
-                    Relatório de Dizimistas
+                    Relatório de Dizimo
                 </h2>
-                @using (Html.BeginForm("SearchReportTithePayer", "Report", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                @using (Html.BeginForm("SearchReportTithesMonth", "Report", FormMethod.Post, new { enctype = "multipart/form-data" }))
                 {
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label for="Status" class="form-label"><b>Forma de Pagamento:</b></label>
                             <select id="paymentType" name="paymentType" class="form-control">
                                 <option></option>
-                                @if(ViewBag.PaymentType == "Pix")
+                                @if (ViewBag.PaymentType == "Pix")
                                 {
                                     <option selected value="Pix">Pix</option>
                                 }
@@ -34,7 +34,7 @@
                                     <option value="Pix">Pix</option>
                                 }
 
-                                @if(ViewBag.PaymentType == "Dinheiro")
+                                @if (ViewBag.PaymentType == "Dinheiro")
                                 {
                                     <option selected value="Dinheiro">Dinheiro</option>
                                 }
@@ -43,7 +43,7 @@
                                     <option value="Dinheiro">Dinheiro</option>
                                 }
 
-                                @if(ViewBag.PaymentType == "Cartão de Crédito")
+                                @if (ViewBag.PaymentType == "Cartão de Crédito")
                                 {
                                     <option selected value="Cartão de Crédito">Cartão de Crédito</option>
                                 }
@@ -52,7 +52,7 @@
                                     <option value="Cartão de Crédito">Cartão de Crédito</option>
                                 }
 
-                                @if(ViewBag.PaymentType == "Cartão de Débito")
+                                @if (ViewBag.PaymentType == "Cartão de Débito")
                                 {
                                     <option selected value="Cartão de Débito">Cartão de Débito</option>
                                 }
@@ -61,7 +61,7 @@
                                     <option value="Cartão de Débito">Cartão de Débito</option>
                                 }
 
-                                @if(ViewBag.PaymentType == "Transferência Bancária")
+                                @if (ViewBag.PaymentType == "Transferência Bancária")
                                 {
                                     <option selected value="Transferência Bancária">Transferência Bancária</option>
                                 }
@@ -80,11 +80,11 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label for="startPaymentDate" class="form-label"><b>Data de Pagamento (Inicio): <b style="color:red;">*</b></b></label>
-                            <input name="startPaymentDate" value="@ViewBag.StartPaymentDate.ToString("yyyy-MM-dd")" type="date" class="form-control" />
+                            <input name="startPaymentDate" value="@ViewBag.StartTitheDate.ToString("yyyy-MM-dd")" type="date" class="form-control" />
                         </div>
                         <div class="col-md-6">
                             <label for="endPaymentDate" class="form-label"><b>Data de Pagamento (Final): <b style="color:red;">*</b></b></label>
-                            <input name="endPaymentDate" value="@ViewBag.EndPaymentDate.ToString("yyyy-MM-dd")" class="form-control" type="date" />
+                            <input name="endPaymentDate" value="@ViewBag.EndTitheDate.ToString("yyyy-MM-dd")" class="form-control" type="date" />
                         </div>
                     </div>
                     <div class="row g-3 mt-3">
@@ -111,19 +111,23 @@
                 <thead>
                     <tr>
                         <th>Nome Dizimista</th>
-                        <th>Valor</th>
-                        <th>Data de Pagamento</th>
+                        <th>Nome Agente</th>
+                        <th>Competência</th>
+                        <th>Valor (R$)</th>
                         <th>Forma de Pagamento</th>
+                        <th>Data de Pagamento</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var tithePayer in Model)
                     {
                         <tr>
-                            <td>@tithePayer.Name </td>
-                            <td>R$ @tithePayer.Value.ToString("F2") </td>
-                            <td>@tithePayer.PaymentDate.ToString("dd/MM/yyyy")</td>
+                            <td>@tithePayer.NameTithePayer</td>
+                            <td>@tithePayer.NameAgent</td>
+                            <td>@tithePayer.PaymentMonth.ToString("MM/yyyy")</td>
+                            <td>R$ @tithePayer.Value.ToString("F2")</td>
                             <td>@tithePayer.PaymentType</td>
+                            <td>@tithePayer.RegistrationDate.ToString("dd/MM/yyyy")</td>
                         </tr>
                     }
                 </tbody>
@@ -132,7 +136,7 @@
     }
     else
     {
-        <h4 class="text-center">Sem resultados para serem exibidos</h4>
+            <h4 class="text-center">Sem resultados para serem exibidos</h4>
     }
 </body>
 </html>

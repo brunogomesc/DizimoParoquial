@@ -13,7 +13,8 @@ namespace DizimoParoquial.Controllers
         private const string ROUTE_SCREEN_REPORTS = "/Views/Report/ReportTithePayer.cshtml";
         private const string ROUTE_SCREEN_TITHE_PER_TITHEPAYER = "/Views/Report/ReportTithePayerPerTithe.cshtml";
         private const string ROUTE_SCREEN_BIRTHDAYS = "/Views/Report/ReportBirthdays.cshtml";
-        
+        private const string ROUTE_SCREEN_TITHES = "/Views/Report/ReportTithes.cshtml";
+
         private readonly IToastNotification _notification;
         private readonly TithePayerService _tithePayer;
         private readonly TitheService _titheService;
@@ -39,6 +40,10 @@ namespace DizimoParoquial.Controllers
         public IActionResult ReportTithePayer()
         {
             ViewBag.UserName = HttpContext.Session.GetString("Username");
+
+            ViewBag.StartPaymentDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            ViewBag.EndPaymentDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+
             return View();
         }
 
@@ -51,6 +56,20 @@ namespace DizimoParoquial.Controllers
         public IActionResult ReportBirthdays()
         {
             ViewBag.UserName = HttpContext.Session.GetString("Username");
+
+            ViewBag.StartBirthdayDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            ViewBag.EndBirthdayDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+
+            return View();
+        }
+
+        public IActionResult ReportTithes()
+        {
+            ViewBag.UserName = HttpContext.Session.GetString("Username");
+
+            ViewBag.StartTitheDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            ViewBag.EndTitheDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+
             return View();
         }
 
@@ -77,6 +96,11 @@ namespace DizimoParoquial.Controllers
             }
 
             var reportTithePayers = await _tithePayer.GetReportTithePayers(paymentType, name, startPaymentDate, endPaymentDate);
+
+            ViewBag.PaymentType = paymentType;
+            ViewBag.Name = name;
+            ViewBag.StartPaymentDate = startPaymentDate;
+            ViewBag.EndPaymentDate = endPaymentDate;
 
             if (generateExcel)
                 return GenerateExcelTithePayers(reportTithePayers);
@@ -149,11 +173,50 @@ namespace DizimoParoquial.Controllers
 
             var birthdays = await _tithePayer.GetReportTithePayersBirthdays(name, startBirthdayDate, endBirthdayDate);
 
+            ViewBag.Name = name;
+            ViewBag.StartBirthdayDate = startBirthdayDate;
+            ViewBag.EndBirthdayDate = endBirthdayDate;
+
             if (generateExcel)
                 return GenerateExcelBirthdays(birthdays);
 
             return View(ROUTE_SCREEN_BIRTHDAYS, birthdays);
         }
+
+        public async Task<IActionResult> SearchReportTithesMonth(string paymentType, string name, DateTime startPaymentDate, DateTime endPaymentDate, bool generateExcel)
+        {
+            ViewBag.UserName = HttpContext.Session.GetString("Username");
+
+            if (startPaymentDate == DateTime.MinValue)
+            {
+                startPaymentDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            }
+
+            if (endPaymentDate == DateTime.MinValue)
+            {
+                endPaymentDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+            }
+
+            if (startPaymentDate > endPaymentDate)
+            {
+                _notification.AddErrorToastMessage("Data de inicio não pode ser maior que a data de término.");
+                return RedirectToAction(nameof(ReportTithes));
+            }
+
+            var reportTithes = await _titheService.GetReportTithesMonth(paymentType, name, startPaymentDate, endPaymentDate);
+
+            ViewBag.PaymentType = paymentType;
+            ViewBag.Name = name;
+            ViewBag.StartTitheDate = startPaymentDate;
+            ViewBag.EndTitheDate = endPaymentDate;
+
+            if (generateExcel)
+                return GenerateExcelTithes(reportTithes);
+
+            return View(ROUTE_SCREEN_TITHES, reportTithes);
+
+        }
+
 
         #region Excel
 
@@ -287,7 +350,7 @@ namespace DizimoParoquial.Controllers
             // Criar uma nova planilha
             using (var package = new ExcelPackage())
             {
-                var worksheet = package.Workbook.Worksheets.Add("Dizimistas x Periodo");
+                var worksheet = package.Workbook.Worksheets.Add("Entradas");
 
                 // Cabeçalhos
                 worksheet.Cells[1, 1].Value = "Nome Dizimista";
@@ -315,7 +378,7 @@ namespace DizimoParoquial.Controllers
                 var excelBytes = package.GetAsByteArray();
 
                 // Retornar o arquivo para download
-                string excelFileName = $"Dizimistas_{DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss").Replace("/", "").Replace(" ", "").Replace(":", "")}.xlsx";
+                string excelFileName = $"Entradas_{DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss").Replace("/", "").Replace(" ", "").Replace(":", "")}.xlsx";
 
                 return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelFileName);
             }

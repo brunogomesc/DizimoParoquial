@@ -2,8 +2,6 @@
 @model List<ReportBirthday>
 @{
     ViewData["Username"] = @ViewBag.UserName;
-    DateTime startDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-    DateTime endDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
 }
 
 <html>
@@ -24,17 +22,17 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label for="Name" class="form-label"><b>Nome Dizimista:</b></label>
-                            <input name="name" class="form-control" type="text" />
+                            <input name="name" value="@ViewBag.Name" class="form-control" type="text" />
                         </div>
                     </div>
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label for="startBirthdayDate" class="form-label"><b>Data de Aniversário (Inicio): <b style="color:red;">*</b></b></label>
-                            <input name="startBirthdayDate" value="@startDateTime.ToString("yyyy-MM-dd")" type="date" class="form-control" />
+                            <input name="startBirthdayDate" value="@ViewBag.StartBirthdayDate.ToString("yyyy-MM-dd")" type="date" class="form-control" />
                         </div>
                         <div class="col-md-6">
                             <label for="endBirthdayDate" class="form-label"><b>Data de Aniversário (Final): <b style="color:red;">*</b></b></label>
-                            <input name="endBirthdayDate" value="@endDateTime.ToString("yyyy-MM-dd")" class="form-control" type="date" />
+                            <input name="endBirthdayDate" value="@ViewBag.EndBirthdayDate.ToString("yyyy-MM-dd")" class="form-control" type="date" />
                         </div>
                     </div>
                     <div class="row g-3 mt-3">
