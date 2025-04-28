@@ -48,11 +48,12 @@
                     {
                         <li class="nav-item dropdown active">
                             <a class="nav-link dropdown-toggle" href="#" id="dropdownRegister" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Usuário
+                                Gerenciamento
                             </a>
                             <div class="dropdown-menu" aria-labelledby="dropdownRegister">
                                 <a class="dropdown-item" href="@Url.Action("Index","Agent")">Agente do Dizimo</a>
                                 <a class="dropdown-item" href="@Url.Action("Index","User")">Usuário de Acesso</a>
+                                <a class="dropdown-item" href="@Url.Action("EditLaunch","Launch")">Editar Lançamento</a>
                             </div>
                         </li>
                         <li class="nav-item dropdown active">
@@ -61,8 +62,9 @@
                             </a>
                             <div class="dropdown-menu" aria-labelledby="dropdownReport">
                                 <a class="dropdown-item" href="@Url.Action("ReportTithePayerPerTithe","Report")">Dizimo Por Dizimista</a>
-                                <a class="dropdown-item" href="@Url.Action("ReportTithePayer","Report")">Dizimistas Por Período</a>
+                                <a class="dropdown-item" href="@Url.Action("ReportTithePayer","Report")">Entradas</a>
                                 <a class="dropdown-item" href="@Url.Action("ReportBirthdays","Report")">Aniversariantes</a>
+                                <a class="dropdown-item" href="@Url.Action("ReportTithes","Report")">Dizimos</a>
                             </div>
                         </li>
                     }

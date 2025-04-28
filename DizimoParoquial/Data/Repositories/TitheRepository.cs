@@ -78,6 +78,59 @@ namespace DizimoParoquial.Data.Repositories
             }
         }
 
+        public async Task<bool> UpdateTithe(Tithe tithe)
+        {
+
+            using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
+            {
+
+                await connection.OpenAsync();
+
+                using (var transaction = connection.BeginTransaction())
+                {
+
+                    try
+                    {
+                        var query = @"UPDATE Tithe SET AgentCode = @AgentCode, PaymentMonth = @PaymentMonth, 
+                                    PaymentType = @PaymentType, TithePayerId = @TithePayerId, Value = @Value
+                                    WHERE TitheId = @TitheId;";
+
+                        int rowsAffected = 0;
+                        
+                        rowsAffected = await connection.ExecuteAsync(query,
+                            new
+                            {
+                                tithe.TithePayerId,
+                                tithe.AgentCode,
+                                tithe.PaymentType,
+                                tithe.Value,
+                                tithe.PaymentMonth,
+                                tithe.TitheId
+                            }
+                        );
+
+                        transaction.Commit();
+
+                        await connection.DisposeAsync();
+
+                        return rowsAffected > 0;
+                    }
+                    catch (DbException ex)
+                    {
+                        transaction.Rollback();
+                        await connection.DisposeAsync();
+                        throw new RepositoryException("Atualizar Dizimo - Erro ao acessar o banco de dados.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        await connection.DisposeAsync();
+                        throw new RepositoryException("Atualizar Dizimo - Erro interno.", ex);
+                    }
+                }
+            }
+        }
+
         public async Task<List<TithePayerLaunchDTO>> GetTithesWithFilters(string? name, int tithePayerCode, string? document)
         {
 
@@ -127,7 +180,9 @@ namespace DizimoParoquial.Data.Repositories
             {
                 StringBuilder query = new StringBuilder();
 
-                query.Append("SELECT TP.Name as NameTithePayer, ");
+                query.Append("SELECT T.TitheId, ");
+                query.Append("TP.TithePayerId, ");
+                query.Append("TP.Name as NameTithePayer, ");
                 query.Append("A.Name as NameAgent, ");
                 query.Append("T.PaymentType, ");
                 query.Append("T.Value, ");
@@ -159,6 +214,104 @@ namespace DizimoParoquial.Data.Repositories
             catch (Exception ex)
             {
                 throw new RepositoryException("Consulta Dizimista - Erro interno.", ex);
+            }
+        }
+
+        public async Task<List<TitheDTO>> GetReportTithesMonth(string? paymentType, string? name, DateTime startPaymentDate, DateTime endPaymentDate)
+        {
+
+            List<TitheDTO> tithes = new List<TitheDTO>();
+
+            try
+            {
+                StringBuilder query = new StringBuilder();
+
+                string finalDate = $"{endPaymentDate.Year}-{endPaymentDate.Month}-{DateTime.DaysInMonth(endPaymentDate.Year, endPaymentDate.Month)} 23:59:59";
+
+                query.Append("SELECT T.TitheId, ");
+                query.Append("TP.TithePayerId, ");
+                query.Append("TP.Name as NameTithePayer, ");
+                query.Append("A.Name as NameAgent, ");
+                query.Append("T.PaymentType, ");
+                query.Append("T.Value, ");
+                query.Append("T.PaymentMonth, "); 
+                query.Append("T.RegistrationDate ");
+                query.Append("FROM TithePayer TP ");
+                query.Append("INNER JOIN Tithe T ");
+                query.Append("ON T.TithePayerId = TP.TithePayerId ");
+                query.Append("LEFT JOIN Agent A ");
+                query.Append("ON T.AgentCode = A.AgentCode ");
+                query.Append("WHERE T.TitheId IS NOT NULL ");
+                query.Append($"AND PaymentMonth BETWEEN '{startPaymentDate.Year}-{startPaymentDate.Month}-01 00:00:00' AND '{finalDate}' ");
+
+                if (paymentType != null)
+                    query.Append($" AND T.PaymentType = '{paymentType}' ");
+
+                if (name != null)
+                    query.Append($" AND TP.Name = '{name}' W");
+
+                using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
+                {
+                    var result = await connection.QueryAsync<TitheDTO>(query.ToString());
+
+                    tithes = result.ToList();
+
+                    return tithes;
+                }
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consulta Dizimo - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("Consulta Dizimo - Erro interno.", ex);
+            }
+        }
+
+        public async Task<TitheDTO> GetTitheByTitheId(int id)
+        {
+
+            TitheDTO tithe = new TitheDTO();
+
+            try
+            {
+                StringBuilder query = new StringBuilder();
+
+                query.Append("SELECT T.TitheId, ");
+                query.Append("TP.TithePayerId, ");
+                query.Append("TP.Name as NameTithePayer, ");
+                query.Append("A.Name as NameAgent, ");
+                query.Append("T.PaymentType, ");
+                query.Append("T.Value, ");
+                query.Append("T.PaymentMonth, ");
+                query.Append("T.RegistrationDate ");
+                query.Append("FROM TithePayer TP ");
+                query.Append("LEFT JOIN Tithe T ");
+                query.Append("ON T.TithePayerId = TP.TithePayerId ");
+                query.Append("LEFT JOIN Agent A ");
+                query.Append("ON T.AgentCode = A.AgentCode ");
+                query.Append("WHERE 1 = 1 ");
+
+                if (id != 0)
+                    query.Append($" AND T.TitheId = {id}");
+
+                using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
+                {
+                    var result = await connection.QueryAsync<TitheDTO>(query.ToString());
+
+                    tithe = result.FirstOrDefault();
+
+                    return tithe;
+                }
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consulta Dizimista Detalhes - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("Consulta Dizimista Detalhes - Erro interno.", ex);
             }
         }
 
