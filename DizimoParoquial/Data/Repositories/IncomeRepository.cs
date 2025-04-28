@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using DizimoParoquial.Data.Interface;
+using DizimoParoquial.DTOs;
 using DizimoParoquial.Exceptions;
 using DizimoParoquial.Models;
 using DizimoParoquial.Services;
@@ -70,6 +71,5 @@ namespace DizimoParoquial.Data.Repositories
                 }
             }
         }
-
     }
 }
