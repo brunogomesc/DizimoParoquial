@@ -19,7 +19,7 @@ builder.Services.AddMvc().AddNToastNotifyToastr(new ToastrOptions()
 
 builder.Services.AddSession( options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.IdleTimeout = TimeSpan.FromHours(3);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
@@ -69,7 +69,7 @@ app.UseAuthorization();
 app.UseNToastNotify();
 
 app.MapControllerRoute(
-    name: "default",
+    name: "Login",
     pattern: "{controller=Login}/{action=Index}/{id?}");
 
 app.Run();

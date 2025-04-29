@@ -32,7 +32,7 @@ namespace DizimoParoquial.Services
             return code;
         }
 
-        public async Task<string> RegisterAgent(string name)
+        public async Task<string> RegisterAgent(string name, string phoneNumber)
         {
             bool agentWasCreated = false;
 
@@ -46,6 +46,7 @@ namespace DizimoParoquial.Services
                 Agent agent = new Agent
                 {
                     Name = name,
+                    PhoneNumber = phoneNumber,
                     AgentCode = newAgentCode,
                     Active = true,
                     CreatedAt = DateTime.Now,

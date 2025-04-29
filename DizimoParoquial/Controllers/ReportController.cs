@@ -297,10 +297,10 @@ namespace DizimoParoquial.Controllers
                 // Cabeçalhos
                 worksheet.Cells[1, 1].Value = "Nome Dizimista";
                 worksheet.Cells[1, 2].Value = "Nome Agente";
-                worksheet.Cells[1, 3].Value = "Forma de Pagamento";
+                worksheet.Cells[1, 3].Value = "Forma de Contribuição";
                 worksheet.Cells[1, 4].Value = "Valor";
                 worksheet.Cells[1, 5].Value = "Competência";
-                worksheet.Cells[1, 6].Value = "Data de Pagamento";
+                worksheet.Cells[1, 6].Value = "Data de Contribuição";
 
                 // Preencher os dados a partir da lista de objetos
                 int row = 2;
@@ -355,8 +355,8 @@ namespace DizimoParoquial.Controllers
                 // Cabeçalhos
                 worksheet.Cells[1, 1].Value = "Nome Dizimista";
                 worksheet.Cells[1, 2].Value = "Valor";
-                worksheet.Cells[1, 3].Value = "Data de Pagamento";
-                worksheet.Cells[1, 4].Value = "Forma de Pagamento";
+                worksheet.Cells[1, 3].Value = "Data de Contribuição";
+                worksheet.Cells[1, 4].Value = "Forma de Contribuição";
 
                 // Preencher os dados a partir da lista de objetos
                 int row = 2;

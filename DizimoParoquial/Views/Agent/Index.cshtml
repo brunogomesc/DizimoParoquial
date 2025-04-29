@@ -104,6 +104,10 @@
                                 <label for="name" class="form-label"><b>Nome:</b></label>
                                 <input class="form-control" id="name" name="name" />
                             </div>
+                            <div class="col-md-6">
+                                <label for="phonenumber" class="form-label"><b>Telefone:</b></label>
+                                <input type="number" class="form-control" id="phonenumber" name="phonenumber" />
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -149,6 +153,10 @@
                                         <option value="false">Inativo</option>
                                     </select>
                                 </div>
+                                <div class="col-md-6">
+                                    <label for="phoneNumberEdit" class="form-label"><b>Telefone:</b></label>
+                                    <input type="number" class="form-control" id="phoneNumberEdit" name="phoneNumberEdit" />
+                                </div>
                             </div>
                         </div>
                         <input hidden type="text" name="agentId" id="agentIdEdit" />
@@ -177,6 +185,7 @@
                 $('#agentIdEdit').val(data.agentId);
                 $('#nameEdit').val(data.name);
                 $('#codeEdit').val(data.agentCode);
+                $('#phoneNumberEdit').val(data.phoneNumber);
                 if(data.active == true){
                     $('#statusEdit').val("true");
                 }

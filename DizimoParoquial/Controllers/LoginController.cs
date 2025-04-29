@@ -11,6 +11,7 @@ namespace DizimoParoquial.Controllers
     {
 
         private const string ROUTE_SCREEN_HOME = "/Views/Home/Index.cshtml";
+        private const string ROUTE_SCREEN_HOME_AGENTS = "/Views/Home/HomeAgents.cshtml";
         private readonly IToastNotification _notification;
         private readonly UserService _userService;
 
@@ -20,7 +21,14 @@ namespace DizimoParoquial.Controllers
             _userService = userService;
         }
 
+        [Route("Gerenciar")]
         public IActionResult Index()
+        {
+            return View();
+        }
+
+        [Route("/")]
+        public IActionResult LoginAgents()
         {
             return View();
         }
@@ -61,6 +69,43 @@ namespace DizimoParoquial.Controllers
             }
 
             return RedirectToAction(nameof(Index));
+
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> LoginAgents(string codeAgent, string phonenumber)
+        {
+
+            try
+            {
+                if (string.IsNullOrWhiteSpace(codeAgent) || string.IsNullOrWhiteSpace(phonenumber))
+                {
+                    _notification.AddErrorToastMessage("Código do Agente e/ou Telefone não preenchidos!");
+                    return RedirectToAction(nameof(LoginAgents));
+                }
+
+                AgentDTO agentAuthenticated = await _userService.GetUserByUsernameAndPassword(user, password);
+
+                if (agentAuthenticated == null || agentAuthenticated.AgentId == 0)
+                {
+                    _notification.AddErrorToastMessage("Agente do dizimo não está válido ou está inativo!");
+                    return RedirectToAction(nameof(LoginAgents));
+                }
+
+                HttpContext.Session.SetInt32("User", agentAuthenticated.AgentId);
+                HttpContext.Session.SetString("Username", agentAuthenticated.Name);
+                HttpContext.Session.SetString("CodeAgent", agentAuthenticated.AgentCode);
+
+                _notification.AddSuccessToastMessage("Agente autenticado com sucesso!");
+
+                return View(ROUTE_SCREEN_HOME_AGENTS);
+            }
+            catch (Exception ex)
+            {
+                _notification.AddErrorToastMessage(ex.Message);
+            }
+
+            return RedirectToAction(nameof(LoginAgents));
 
         }
 

@@ -123,8 +123,27 @@ namespace DizimoParoquial.Controllers
                 if (tithePayer.TermFile != null)
                 {
                     string imgBase64 = Convert.ToBase64String(tithePayer.TermFile);
-                    string urlImagem = $"data:image/jpeg;base64,{imgBase64}";
+
+                    string urlImagem = string.Empty;
+
+                    switch(tithePayer.Extension)
+                    {
+                        case ".pdf":
+                            urlImagem = $"data:application/pdf;base64,{imgBase64}";
+                            break;
+
+                        case ".png":
+                            urlImagem = $"data:image/png;base64,{imgBase64}";
+                            break;
+
+                        case ".jpeg":
+                        case ".jpg":
+                            urlImagem = $"data:image/jpeg;base64,{imgBase64}";
+                            break;
+                    }
+                    
                     tithePayer.TermFile64Base = urlImagem;
+
                 }
 
                 return Json(tithePayer);

@@ -60,8 +60,8 @@ namespace DizimoParoquial.Data.Repositories
 
                     try
                     {
-                        var query = @"INSERT INTO Agent(Name, Active, AgentCode, CreatedAt, UpdatedAt) 
-                                    VALUES(@Name, @Active, @AgentCode, @CreatedAt, @UpdatedAt);";
+                        var query = @"INSERT INTO Agent(Name, Active, AgentCode, CreatedAt, UpdatedAt, PhoneNumber) 
+                                    VALUES(@Name, @Active, @AgentCode, @CreatedAt, @UpdatedAt, @PhoneNumber);";
 
                         var result = await connection.ExecuteAsync(query,
                             new
@@ -70,7 +70,8 @@ namespace DizimoParoquial.Data.Repositories
                                 agent.Active,
                                 agent.AgentCode,
                                 agent.CreatedAt,
-                                agent.UpdatedAt
+                                agent.UpdatedAt,
+                                agent.PhoneNumber
                             }
                         );
 
@@ -226,6 +227,7 @@ namespace DizimoParoquial.Data.Repositories
                     {
                         var query = @"UPDATE Agent 
                                     SET Name = @Name, 
+                                        PhoneNumber = @PhoneNumber,
                                         Active = @Active, 
                                         UpdatedAt = @UpdatedAt 
                                     WHERE AgentId = @AgentId";
@@ -234,6 +236,7 @@ namespace DizimoParoquial.Data.Repositories
                             new
                             {
                                 agent.Name,
+                                agent.PhoneNumber,
                                 agent.Active,
                                 agent.UpdatedAt,
                                 agent.AgentId

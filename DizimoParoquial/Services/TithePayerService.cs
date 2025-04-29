@@ -30,12 +30,16 @@ namespace DizimoParoquial.Services
                     throw new ValidationException("Dizimista já cadastrado");
 
                 byte[]? imageBytes = null;
+                string? extension = null;
 
                 if (tithePayer.TermFile != null && tithePayer.TermFile.Length > 0)
                 {
                     using var memoryStream = new MemoryStream();
                     await tithePayer.TermFile.CopyToAsync(memoryStream);
                     imageBytes = memoryStream.ToArray();
+
+                    extension = Path.GetExtension(tithePayer.TermFile.FileName);
+
                 }
 
                 TithePayer tithePayerInsert = new TithePayer
@@ -53,6 +57,7 @@ namespace DizimoParoquial.Services
                     CreatedAt = DateTime.Now,
                     UpdatedAt = null,
                     TermFile = imageBytes,
+                    Extension = extension,
                     UserId = userId
                 };
 
@@ -334,12 +339,16 @@ namespace DizimoParoquial.Services
                 tithePayer.UpdatedAt = DateTime.Now;
 
                 byte[]? imageBytes = null;
+                string? extension = null;
 
                 if (tithePayer.TermFile != null && tithePayer.TermFile.Length > 0)
                 {
                     using var memoryStream = new MemoryStream();
                     await tithePayer.TermFile.CopyToAsync(memoryStream);
                     imageBytes = memoryStream.ToArray();
+
+                    extension = Path.GetExtension(tithePayer.TermFile.FileName);
+
                 }
 
                 TithePayer tithePayerUpdate = new TithePayer
@@ -357,7 +366,8 @@ namespace DizimoParoquial.Services
                     Complement = tithePayer.Complement,
                     CreatedAt = tithePayerExists.CreatedAt,
                     UpdatedAt = tithePayer.UpdatedAt,
-                    TermFile = imageBytes == null ? tithePayerExists.TermFile : imageBytes
+                    TermFile = imageBytes == null ? tithePayerExists.TermFile : imageBytes,
+                    Extension = extension
                 };
 
                 tithePayerWasUpdated = await UpdateTithePayerRepository(tithePayerUpdate);
