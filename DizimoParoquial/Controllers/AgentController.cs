@@ -54,7 +54,7 @@ namespace DizimoParoquial.Controllers
             return View(ROUTE_SCREEN_AGENTS, agents);
         }
 
-        public async Task<IActionResult> SaveAgent(string name)
+        public async Task<IActionResult> SaveAgent(string name, string phoneNumber)
         {
 
             ViewBag.UserName = HttpContext.Session.GetString("Username");
@@ -63,11 +63,17 @@ namespace DizimoParoquial.Controllers
             {
                 if (name == null)
                 {
-                    _notification.AddWarningToastMessage("Nome do agente do dizimo não pode ser nulo.");
+                    _notification.AddWarningToastMessage("Nome do agente do dizimo é obrigatório.");
                     return RedirectToAction(nameof(Index));
                 }
 
-                string newAgenteCode = await _agentService.RegisterAgent(name);
+                if (phoneNumber == null)
+                {
+                    _notification.AddWarningToastMessage("Telefone do Agente do dizimo é obrigatório.");
+                    return RedirectToAction(nameof(Index));
+                }
+
+                string newAgenteCode = await _agentService.RegisterAgent(name, phoneNumber);
 
                 if (!string.IsNullOrWhiteSpace(newAgenteCode))
                     _notification.AddSuccessToastMessage("Agente do dizimo criado com sucesso! <b>Código do Agente: </b>" + newAgenteCode);
@@ -93,7 +99,13 @@ namespace DizimoParoquial.Controllers
             {
                 if (agent.Name == null)
                 {
-                    _notification.AddWarningToastMessage("Nome do agente do dizimo não pode ser nulo.");
+                    _notification.AddWarningToastMessage("Nome do agente do dizimo é obrigatório.");
+                    return RedirectToAction(nameof(Index));
+                }
+
+                if (agent.PhoneNumber == null)
+                {
+                    _notification.AddWarningToastMessage("Telefone do agente do dizimo é obrigatório.");
                     return RedirectToAction(nameof(Index));
                 }
 

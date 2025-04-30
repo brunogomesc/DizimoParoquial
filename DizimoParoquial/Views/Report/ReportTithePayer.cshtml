@@ -22,7 +22,7 @@
                 {
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label for="Status" class="form-label"><b>Forma de Pagamento:</b></label>
+                            <label for="Status" class="form-label"><b>Forma de Contribuição:</b></label>
                             <select id="paymentType" name="paymentType" class="form-control">
                                 <option></option>
                                 @if(ViewBag.PaymentType == "Pix")
@@ -79,11 +79,11 @@
                     </div>
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label for="startPaymentDate" class="form-label"><b>Data de Pagamento (Inicio): <b style="color:red;">*</b></b></label>
+                            <label for="startPaymentDate" class="form-label"><b>Data de Contribuição (Inicio): <b style="color:red;">*</b></b></label>
                             <input name="startPaymentDate" value="@ViewBag.StartPaymentDate.ToString("yyyy-MM-dd")" type="date" class="form-control" />
                         </div>
                         <div class="col-md-6">
-                            <label for="endPaymentDate" class="form-label"><b>Data de Pagamento (Final): <b style="color:red;">*</b></b></label>
+                            <label for="endPaymentDate" class="form-label"><b>Data de Contribuição (Final): <b style="color:red;">*</b></b></label>
                             <input name="endPaymentDate" value="@ViewBag.EndPaymentDate.ToString("yyyy-MM-dd")" class="form-control" type="date" />
                         </div>
                     </div>
@@ -112,8 +112,8 @@
                     <tr>
                         <th>Nome Dizimista</th>
                         <th>Valor</th>
-                        <th>Data de Pagamento</th>
-                        <th>Forma de Pagamento</th>
+                        <th>Data de Contribuição</th>
+                        <th>Forma de Contribuição</th>
                     </tr>
                 </thead>
                 <tbody>

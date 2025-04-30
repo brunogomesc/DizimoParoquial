@@ -33,8 +33,8 @@ namespace DizimoParoquial.Data.Repositories
 
                     try
                     {
-                        var query = @"INSERT INTO TithePayer(Name, Document, DateBirth, Email, PhoneNumber, Address, Number, ZipCode, Neighborhood, Complement, CreatedAt, UpdatedAt, TermFile, UserId) 
-                                    VALUES(@Name, @Document, @DateBirth, @Email, @PhoneNumber, @Address, @Number, @ZipCode, @Neighborhood, @Complement, @CreatedAt, @UpdatedAt, @TermFile, @UserId);
+                        var query = @"INSERT INTO TithePayer(Name, Document, DateBirth, Email, PhoneNumber, Address, Number, ZipCode, Neighborhood, Complement, CreatedAt, UpdatedAt, TermFile, UserId, Extension) 
+                                    VALUES(@Name, @Document, @DateBirth, @Email, @PhoneNumber, @Address, @Number, @ZipCode, @Neighborhood, @Complement, @CreatedAt, @UpdatedAt, @TermFile, @UserId, @Extension);
 
                                     SELECT LAST_INSERT_ID();";
 
@@ -54,7 +54,8 @@ namespace DizimoParoquial.Data.Repositories
                                 tithePayer.CreatedAt,
                                 tithePayer.UpdatedAt,
                                 tithePayer.TermFile,
-                                tithePayer.UserId
+                                tithePayer.UserId,
+                                tithePayer.Extension
                             }
                         );
 
@@ -270,8 +271,9 @@ namespace DizimoParoquial.Data.Repositories
                                         ZipCode = @ZipCode,
                                         Neighborhood = @Neighborhood,
                                         Complement = @Complement,
-                                        UpdatedAt = @UpdatedAt
-                                        TermFile = @TermFile
+                                        UpdatedAt = @UpdatedAt,
+                                        TermFile = @TermFile,
+                                        Extension = @Extension
                                     WHERE TithePayerId = @TithePayerId";
 
                         var result = await connection.ExecuteAsync(query,
@@ -289,6 +291,7 @@ namespace DizimoParoquial.Data.Repositories
                                 tithePayer.Complement,
                                 tithePayer.UpdatedAt,
                                 tithePayer.TermFile,
+                                tithePayer.Extension,
                                 tithePayer.TithePayerId
                             }
                         );

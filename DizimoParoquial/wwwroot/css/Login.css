@@ -27,13 +27,3 @@
 h1 {
     margin-bottom: 2rem;
 }
-
-.toggle-password {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    font-size: 18px;
-    color: #555;
-}

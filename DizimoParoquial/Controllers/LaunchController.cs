@@ -142,7 +142,7 @@ namespace DizimoParoquial.Controllers
 
                 if (dates == null || dates.Length == 0)
                 {
-                    _notification.AddErrorToastMessage("Data de Pagamento é obrigatório!");
+                    _notification.AddErrorToastMessage("Data de Contribuição é obrigatório!");
                     return RedirectToAction(nameof(LaunchAllUsers));
                 }
 
@@ -288,7 +288,7 @@ namespace DizimoParoquial.Controllers
 
                 if (dates == null || dates.Length == 0)
                 {
-                    _notification.AddErrorToastMessage("Data de Pagamento é obrigatório!");
+                    _notification.AddErrorToastMessage("Data de Contribuição é obrigatório!");
                     return RedirectToAction(nameof(Index));
                 }
 
@@ -428,7 +428,7 @@ namespace DizimoParoquial.Controllers
 
                 if (datesEdit == DateTime.MinValue)
                 {
-                    _notification.AddErrorToastMessage("Data de Pagamento é obrigatório!");
+                    _notification.AddErrorToastMessage("Data de Contribuição é obrigatório!");
                     return RedirectToAction(nameof(EditLaunch));
                 }
 

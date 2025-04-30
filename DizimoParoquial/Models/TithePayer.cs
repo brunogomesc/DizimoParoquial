@@ -38,6 +38,8 @@ namespace DizimoParoquial.Models
 
         public string TermFile64Base { get; set; } = string.Empty;
 
+        public string? Extension { get; set; }
+
         public int UserId { get; set; }
 
     }
