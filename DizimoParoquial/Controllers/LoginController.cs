@@ -15,15 +15,18 @@ namespace DizimoParoquial.Controllers
         private readonly IToastNotification _notification;
         private readonly UserService _userService;
         private readonly AgentService _agentService;
+        private readonly EventService _eventService;
 
         public LoginController(
             IToastNotification notification, 
             UserService userService,
-            AgentService agentService)
+            AgentService agentService,
+            EventService eventService)
         {
             _notification = notification;
             _userService = userService;
             _agentService = agentService;
+            _eventService = eventService;
         }
 
         [Route("Gerenciar")]
@@ -64,6 +67,8 @@ namespace DizimoParoquial.Controllers
 
                 ViewBag.UserName = userAuthenticated.Username;
 
+                //bool eventRegistered = await _eventService.SaveEvent();
+
                 _notification.AddSuccessToastMessage("Usuário autenticado com sucesso!");
 
                 return View(ROUTE_SCREEN_HOME);
@@ -99,9 +104,9 @@ namespace DizimoParoquial.Controllers
                     return RedirectToAction(nameof(LoginAgents));
                 }
 
-                HttpContext.Session.SetInt32("User", agentAuthenticated.AgentId);
-                HttpContext.Session.SetString("Username", agentAuthenticated.Name);
-                HttpContext.Session.SetString("CodeAgent", agentAuthenticated.AgentCode);
+                HttpContext.Session.SetInt32("Agent", agentAuthenticated.AgentId);
+                HttpContext.Session.SetString("AgentName", agentAuthenticated.Name);
+                HttpContext.Session.SetString("AgentCode", agentAuthenticated.AgentCode);
 
                 _notification.AddSuccessToastMessage("Agente autenticado com sucesso!");
 
