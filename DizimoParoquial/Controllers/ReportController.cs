@@ -177,10 +177,15 @@ namespace DizimoParoquial.Controllers
             ViewBag.StartBirthdayDate = startBirthdayDate;
             ViewBag.EndBirthdayDate = endBirthdayDate;
 
-            if (generateExcel)
-                return GenerateExcelBirthdays(birthdays);
+            List<ReportBirthday>? reportBirthdays = new List<ReportBirthday>();
 
-            return View(ROUTE_SCREEN_BIRTHDAYS, birthdays);
+            if(birthdays != null)
+                reportBirthdays = birthdays.OrderBy(b => b.DateBirth).ToList()
+
+            if (generateExcel)
+                return GenerateExcelBirthdays(reportBirthdays);
+
+            return View(ROUTE_SCREEN_BIRTHDAYS, reportBirthdays);
         }
 
         public async Task<IActionResult> SearchReportTithesMonth(string paymentType, string name, DateTime startPaymentDate, DateTime endPaymentDate, bool generateExcel)
