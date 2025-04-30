@@ -179,8 +179,8 @@ namespace DizimoParoquial.Controllers
 
             List<ReportBirthday>? reportBirthdays = new List<ReportBirthday>();
 
-            if(birthdays != null)
-                reportBirthdays = birthdays.OrderBy(b => b.DateBirth).ToList()
+            if (birthdays != null)
+                reportBirthdays = birthdays.OrderBy(b => b.DateBirth).ToList();
 
             if (generateExcel)
                 return GenerateExcelBirthdays(reportBirthdays);
