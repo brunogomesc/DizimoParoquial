@@ -14,11 +14,16 @@ namespace DizimoParoquial.Controllers
         private const string ROUTE_SCREEN_HOME_AGENTS = "/Views/Home/HomeAgents.cshtml";
         private readonly IToastNotification _notification;
         private readonly UserService _userService;
+        private readonly AgentService _agentService;
 
-        public LoginController(IToastNotification notification, UserService userService)
+        public LoginController(
+            IToastNotification notification, 
+            UserService userService,
+            AgentService agentService)
         {
             _notification = notification;
             _userService = userService;
+            _agentService = agentService;
         }
 
         [Route("Gerenciar")]
@@ -73,7 +78,7 @@ namespace DizimoParoquial.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> LoginAgents(string codeAgent, string phonenumber)
+        public async Task<IActionResult> LoginAgentsAutentication(string codeAgent, string phonenumber)
         {
 
             try
@@ -84,9 +89,11 @@ namespace DizimoParoquial.Controllers
                     return RedirectToAction(nameof(LoginAgents));
                 }
 
-                AgentDTO agentAuthenticated = await _userService.GetUserByUsernameAndPassword(user, password);
+                AgentDTO agentAuthenticated = await _agentService.GetAgentByCode(codeAgent);
 
-                if (agentAuthenticated == null || agentAuthenticated.AgentId == 0)
+                if (agentAuthenticated == null 
+                    || agentAuthenticated.AgentId == 0
+                    || agentAuthenticated.PhoneNumber != phonenumber)
                 {
                     _notification.AddErrorToastMessage("Agente do dizimo não está válido ou está inativo!");
                     return RedirectToAction(nameof(LoginAgents));

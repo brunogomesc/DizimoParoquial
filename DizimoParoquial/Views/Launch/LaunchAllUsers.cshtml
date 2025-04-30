@@ -5,38 +5,99 @@
     List<DateTime> dates = GetDateTimes();
 }
 
-<html>
+<!DOCTYPE html>
+<html lang="pt-br">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lançar Dizimo</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <style>
+        .btn-primary {
+            background-color: #007bff; /* Azul principal */
+            border-color: #007bff;
+        }
+
+            .btn-primary:hover {
+                background-color: #0056b3;
+                border-color: #0056b3;
+            }
+
+        .bg-primary {
+            background-color: #007bff !important;
+        }
+
+        .text-primary {
+            color: #007bff !important;
+        }
+
+        .btn-outline-primary {
+            color: #007bff;
+            border-color: #007bff;
+        }
+
+            .btn-outline-primary:hover {
+                background-color: #007bff;
+                border-color: #007bff;
+                color: white;
+            }
+
+        .btn-secondary {
+            background-color: #dc3545; /* Vermelho secundário */
+            border-color: #dc3545;
+            color: white;
+        }
+
+            .btn-secondary:hover {
+                background-color: #c82333;
+                border-color: #c82333;
+                color: white;
+            }
+
+        .bg-secondary {
+            background-color: #dc3545 !important;
+        }
+
+        .text-secondary {
+            color: #dc3545 !important;
+        }
+
+        .modal-header {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .modal-title {
+            color: white;
+        }
+    </style>
 </head>
 <body>
     <div class="container my-4">
-        <div class="card">
+        <div class="card shadow-sm">
             <div class="card-body">
-                <h2 class="d-flex align-items-center border-bottom pb-2 mb-3" style="font-family: system-ui; font-weight: bold;">
-                    <i class="fa fa-search" aria-hidden="true"></i>
+                <h2 class="d-flex align-items-center border-bottom pb-2 mb-3 fw-bold text-primary">
+                    <i class="fa fa-search me-2" aria-hidden="true"></i>
                     Lançar Dizimo
                 </h2>
                 @using (Html.BeginForm("SearchTithePayerLaunchAllUsers", "Launch", FormMethod.Post, new { enctype = "multipart/form-data" }))
                 {
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label for="Name" class="form-label"><b>Nome:</b></label>
+                            <label for="Name" class="form-label fw-bold text-primary">Nome:</label>
                             <input name="name" id="name" class="form-control" type="text" />
                         </div>
                         <div class="col-md-3">
-                            <label for="tithePayerCode" class="form-label"><b>Código Dizimista:</b></label>
+                            <label for="tithePayerCode" class="form-label fw-bold text-primary">Código Dizimista:</label>
                             <input name="tithePayerCode" id="tithePayerCode" class="form-control" type="number" />
                         </div>
                     </div>
                     <div class="row g-3 mt-3">
                         <div class="col-md-3">
-                            <button class="btn btn-primary w-100">
-                                Pesquisar
+                            <button class="btn btn-outline-primary w-100" type="submit">
+                                <i class="fa fa-search me-2"></i> Pesquisar
                             </button>
                         </div>
                     </div>
@@ -45,37 +106,42 @@
         </div>
     </div>
     <br />
-    @if (Model != null)
+    @if (Model != null && Model.Any())
     {
-        <div class="card mt-4">
-            <table class="table table-bordered table-striped table-hover mb-0">
-                <thead>
-                    <tr>
-                        <th>Código Dizimista</th>
-                        <th>Nome</th>
-                        <th>CPF</th>
-                        <th>Data Nascimento</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var tithePayer in Model)
-                    {
-                        <tr>
-                            <td>@Html.DisplayFor(item => tithePayer.TithePayerId)</td>
-                            <td>@Html.DisplayFor(item => tithePayer.Name)</td>
-                            <td>@Html.DisplayFor(item => tithePayer.Document)</td>
-                            <td>@(tithePayer.DateBirth.ToString("dd/MM/yyyy"))</td>
-                            <td>
-                                <a data-toggle="tooltip" class="bs-tooltip" data-placement="top" href="javascript:void(0);" onclick="openModalLaunch(@tithePayer.TithePayerId)" title="Lançar"><i class="fa-regular fa-clipboard" style="color: #000000"></i></a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+        <div class="card mt-4 shadow-sm">
+            <div class="card-body">
+                <h3 class="border-bottom pb-2 mb-3 fw-bold text-primary">Resultados da Busca</h3>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Código Dizimista</th>
+                                <th>Nome</th>
+                                <th>CPF</th>
+                                <th>Data Nascimento</th>
+                                <th class="text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var tithePayer in Model)
+                            {
+                                <tr>
+                                    <td>@Html.DisplayFor(item => tithePayer.TithePayerId)</td>
+                                    <td>@Html.DisplayFor(item => tithePayer.Name)</td>
+                                    <td>@Html.DisplayFor(item => tithePayer.Document)</td>
+                                    <td>@(tithePayer.DateBirth.ToString("dd/MM/yyyy"))</td>
+                                    <td class="text-center">
+                                        <button data-bs-toggle="modal" data-bs-target="#modal_tithe_launch" onclick="openModalLaunch(@tithePayer.TithePayerId)" title="Lançar" class="btn btn-sm btn-outline-primary"><i class="fa-regular fa-clipboard"></i></button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     }
-    else if (Model != null) 
+    else if (Model != null)
     {
         <div class="container my-4">
             <div class="alert alert-warning text-center" role="alert">
@@ -85,55 +151,51 @@
     }
 
     @* Modal Launch Tithe *@
-
-    <div class="modal fade" id="modal_tithe_launch">
+    <div class="modal fade" id="modal_tithe_launch" tabindex="-1" aria-labelledby="modal_tithe_launch_label" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title"><i class="fa-solid fa-user-pen"></i> Lançar Dizimo</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="modal_tithe_launch_label"><i class="fa-solid fa-clipboard-check me-2"></i> Lançar Dizimo</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 @using (Html.BeginForm("SaveTitheAllUsers", "Launch", FormMethod.Post, new { enctype = "multipart/form-data" }))
                 {
                     <div class="modal-body">
-                        <div class="card">
+                        <div class="card mb-3">
                             <div class="card-body">
-                                <h5 class="card-title">Resultados da Pesquisa</h5>
+                                <h5 class="card-title text-primary"><i class="fa-solid fa-user me-2"></i> Dados do Dizimista</h5>
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <label for="resultName" class="form-label"><b>Nome:</b></label>
+                                        <label for="resultName" class="form-label fw-bold text-primary">Nome:</label>
                                         <input id="resultName" class="form-control" type="text" readonly />
                                     </div>
                                     <div class="col-md-3">
-                                        <label for="resultCode" class="form-label"><b>Código Dizimista:</b></label>
+                                        <label for="resultCode" class="form-label fw-bold text-primary">Código Dizimista:</label>
                                         <input id="resultCode" class="form-control" type="number" readonly />
                                     </div>
                                     <div class="col-md-3">
-                                        <label for="resultDateBirth" class="form-label"><b>Data de Nascimento:</b></label>
-                                        <input id="resultDateBirth" class="form-control" type="datetime" readonly />
+                                        <label for="resultDateBirth" class="form-label fw-bold text-primary">Data de Nascimento:</label>
+                                        <input id="resultDateBirth" class="form-control" type="text" readonly />
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="card">
                             <div class="card-body">
-                                <h5 class="card-title">Registrar Dizimo</h5>
+                                <h5 class="card-title text-primary"><i class="fa-solid fa-coins me-2"></i> Registrar Dizimo</h5>
                                 <input id="tithePayerId" name="tithePayerId" type="number" hidden />
                                 <div class="row g-3">
                                     <div class="col-md-3">
-                                        <label for="value" class="form-label"><b>Valor</b></label>
-                                        <span class="toggle-value">
-                                            (R$)
-                                        </span>
+                                        <label for="value" class="form-label fw-bold text-primary">Valor (R$):</label>
                                         <input data-mask="#.##0,00" data-mask-reverse="true" type="text" class="form-control" id="value" name="value">
                                     </div>
                                     <div class="col-md-3">
-                                        <label for="agentCode" id="agentCode" class="form-label"><b>Código Agente do Dizimo:</b></label>
+                                        <label for="agentCode" class="form-label fw-bold text-primary">Código Agente:</label>
                                         <input id="agentCode" name="agentCode" class="form-control" type="number" />
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="paymentType" id="paymentType" class="form-label"><b>Forma de Contribuição:</b></label>
-                                        <select id="paymentType" name="paymentType" class="form-control">
+                                        <label for="paymentType" class="form-label fw-bold text-primary">Forma de Contribuição:</label>
+                                        <select id="paymentType" name="paymentType" class="form-select">
                                             <option></option>
                                             <option value="Pix">Pix</option>
                                             <option value="Dinheiro">Dinheiro</option>
@@ -144,8 +206,8 @@
                                     </div>
                                 </div>
                                 <div class="row g-3 mt-2">
-                                    <div class="col-md-10">
-                                        <label for="dates" id="dates" class="form-label"><b>Meses à contribuir:</b></label>
+                                    <div class="col-md-12">
+                                        <label for="dates" class="form-label fw-bold text-primary">Meses à contribuir:</label>
                                         <select class="form-control js-example-basic-multiple" name="dates[]" multiple="multiple">
                                             <option></option>
                                             @foreach (var date in dates)
@@ -157,20 +219,17 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Mensagem de erro -->
                         <div id="passwordMessageEdit"></div>
                         <input hidden type="text" name="userId" id="userIdEdit" />
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                        <button type="submit" class="btn btn-primary" id="saveButtonEdit">Salvar Alterações</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa-solid fa-xmark me-2"></i> Fechar</button>
+                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check me-2"></i> Salvar Lançamento</button>
                     </div>
                 }
             </div>
         </div>
     </div>
-
     @* End Modal Launch Tithe *@
 </body>
 </html>
@@ -186,7 +245,7 @@
                     document.getElementById("resultName").value = data.name;
                     document.getElementById("resultCode").value = data.tithePayerId;
                     document.getElementById("tithePayerId").value = data.tithePayerId;
-                    document.getElementById("resultDateBirth").value = data.dateBirth ? new Date(data.dateBirth).toISOString().split('T')[0] : '';
+                    document.getElementById("resultDateBirth").value = data.dateBirth ? new Date(data.dateBirth).toLocaleDateString('pt-BR') : '';
 
                     // Exibe a div de resultados
                     $('#modal_tithe_launch').modal('show');

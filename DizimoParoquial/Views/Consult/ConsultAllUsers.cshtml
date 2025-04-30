@@ -1,44 +1,44 @@
 ﻿@model List<TithePayerLaunchDTO>
 @{
-
     ViewData["Username"] = @ViewBag.UserName;
-
     Layout = "_LayoutRouteAllUsers";
 }
 
-<html>
+<!DOCTYPE html>
+<html lang="pt-br">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Consultar Dizimo</title>
 </head>
 <body>
     <div class="container my-4">
-        <div class="card">
+        <div class="card shadow-sm">
             <div class="card-body">
-                <h2 class="d-flex align-items-center border-bottom pb-2 mb-3" style="font-family: system-ui; font-weight: bold;">
-                    <i class="fa fa-search" aria-hidden="true"></i>
+                <h2 class="d-flex align-items-center border-bottom pb-2 mb-3 fw-bold text-primary">
+                    <i class="fa fa-search me-2" aria-hidden="true"></i>
                     Consultar Dizimo
                 </h2>
                 @using (Html.BeginForm("SearchTithesAllUsers", "Consult", FormMethod.Post, new { enctype = "multipart/form-data" }))
                 {
                     <div class="row g-3">
                         <div class="col-md-5">
-                            <label for="Name" class="form-label"><b>Nome:</b></label>
+                            <label for="Name" class="form-label fw-bold">Nome:</label>
                             <input name="name" id="name" class="form-control" type="text" />
                         </div>
                         <div class="col-md-5">
-                            <label for="Document" class="form-label"><b>Documento:</b></label>
+                            <label for="Document" class="form-label fw-bold">Documento:</label>
                             <input name="document" id="document" class="form-control" type="text" />
                         </div>
                         <div class="col-md-2">
-                            <label for="tithePayerCode" class="form-label"><b>Código Dizimista:</b></label>
+                            <label for="tithePayerCode" class="form-label fw-bold">Código Dizimista:</label>
                             <input name="tithePayerCode" id="tithePayerCode" class="form-control" type="number" />
                         </div>
                     </div>
                     <div class="row g-3 mt-3">
                         <div class="col-md-3">
-                            <button class="btn btn-primary w-100" type="submit">
-                                Pesquisar
+                            <button class="btn btn-outline-primary w-100" type="submit">
+                                <i class="fa fa-search me-2"></i> Pesquisar
                             </button>
                         </div>
                     </div>
@@ -47,49 +47,53 @@
         </div>
     </div>
     <br />
-    @if (Model != null)
+    @if (Model != null && Model.Any())
     {
-        <div class="card mt-4">
-            <table class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th>Código Dizimista</th>
-                        <th>Nome</th>
-                        <th>CPF</th>
-                        <th>Data Nascimento</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var tithePayer in Model)
-                    {
-                        <tr>
-                            <td>@Html.DisplayFor(item => tithePayer.TithePayerId)</td>
-                            <td>@Html.DisplayFor(item => tithePayer.Name)</td>
-                            <td>@Html.DisplayFor(item => tithePayer.Document)</td>
-                            <td>@(tithePayer.DateBirth.ToString("dd/MM/yyyy"))</td>
-                            <td>
-                                <a data-toggle="tooltip" class="bs-tooltip" data-placement="top" href="javascript:void(0);" onclick="openModalConsult(@tithePayer.TithePayerId)" title="Consultar"><i class="fa-solid fa-magnifying-glass"></i></a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+        <div class="card mt-4 shadow-sm">
+            <div class="card-body">
+                <h3 class="border-bottom pb-2 mb-3 fw-bold text-info">Resultados da Busca</h3>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Código Dizimista</th>
+                                <th>Nome</th>
+                                <th>CPF</th>
+                                <th>Data Nascimento</th>
+                                <th class="text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var tithePayer in Model)
+                            {
+                                <tr>
+                                    <td>@Html.DisplayFor(item => tithePayer.TithePayerId)</td>
+                                    <td>@Html.DisplayFor(item => tithePayer.Name)</td>
+                                    <td>@Html.DisplayFor(item => tithePayer.Document)</td>
+                                    <td>@(tithePayer.DateBirth.ToString("dd/MM/yyyy"))</td>
+                                    <td class="text-center">
+                                        <button data-bs-toggle="modal" data-bs-target="#modal_tithe_consult" onclick="openModalConsult(@tithePayer.TithePayerId)" title="Consultar" class="btn btn-sm btn-outline-info"><i class="fa-solid fa-magnifying-glass"></i></button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     }
     else
     {
-        <h4 class="text-center">Sem resultados para serem exibidos</h4>
+        <h4 class="text-center mt-4 text-muted">Sem resultados para serem exibidos</h4>
     }
 
     @* Modal Launch Tithe *@
-
-    <div class="modal fade" id="modal_tithe_consult">
+    <div class="modal fade" id="modal_tithe_consult" tabindex="-1" aria-labelledby="modal_tithe_consult_label" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title"><i class="fa-solid fa-user-pen"></i> Dizimos Pagos Recentemente</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="modal_tithe_consult_label"><i class="fa-solid fa-magnifying-glass me-2"></i> Dizimos Pagos Recentemente</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="card">
@@ -97,121 +101,111 @@
                             <h5 class="card-title">Lançamentos Registrados</h5>
                         </div>
                     </div>
-                    <!-- Mensagem de erro -->
                     <div id="passwordMessageEdit"></div>
                     <input hidden type="text" name="userId" id="userIdEdit" />
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                    <a class="btn btn-primary" href="@Url.Action("LaunchAllUsers","Launch")" id="saveButtonEdit">Lançar</a>
+                    <a class="btn btn-primary" href="@Url.Action("LaunchAllUsers","Launch")" id="launchButton">Lançar Novo Dizimo</a>
                 </div>
             </div>
         </div>
     </div>
-
     @* End Modal Launch Tithe *@
+
+    <script>
+        function openModalConsult(id) {
+            $.ajax({
+                url: '/Consult/SearchTithePayerAllUsers',
+                type: 'GET',
+                data: { code: id },
+                success: function (data) {
+                    var modalBodyContent = $('#modalTitheConsultBody');
+                    modalBodyContent.empty();
+
+                    modalBodyContent.append('<h5 class="card-title">Lançamentos Registrados</h5>');
+
+                    if (data && Array.isArray(data) && data.length > 0) {
+                        var tableHtml = '<div class="table-responsive"><table class="table table-bordered table-striped mt-3">';
+                        tableHtml += '<thead><tr>';
+                        tableHtml += '<th>Nome Dizimista</th>';
+                        tableHtml += '<th>Nome Agente</th>';
+                        tableHtml += '<th>Competência</th>';
+                        tableHtml += '<th class="text-end">Valor (R$)</th>';
+                        tableHtml += '<th>Forma de Contribuição</th>';
+                        tableHtml += '<th>Data de Contribuição</th>';
+                        tableHtml += '</tr></thead>';
+                        tableHtml += '<tbody>';
+
+                        data.forEach(function(item) {
+                            tableHtml += '<tr>';
+                            tableHtml += '<td>' + (item.nameTithePayer || 'N/A') + '</td>';
+                            tableHtml += '<td>' + (item.nameAgent || 'N/A') + '</td>';
+
+                            var paymentMonthFormated = 'N/A';
+                            if (item.paymentMonth) {
+                                try {
+                                    var dateObj = new Date(item.paymentMonth);
+                                    if (!isNaN(dateObj.getTime())) {
+                                        var month = dateObj.getMonth() + 1;
+                                        var year = dateObj.getFullYear();
+                                        var monthPadded = month.toString().padStart(2, '0');
+                                        paymentMonthFormated = `${monthPadded}/${year}`;
+                                    }
+                                } catch (e) {
+                                    console.error("Erro ao processar paymentMonth:", item.paymentMonth, e);
+                                }
+                            }
+                            tableHtml += '<td>' + paymentMonthFormated + '</td>';
+
+                            var valueFormated = 'N/A';
+                            if (item.value != null && !isNaN(item.value)) {
+                                try {
+                                    valueFormated = item.value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                                } catch (e) {
+                                    console.error("Erro ao formatar value:", item.value, e);
+                                }
+                            }
+                            tableHtml += '<td class="text-end">' + valueFormated + '</td>';
+                            tableHtml += '<td>' + (item.paymentType || 'N/A') + '</td>';
+
+                            var registrationDate = 'N/A';
+                            if (item.registrationDate) {
+                                try {
+                                    var regDateObj = new Date(item.registrationDate);
+                                    if (!isNaN(regDateObj.getTime())) {
+                                        registrationDate = regDateObj.toLocaleDateString('pt-BR');
+                                    }
+                                } catch (e) {
+                                    console.error("Erro ao formatar registrationDate:", item.registrationDate, e);
+                                }
+                            }
+                            tableHtml += '<td>' + registrationDate + '</td>';
+                            tableHtml += '</tr>';
+
+                            document.getElementById("userIdEdit").value = item.nameTithePayer;
+                        });
+
+                        tableHtml += '</tbody></table></div>';
+                        modalBodyContent.append(tableHtml);
+                    } else {
+                        modalBodyContent.append('<p class="text-center mt-3">Nenhum lançamento encontrado para este dizimista.</p>');
+                    }
+
+                    $('#modal_tithe_consult').modal('show');
+
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    var modalBodyContent = $('#modalTitheConsultBody');
+                    modalBodyContent.empty();
+                    modalBodyContent.append('<h5 class="card-title text-danger">Erro</h5>');
+                    modalBodyContent.append('<p class="text-center mt-3 text-danger">Ocorreu um erro ao buscar os lançamentos. Tente novamente.</p>');
+                    console.error("Erro AJAX:", textStatus, errorThrown, jqXHR.responseText);
+
+                    $('#modal_tithe_consult').modal('show');
+                }
+            });
+        }
+    </script>
 </body>
 </html>
-
-<script>
-    function openModalConsult(id) {
-        $.ajax({
-            url: '/Consult/SearchTithePayerAllUsers',
-            type: 'GET',
-            data: { code: id },
-            success: function (data) {
-                var modalBodyContent = $('#modalTitheConsultBody');
-                modalBodyContent.empty(); 
-
-                modalBodyContent.append('<h5 class="card-title">Lançamentos Registrados</h5>');
-
-                if (data && Array.isArray(data) && data.length > 0) {
-
-                    var tableHtml = '<table class="table table-bordered table-striped mt-3">';
-                    tableHtml += '<thead><tr>';
-                    // === AJUSTE AQUI: Defina os cabeçalhos da sua tabela ===
-                    tableHtml += '<th>Nome Dizimista</th>';
-                    tableHtml += '<th>Nome Agente</th>';
-                    tableHtml += '<th>Competência</th>';
-                    tableHtml += '<th>Valor (R$)</th>';
-                    tableHtml += '<th>Forma de Contribuição</th>';
-                    tableHtml += '<th>Data de Contribuição</th>';
-                    tableHtml += '</tr></thead>';
-                    tableHtml += '<tbody>';
-
-                    data.forEach(function(item) {
-                        tableHtml += '<tr>';
-
-                        var registrationDate = 'N/A';
-                        if (item.registrationDate) {
-                            try {
-                                var regDateObj = new Date(item.registrationDate);
-                                if (!isNaN(regDateObj.getTime())) { 
-                                    registrationDate = regDateObj.toLocaleDateString('pt-BR');
-                                }
-                            } catch (e) { console.error("Erro ao formatar registrationDate:", item.registrationDate, e); }
-                        }
-
-                        
-                        var valueFormated = 'N/A';
-                        if (item.value != null && !isNaN(item.value)) { 
-                             try {
-                                valueFormated = item.value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                             } catch (e) { console.error("Erro ao formatar value:", item.value, e); }
-                        }
-
-                        
-                        var paymentMonthFormated = 'N/A';
-                        if (item.paymentMonth) { 
-                            try {
-                                var dateObj = new Date(item.paymentMonth); 
-                                if (!isNaN(dateObj.getTime())) { 
-                                    var month = dateObj.getMonth() + 1; 
-                                    var year = dateObj.getFullYear();
-                                    
-                                    var monthPadded = month.toString().padStart(2, '0');
-                                    
-                                    paymentMonthFormated = `${monthPadded}/${year}`;
-                                }
-                            } catch (e) {
-                                console.error("Erro ao processar paymentMonth:", item.paymentMonth, e);
-                                
-                            }
-                        }
-
-                        tableHtml += '<td>' + (item.nameTithePayer || 'N/A') + '</td>';
-                        tableHtml += '<td>' + (item.nameAgent || 'N/A') + '</td>';
-                        tableHtml += '<td>' + paymentMonthFormated + '</td>'; // Usa a variável formatada
-                        tableHtml += '<td>' + valueFormated + '</td>';
-                        tableHtml += '<td>' + (item.paymentType || 'N/A') + '</td>';
-                        tableHtml += '<td>' + registrationDate + '</td>';
-                        tableHtml += '</tr>';
-
-                        document.getElementById("userIdEdit").value = item.nameTithePayer;
-
-                    });
-
-                    tableHtml += '</tbody></table>';
-
-                    modalBodyContent.append(tableHtml);
-
-                } else {
-                    modalBodyContent.append('<p class="text-center mt-3">Nenhum lançamento encontrado para este dizimista.</p>');
-                }
-
-                $('#modal_tithe_consult').modal('show');
-
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                 // Melhora o feedback de erro
-                var modalBodyContent = $('#modalTitheConsultBody');
-                modalBodyContent.empty();
-                modalBodyContent.append('<h5 class="card-title text-danger">Erro</h5>');
-                modalBodyContent.append('<p class="text-center mt-3 text-danger">Ocorreu um erro ao buscar os lançamentos. Tente novamente.</p>');
-                console.error("Erro AJAX:", textStatus, errorThrown, jqXHR.responseText); 
-
-                $('#modal_tithe_consult').modal('show');
-            }
-        });
-    }
-</script>
