@@ -48,6 +48,9 @@ builder.Services.AddTransient<ITitheRepository, TitheRepository>();
 builder.Services.AddTransient<IncomeService>();
 builder.Services.AddTransient<IIncomeRepository, IncomeRepository>();
 
+builder.Services.AddTransient<EventService>();
+builder.Services.AddTransient<IEventRepository, EventRepository>();
+
 
 var app = builder.Build();
 

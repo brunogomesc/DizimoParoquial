@@ -36,6 +36,15 @@ namespace DizimoParoquial.Controllers
         [Route("SalvarDizimo")]
         public IActionResult LaunchAllUsers()
         {
+
+            string? agentCode = HttpContext.Session.GetString("AgentCode");
+
+            if (string.IsNullOrWhiteSpace(agentCode))
+            {
+                _notification.AddErrorToastMessage("Sessão do usuário expirou. Conecte-se novamente!");
+                RedirectToAction("LoginAgents", "Login");
+            }
+
             return View();
         }
 

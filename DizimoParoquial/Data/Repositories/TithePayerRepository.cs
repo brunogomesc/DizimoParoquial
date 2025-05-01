@@ -33,31 +33,50 @@ namespace DizimoParoquial.Data.Repositories
 
                     try
                     {
-                        var query = @"INSERT INTO TithePayer(Name, Document, DateBirth, Email, PhoneNumber, Address, Number, ZipCode, Neighborhood, Complement, CreatedAt, UpdatedAt, TermFile, UserId, Extension) 
+
+                        var queryDuplicate = "SELECT COUNT(*) FROM TithePayer WHERE Document = @Document";
+
+                        int? tithePayerExistent = await connection.ExecuteScalarAsync<int?>(queryDuplicate,
+                            new
+                            {
+                                tithePayer.Document
+                            }
+                        );
+
+                        int idTithePayer = 0;
+
+                        if (tithePayerExistent == null || tithePayerExistent == 0)
+                        {
+                            throw new RepositoryException("Documento da pessoa já existe no sistema!");
+                        }
+                        else
+                        {
+                            var query = @"INSERT INTO TithePayer(Name, Document, DateBirth, Email, PhoneNumber, Address, Number, ZipCode, Neighborhood, Complement, CreatedAt, UpdatedAt, TermFile, UserId, Extension) 
                                     VALUES(@Name, @Document, @DateBirth, @Email, @PhoneNumber, @Address, @Number, @ZipCode, @Neighborhood, @Complement, @CreatedAt, @UpdatedAt, @TermFile, @UserId, @Extension);
 
                                     SELECT LAST_INSERT_ID();";
 
-                        int idTithePayer = await connection.ExecuteScalarAsync<int>(query,
-                            new
-                            {
-                                tithePayer.Name,
-                                tithePayer.Document,
-                                tithePayer.DateBirth,
-                                tithePayer.Email,
-                                tithePayer.PhoneNumber,
-                                tithePayer.Address,
-                                tithePayer.Number,
-                                tithePayer.ZipCode,
-                                tithePayer.Neighborhood,
-                                tithePayer.Complement,
-                                tithePayer.CreatedAt,
-                                tithePayer.UpdatedAt,
-                                tithePayer.TermFile,
-                                tithePayer.UserId,
-                                tithePayer.Extension
-                            }
-                        );
+                            idTithePayer = await connection.ExecuteScalarAsync<int>(query,
+                                new
+                                {
+                                    tithePayer.Name,
+                                    tithePayer.Document,
+                                    tithePayer.DateBirth,
+                                    tithePayer.Email,
+                                    tithePayer.PhoneNumber,
+                                    tithePayer.Address,
+                                    tithePayer.Number,
+                                    tithePayer.ZipCode,
+                                    tithePayer.Neighborhood,
+                                    tithePayer.Complement,
+                                    tithePayer.CreatedAt,
+                                    tithePayer.UpdatedAt,
+                                    tithePayer.TermFile,
+                                    tithePayer.UserId,
+                                    tithePayer.Extension
+                                }
+                            );
+                        }
 
                         transaction.Commit();
 
