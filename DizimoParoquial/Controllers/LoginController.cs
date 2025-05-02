@@ -45,6 +45,9 @@ namespace DizimoParoquial.Controllers
         public async Task<IActionResult> Login(string user, string password)
         {
 
+            string process, details;
+            bool eventRegistered;
+
             try
             {
                 if (string.IsNullOrWhiteSpace(user) || string.IsNullOrWhiteSpace(password))
@@ -58,6 +61,13 @@ namespace DizimoParoquial.Controllers
                 if (userAuthenticated == null || userAuthenticated.UserId == 0)
                 {
                     _notification.AddErrorToastMessage("Usuário não é válido ou está inativo!");
+
+                    process = "LOGIN USUÁRIO";
+
+                    details = $"{user} falhou no login. Erro: Usuário não é válido ou está inativo!";
+
+                    eventRegistered = await _eventService.SaveEvent(process, details);
+
                     return RedirectToAction(nameof(Index));
                 }
 
@@ -67,15 +77,26 @@ namespace DizimoParoquial.Controllers
 
                 ViewBag.UserName = userAuthenticated.Username;
 
-                //bool eventRegistered = await _eventService.SaveEvent();
+                process = "LOGIN USUÁRIO";
 
-                _notification.AddSuccessToastMessage("Usuário autenticado com sucesso!");
+                details = $"{userAuthenticated.Username} autenticado com sucesso!";
+
+                eventRegistered = await _eventService.SaveEvent(process, details, userId: userAuthenticated.UserId);
+
+                _notification.AddSuccessToastMessage($"Bem Vindo, {userAuthenticated.Name}!");
 
                 return View(ROUTE_SCREEN_HOME);
             }
             catch (Exception ex)
             {
                 _notification.AddErrorToastMessage(ex.Message);
+
+                process = "LOGIN USUÁRIO";
+
+                details = $"{user} falhou no login. Erro: {ex.Message}";
+
+                eventRegistered = await _eventService.SaveEvent(process, details);
+
             }
 
             return RedirectToAction(nameof(Index));
@@ -86,11 +107,21 @@ namespace DizimoParoquial.Controllers
         public async Task<IActionResult> LoginAgentsAutentication(string codeAgent, string phonenumber)
         {
 
+            string process, details;
+            bool eventRegistered;
+
             try
             {
                 if (string.IsNullOrWhiteSpace(codeAgent) || string.IsNullOrWhiteSpace(phonenumber))
                 {
                     _notification.AddErrorToastMessage("Código do Agente e/ou Telefone não preenchidos!");
+
+                    process = "LOGIN AGENTE";
+
+                    details = $"Código do Agente: {codeAgent} - falhou no login. Erro: Código do Agente e/ou Telefone não preenchidos!";
+
+                    eventRegistered = await _eventService.SaveEvent(process, details);
+
                     return RedirectToAction(nameof(LoginAgents));
                 }
 
@@ -101,6 +132,13 @@ namespace DizimoParoquial.Controllers
                     || agentAuthenticated.PhoneNumber != phonenumber)
                 {
                     _notification.AddErrorToastMessage("Agente do dizimo não está válido ou está inativo!");
+
+                    process = "LOGIN AGENTE";
+
+                    details = $"Código do Agente: {codeAgent} - falhou no login. Erro: Agente do dizimo não está válido ou está inativo!";
+
+                    eventRegistered = await _eventService.SaveEvent(process, details);
+
                     return RedirectToAction(nameof(LoginAgents));
                 }
 
@@ -108,13 +146,26 @@ namespace DizimoParoquial.Controllers
                 HttpContext.Session.SetString("AgentName", agentAuthenticated.Name);
                 HttpContext.Session.SetString("AgentCode", agentAuthenticated.AgentCode);
 
-                _notification.AddSuccessToastMessage("Agente autenticado com sucesso!");
+                process = "LOGIN AGENTE";
+
+                details = $"{agentAuthenticated.Name} autenticado com sucesso!";
+
+                eventRegistered = await _eventService.SaveEvent(process, details, agentId: agentAuthenticated.AgentId);
+
+                _notification.AddSuccessToastMessage($"Bem Vindo, {agentAuthenticated.Name}!");
 
                 return View(ROUTE_SCREEN_HOME_AGENTS);
             }
             catch (Exception ex)
             {
                 _notification.AddErrorToastMessage(ex.Message);
+
+                process = "LOGIN AGENTE";
+
+                details = $"Código de agente: {codeAgent} - falhou no login. Erro: {ex.Message}";
+
+                eventRegistered = await _eventService.SaveEvent(process, details);
+
             }
 
             return RedirectToAction(nameof(LoginAgents));
