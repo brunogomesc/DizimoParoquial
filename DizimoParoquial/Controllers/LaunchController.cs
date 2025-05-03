@@ -19,45 +19,109 @@ namespace DizimoParoquial.Controllers
         private readonly TithePayerService _tithePayerService;
         private readonly TitheService _titheService;
         private readonly AgentService _agentService;
+        private readonly EventService _eventService;
 
         public LaunchController(
             IToastNotification notification,
             TithePayerService tithePayerService,
             TitheService titheService,
-            AgentService agentService)
+            AgentService agentService,
+            EventService eventService)
         {
             _notification = notification;
             _tithePayerService = tithePayerService;
             _titheService = titheService;
             _agentService = agentService;
+            _eventService = eventService;
         }
 
         //[SessionAuthorize("REGTIT")]
         [Route("SalvarDizimo")]
-        public IActionResult LaunchAllUsers()
+        public async Task<IActionResult> LaunchAllUsers()
         {
+
+            string? process, details;
+            bool eventRegistered;
 
             string? agentCode = HttpContext.Session.GetString("AgentCode");
 
             if (string.IsNullOrWhiteSpace(agentCode))
             {
-                _notification.AddErrorToastMessage("Sessão do usuário expirou. Conecte-se novamente!");
-                RedirectToAction("LoginAgents", "Login");
+
+                process = "ACESSO TELA LANÇAMENTO DIZIMO";
+
+                string? agentName = HttpContext.Session.GetString("AgentName");
+                int? agentId = HttpContext.Session.GetInt32("Agent");
+
+                details = $"{agentName} acessou tela de lançamento de dizimos!";
+
+                eventRegistered = await _eventService.SaveEvent(process, details, agentId: agentId);
+
+                return View();
             }
-
-            return View();
+            else
+            {
+                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
+                return RedirectToAction("Index", "Login");
+            }
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            ViewBag.UserName = HttpContext.Session.GetString("Username");
-            return View();
+            string? process, details, username;
+            bool eventRegistered;
+
+            int? idUser = HttpContext.Session.GetInt32("User");
+
+            if (idUser != null && idUser != 0)
+            {
+
+                username = HttpContext.Session.GetString("Username");
+
+                ViewBag.UserName = username;
+
+                process = "ACESSO TELA LANÇAMENTO DIZIMO";
+
+                details = $"{username} acessou tela de lançamento de dizimos!";
+
+                eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                return View();
+            }
+            else
+            {
+                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
+                return RedirectToAction("Index", "Login");
+            }
         }
 
-        public IActionResult EditLaunch()
+        public async Task<IActionResult> EditLaunch()
         {
-            ViewBag.UserName = HttpContext.Session.GetString("Username");
-            return View();
+            string? process, details, username;
+            bool eventRegistered;
+
+            int? idUser = HttpContext.Session.GetInt32("User");
+
+            if (idUser != null && idUser != 0)
+            {
+
+                username = HttpContext.Session.GetString("Username");
+
+                ViewBag.UserName = username;
+
+                process = "ACESSO TELA EDIÇÃO DIZIMO";
+
+                details = $"{username} acessou tela de edição de dizimos!";
+
+                eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                return View();
+            }
+            else
+            {
+                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
+                return RedirectToAction("Index", "Login");
+            }
         }
 
         #region Public Methods - All Users
