@@ -45,25 +45,16 @@ namespace DizimoParoquial.Controllers
 
             string? agentCode = HttpContext.Session.GetString("AgentCode");
 
-            if (string.IsNullOrWhiteSpace(agentCode))
-            {
+            process = "ACESSO TELA LANÇAMENTO DIZIMO";
 
-                process = "ACESSO TELA LANÇAMENTO DIZIMO";
+            string? agentName = HttpContext.Session.GetString("AgentName");
+            int? agentId = HttpContext.Session.GetInt32("Agent");
 
-                string? agentName = HttpContext.Session.GetString("AgentName");
-                int? agentId = HttpContext.Session.GetInt32("Agent");
+            details = $"{agentName} acessou tela de lançamento de dizimos!";
 
-                details = $"{agentName} acessou tela de lançamento de dizimos!";
+            eventRegistered = await _eventService.SaveEvent(process, details, agentId: agentId);
 
-                eventRegistered = await _eventService.SaveEvent(process, details, agentId: agentId);
-
-                return View();
-            }
-            else
-            {
-                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
-                return RedirectToAction("Index", "Login");
-            }
+            return View();
         }
 
         public async Task<IActionResult> Index()
@@ -73,26 +64,17 @@ namespace DizimoParoquial.Controllers
 
             int? idUser = HttpContext.Session.GetInt32("User");
 
-            if (idUser != null && idUser != 0)
-            {
+            username = HttpContext.Session.GetString("Username");
 
-                username = HttpContext.Session.GetString("Username");
+            ViewBag.UserName = username;
 
-                ViewBag.UserName = username;
+            process = "ACESSO TELA LANÇAMENTO DIZIMO";
 
-                process = "ACESSO TELA LANÇAMENTO DIZIMO";
+            details = $"{username} acessou tela de lançamento de dizimos!";
 
-                details = $"{username} acessou tela de lançamento de dizimos!";
+            eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
 
-                eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
-
-                return View();
-            }
-            else
-            {
-                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
-                return RedirectToAction("Index", "Login");
-            }
+            return View();
         }
 
         public async Task<IActionResult> EditLaunch()
@@ -102,26 +84,17 @@ namespace DizimoParoquial.Controllers
 
             int? idUser = HttpContext.Session.GetInt32("User");
 
-            if (idUser != null && idUser != 0)
-            {
+            username = HttpContext.Session.GetString("Username");
 
-                username = HttpContext.Session.GetString("Username");
+            ViewBag.UserName = username;
 
-                ViewBag.UserName = username;
+            process = "ACESSO TELA EDIÇÃO DIZIMO";
 
-                process = "ACESSO TELA EDIÇÃO DIZIMO";
+            details = $"{username} acessou tela de edição de dizimos!";
 
-                details = $"{username} acessou tela de edição de dizimos!";
+            eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
 
-                eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
-
-                return View();
-            }
-            else
-            {
-                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
-                return RedirectToAction("Index", "Login");
-            }
+            return View();
         }
 
         #region Public Methods - All Users
@@ -199,110 +172,102 @@ namespace DizimoParoquial.Controllers
             string? agentName = HttpContext.Session.GetString("AgentName");
             int? agentId = HttpContext.Session.GetInt32("Agent");
 
-            if (string.IsNullOrWhiteSpace(code))
+            try
             {
-                try
+
+                if (string.IsNullOrWhiteSpace(value))
                 {
-
-                    if (string.IsNullOrWhiteSpace(value))
-                    {
-                        _notification.AddErrorToastMessage("Valor é obrigatório!");
-                        return RedirectToAction(nameof(LaunchAllUsers));
-                    }
-
-                    if (string.IsNullOrWhiteSpace(agentCode))
-                    {
-                        _notification.AddErrorToastMessage("Código do Agente do Dizimo é obrigatório!");
-                        return RedirectToAction(nameof(LaunchAllUsers));
-                    }
-
-                    if (string.IsNullOrWhiteSpace(paymentType))
-                    {
-                        _notification.AddErrorToastMessage("Tipo de Pagamento é obrigatório!");
-                        return RedirectToAction(nameof(LaunchAllUsers));
-                    }
-
-                    if (dates == null || dates.Length == 0)
-                    {
-                        _notification.AddErrorToastMessage("Data de Contribuição é obrigatório!");
-                        return RedirectToAction(nameof(LaunchAllUsers));
-                    }
-
-                    if (tithePayerId == 0)
-                    {
-                        _notification.AddErrorToastMessage("Dizimista é obrigatório!");
-                        return RedirectToAction(nameof(LaunchAllUsers));
-                    }
-
-                    AgentDTO agent = await _agentService.GetAgentByCode(agentCode);
-
-                    if (agent == null || !agent.Active)
-                    {
-                        _notification.AddErrorToastMessage("Agente do Dizimo não localizado ou inativo!");
-                        return RedirectToAction(nameof(LaunchAllUsers));
-                    }
-
-                    decimal decimalValue;
-                    CultureInfo culturaBrasileira = new CultureInfo("pt-BR");
-
-                    decimal.TryParse(value, NumberStyles.Currency, culturaBrasileira, out decimalValue);
-
-                    LauchingTithe tithe = new LauchingTithe
-                    {
-                        Value = decimalValue,
-                        AgentCode = agentCode,
-                        PaymentType = paymentType,
-                        PaymentDates = dates,
-                        TithePayerId = tithePayerId
-                    };
-
-                    bool titheWasSaved = await _titheService.SaveTithe(tithe);
-
-                    if (titheWasSaved)
-                    {
-
-                        _notification.AddSuccessToastMessage("Dizimo registrado com sucesso!");
-
-                        process = "LANÇAMENTO DIZIMO";
-
-                        details = $"{agentName} lançou o dizimo com sucesso!";
-
-                        eventRegistered = await _eventService.SaveEvent(process, details, agentId: agentId);
-
-                    }
-                    else
-                    {
-                        _notification.AddErrorToastMessage("Não foi possível registrar o dizimo!");
-
-                        process = "LANÇAMENTO DIZIMO";
-
-                        details = $"{agentName} não lançou o dizimo, devido a uma falha!";
-
-                        eventRegistered = await _eventService.SaveEvent(process, details, agentId: agentId);
-
-                    }
-                        
+                    _notification.AddErrorToastMessage("Valor é obrigatório!");
+                    return RedirectToAction(nameof(LaunchAllUsers));
                 }
-                catch (Exception ex)
+
+                if (string.IsNullOrWhiteSpace(agentCode))
                 {
-                    _notification.AddErrorToastMessage(ex.Message);
+                    _notification.AddErrorToastMessage("Código do Agente do Dizimo é obrigatório!");
+                    return RedirectToAction(nameof(LaunchAllUsers));
+                }
 
-                    process = "LANÇAMENTO DE DIZIMO";
+                if (string.IsNullOrWhiteSpace(paymentType))
+                {
+                    _notification.AddErrorToastMessage("Tipo de Pagamento é obrigatório!");
+                    return RedirectToAction(nameof(LaunchAllUsers));
+                }
 
-                    details = $"{agentName} falhou no lançamento de dizimo. Erro: {ex.Message}";
+                if (dates == null || dates.Length == 0)
+                {
+                    _notification.AddErrorToastMessage("Data de Contribuição é obrigatório!");
+                    return RedirectToAction(nameof(LaunchAllUsers));
+                }
 
-                    eventRegistered = await _eventService.SaveEvent(process, details);
+                if (tithePayerId == 0)
+                {
+                    _notification.AddErrorToastMessage("Dizimista é obrigatório!");
+                    return RedirectToAction(nameof(LaunchAllUsers));
+                }
+
+                AgentDTO agent = await _agentService.GetAgentByCode(agentCode);
+
+                if (agent == null || !agent.Active)
+                {
+                    _notification.AddErrorToastMessage("Agente do Dizimo não localizado ou inativo!");
+                    return RedirectToAction(nameof(LaunchAllUsers));
+                }
+
+                decimal decimalValue;
+                CultureInfo culturaBrasileira = new CultureInfo("pt-BR");
+
+                decimal.TryParse(value, NumberStyles.Currency, culturaBrasileira, out decimalValue);
+
+                LauchingTithe tithe = new LauchingTithe
+                {
+                    Value = decimalValue,
+                    AgentCode = agentCode,
+                    PaymentType = paymentType,
+                    PaymentDates = dates,
+                    TithePayerId = tithePayerId
+                };
+
+                bool titheWasSaved = await _titheService.SaveTithe(tithe);
+
+                if (titheWasSaved)
+                {
+
+                    _notification.AddSuccessToastMessage("Dizimo registrado com sucesso!");
+
+                    process = "LANÇAMENTO DIZIMO";
+
+                    details = $"{agentName} lançou o dizimo com sucesso!";
+
+                    eventRegistered = await _eventService.SaveEvent(process, details, agentId: agentId);
+
+                }
+                else
+                {
+                    _notification.AddErrorToastMessage("Não foi possível registrar o dizimo!");
+
+                    process = "LANÇAMENTO DIZIMO";
+
+                    details = $"{agentName} não lançou o dizimo, devido a uma falha!";
+
+                    eventRegistered = await _eventService.SaveEvent(process, details, agentId: agentId);
 
                 }
 
-                return RedirectToAction(nameof(LaunchAllUsers));
             }
-            else
+            catch (Exception ex)
             {
-                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
-                return RedirectToAction("Index", "Login");
+                _notification.AddErrorToastMessage(ex.Message);
+
+                process = "LANÇAMENTO DE DIZIMO";
+
+                details = $"{agentName} falhou no lançamento de dizimo. Erro: {ex.Message}";
+
+                eventRegistered = await _eventService.SaveEvent(process, details);
+
             }
-            
+
+            return RedirectToAction(nameof(LaunchAllUsers));
+
         }
 
         #endregion

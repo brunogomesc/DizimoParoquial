@@ -68,25 +68,16 @@ namespace DizimoParoquial.Controllers
 
             string? agentCode = HttpContext.Session.GetString("AgentCode");
 
-            if (string.IsNullOrWhiteSpace(agentCode))
-            {
+            process = "ACESSO TELA CONSULTAS DIZIMO";
 
-                process = "ACESSO TELA CONSULTAS DIZIMO";
+            string? agentName = HttpContext.Session.GetString("AgentName");
+            int? agentId = HttpContext.Session.GetInt32("Agent");
 
-                string? agentName = HttpContext.Session.GetString("AgentName");
-                int? agentId = HttpContext.Session.GetInt32("Agent");
+            details = $"{agentName} acessou tela de consulta de dizimos!";
 
-                details = $"{agentName} acessou tela de consulta de dizimos!";
+            eventRegistered = await _eventService.SaveEvent(process, details, agentId: agentId);
 
-                eventRegistered = await _eventService.SaveEvent(process, details, agentId: agentId);
-
-                return View();
-            }
-            else
-            {
-                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
-                return RedirectToAction("Index", "Login");
-            }
+            return View();
         }
 
         #region Public Methods - All Users
@@ -101,58 +92,48 @@ namespace DizimoParoquial.Controllers
             string? agentName = HttpContext.Session.GetString("AgentName");
             int? agentId = HttpContext.Session.GetInt32("Agent");
 
-            if (string.IsNullOrWhiteSpace(agentCode))
+            try
             {
 
-                try
+                if (string.IsNullOrWhiteSpace(name) && tithePayerCode == 0 && string.IsNullOrWhiteSpace(document))
                 {
-
-                    if (string.IsNullOrWhiteSpace(name) && tithePayerCode == 0 && string.IsNullOrWhiteSpace(document))
-                    {
-                        _notification.AddErrorToastMessage("Informe o nome ou código do dizimista.");
-                        return RedirectToAction(nameof(ConsultAllUsers));
-                    }
-
-                    if (document != null)
-                        document = document.Replace(".", "").Replace("-", "");
-
-                    List<TithePayerLaunchDTO> tithePayers = await _titheService.GetTithesWithFilters(name, tithePayerCode, document);
-
-                    if (tithePayers == null || tithePayers.Count == 0)
-                    {
-                        _notification.AddErrorToastMessage("Dizimista não encontrado.");
-                        return RedirectToAction(nameof(ConsultAllUsers));
-                    }
-
-                    process = "CONSULTA DE DIZIMISTAS";
-
-                    details = $"{agentName} acessou tela de consulta de dizimos!";
-
-                    eventRegistered = await _eventService.SaveEvent(process, details, agentId: agentId);
-
-                    return View(ROUTE_SCREEN_CONSULT_ALL_USERS, tithePayers);
-
-                }
-                catch (Exception ex)
-                {
-                    _notification.AddErrorToastMessage(ex.Message);
-
-                    process = "CONSULTA DE DIZIMISTAS";
-
-                    details = $"{agentName} falhou na pesquisa de dizimistas. Erro: {ex.Message}";
-
-                    eventRegistered = await _eventService.SaveEvent(process, details);
-
+                    _notification.AddErrorToastMessage("Informe o nome ou código do dizimista.");
+                    return RedirectToAction(nameof(ConsultAllUsers));
                 }
 
-                return RedirectToAction(nameof(ConsultAllUsers));
+                if (document != null)
+                    document = document.Replace(".", "").Replace("-", "");
+
+                List<TithePayerLaunchDTO> tithePayers = await _titheService.GetTithesWithFilters(name, tithePayerCode, document);
+
+                if (tithePayers == null || tithePayers.Count == 0)
+                {
+                    _notification.AddErrorToastMessage("Dizimista não encontrado.");
+                    return RedirectToAction(nameof(ConsultAllUsers));
+                }
+
+                process = "CONSULTA DE DIZIMISTAS";
+
+                details = $"{agentName} acessou tela de consulta de dizimos!";
+
+                eventRegistered = await _eventService.SaveEvent(process, details, agentId: agentId);
+
+                return View(ROUTE_SCREEN_CONSULT_ALL_USERS, tithePayers);
 
             }
-            else
+            catch (Exception ex)
             {
-                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
-                return RedirectToAction("Index", "Login");
+                _notification.AddErrorToastMessage(ex.Message);
+
+                process = "CONSULTA DE DIZIMISTAS";
+
+                details = $"{agentName} falhou na pesquisa de dizimistas. Erro: {ex.Message}";
+
+                eventRegistered = await _eventService.SaveEvent(process, details);
+
             }
+
+            return RedirectToAction(nameof(ConsultAllUsers));
         }
 
         [HttpGet]
@@ -201,60 +182,50 @@ namespace DizimoParoquial.Controllers
             int? userId = HttpContext.Session.GetInt32("User");
             username = HttpContext.Session.GetString("Username");
 
-            if (userId != null && userId != 0)
+            try
             {
 
-                try
+                ViewBag.UserName = username;
+
+                if (string.IsNullOrWhiteSpace(name) && tithePayerCode == 0 && string.IsNullOrWhiteSpace(document))
                 {
-
-                    ViewBag.UserName = username;
-
-                    if (string.IsNullOrWhiteSpace(name) && tithePayerCode == 0 && string.IsNullOrWhiteSpace(document))
-                    {
-                        _notification.AddErrorToastMessage("Informe o nome ou código do dizimista.");
-                        return RedirectToAction(nameof(ConsultAllUsers));
-                    }
-
-                    if (document != null)
-                        document = document.Replace(".", "").Replace("-", "");
-
-                    List<TithePayerLaunchDTO> tithePayers = await _titheService.GetTithesWithFilters(name, tithePayerCode, document);
-
-                    if (tithePayers == null || tithePayers.Count == 0)
-                    {
-                        _notification.AddErrorToastMessage("Dizimista não encontrado.");
-                        return RedirectToAction(nameof(ConsultAllUsers));
-                    }
-
-                    process = "CONSULTA DE DIZIMISTAS";
-
-                    details = $"{username} realizou a consulta de dizimistas!";
-
-                    eventRegistered = await _eventService.SaveEvent(process, details, userId: userId);
-
-                    return View(ROUTE_SCREEN_CONSULT_ALL_USERS, tithePayers);
-
-                }
-                catch (Exception ex)
-                {
-                    _notification.AddErrorToastMessage(ex.Message);
-
-                    process = "CONSULTA DE DIZIMISTAS";
-
-                    details = $"{username} falhou na consulta de dizimistas. Erro: {ex.Message}";
-
-                    eventRegistered = await _eventService.SaveEvent(process, details);
-
+                    _notification.AddErrorToastMessage("Informe o nome ou código do dizimista.");
+                    return RedirectToAction(nameof(Index));
                 }
 
-                return RedirectToAction(nameof(ConsultAllUsers));
+                if (document != null)
+                    document = document.Replace(".", "").Replace("-", "");
+
+                List<TithePayerLaunchDTO> tithePayers = await _titheService.GetTithesWithFilters(name, tithePayerCode, document);
+
+                if (tithePayers == null || tithePayers.Count == 0)
+                {
+                    _notification.AddErrorToastMessage("Dizimista não encontrado.");
+                    return RedirectToAction(nameof(Index));
+                }
+
+                process = "CONSULTA DE DIZIMISTAS";
+
+                details = $"{username} realizou a consulta de dizimistas!";
+
+                eventRegistered = await _eventService.SaveEvent(process, details, userId: userId);
+
+                return View(ROUTE_SCREEN_CONSULT_ALL_USERS, tithePayers);
 
             }
-            else
+            catch (Exception ex)
             {
-                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
-                return RedirectToAction("Index", "Login");
+                _notification.AddErrorToastMessage(ex.Message);
+
+                process = "CONSULTA DE DIZIMISTAS";
+
+                details = $"{username} falhou na consulta de dizimistas. Erro: {ex.Message}";
+
+                eventRegistered = await _eventService.SaveEvent(process, details);
+
             }
+
+            return RedirectToAction(nameof(Index));
 
         }
 
