@@ -23,5 +23,13 @@ namespace DizimoParoquial.Controllers
 
             return View();
         }
+
+        public IActionResult HomeAgents()
+        {
+
+            ViewBag.UserName = HttpContext.Session.GetString("Username");
+
+            return View();
+        }
     }
 }

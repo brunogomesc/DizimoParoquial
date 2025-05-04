@@ -45,25 +45,16 @@ namespace DizimoParoquial.Controllers
 
             string? agentCode = HttpContext.Session.GetString("AgentCode");
 
-            if (string.IsNullOrWhiteSpace(agentCode))
-            {
+            process = "ACESSO TELA LANÇAMENTO DIZIMO";
 
-                process = "ACESSO TELA LANÇAMENTO DIZIMO";
+            string? agentName = HttpContext.Session.GetString("AgentName");
+            int? agentId = HttpContext.Session.GetInt32("Agent");
 
-                string? agentName = HttpContext.Session.GetString("AgentName");
-                int? agentId = HttpContext.Session.GetInt32("Agent");
+            details = $"{agentName} acessou tela de lançamento de dizimos!";
 
-                details = $"{agentName} acessou tela de lançamento de dizimos!";
+            eventRegistered = await _eventService.SaveEvent(process, details, agentId: agentId);
 
-                eventRegistered = await _eventService.SaveEvent(process, details, agentId: agentId);
-
-                return View();
-            }
-            else
-            {
-                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
-                return RedirectToAction("Index", "Login");
-            }
+            return View();
         }
 
         public async Task<IActionResult> Index()
@@ -73,26 +64,17 @@ namespace DizimoParoquial.Controllers
 
             int? idUser = HttpContext.Session.GetInt32("User");
 
-            if (idUser != null && idUser != 0)
-            {
+            username = HttpContext.Session.GetString("Username");
 
-                username = HttpContext.Session.GetString("Username");
+            ViewBag.UserName = username;
 
-                ViewBag.UserName = username;
+            process = "ACESSO TELA LANÇAMENTO DIZIMO";
 
-                process = "ACESSO TELA LANÇAMENTO DIZIMO";
+            details = $"{username} acessou tela de lançamento de dizimos!";
 
-                details = $"{username} acessou tela de lançamento de dizimos!";
+            eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
 
-                eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
-
-                return View();
-            }
-            else
-            {
-                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
-                return RedirectToAction("Index", "Login");
-            }
+            return View();
         }
 
         public async Task<IActionResult> EditLaunch()
@@ -102,26 +84,17 @@ namespace DizimoParoquial.Controllers
 
             int? idUser = HttpContext.Session.GetInt32("User");
 
-            if (idUser != null && idUser != 0)
-            {
+            username = HttpContext.Session.GetString("Username");
 
-                username = HttpContext.Session.GetString("Username");
+            ViewBag.UserName = username;
 
-                ViewBag.UserName = username;
+            process = "ACESSO TELA EDIÇÃO DIZIMO";
 
-                process = "ACESSO TELA EDIÇÃO DIZIMO";
+            details = $"{username} acessou tela de edição de dizimos!";
 
-                details = $"{username} acessou tela de edição de dizimos!";
+            eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
 
-                eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
-
-                return View();
-            }
-            else
-            {
-                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
-                return RedirectToAction("Index", "Login");
-            }
+            return View();
         }
 
         #region Public Methods - All Users
@@ -192,6 +165,13 @@ namespace DizimoParoquial.Controllers
         public async Task<IActionResult> SaveTitheAllUsers(string value, string agentCode, string paymentType, int tithePayerId, DateTime[] dates)
         {
 
+            string? process, details, username;
+            bool eventRegistered;
+
+            string? code = HttpContext.Session.GetString("AgentCode");
+            string? agentName = HttpContext.Session.GetString("AgentName");
+            int? agentId = HttpContext.Session.GetInt32("Agent");
+
             try
             {
 
@@ -250,16 +230,44 @@ namespace DizimoParoquial.Controllers
                 bool titheWasSaved = await _titheService.SaveTithe(tithe);
 
                 if (titheWasSaved)
+                {
+
                     _notification.AddSuccessToastMessage("Dizimo registrado com sucesso!");
+
+                    process = "LANÇAMENTO DIZIMO";
+
+                    details = $"{agentName} lançou o dizimo com sucesso!";
+
+                    eventRegistered = await _eventService.SaveEvent(process, details, agentId: agentId);
+
+                }
                 else
+                {
                     _notification.AddErrorToastMessage("Não foi possível registrar o dizimo!");
+
+                    process = "LANÇAMENTO DIZIMO";
+
+                    details = $"{agentName} não lançou o dizimo, devido a uma falha!";
+
+                    eventRegistered = await _eventService.SaveEvent(process, details, agentId: agentId);
+
+                }
+
             }
             catch (Exception ex)
             {
                 _notification.AddErrorToastMessage(ex.Message);
+
+                process = "LANÇAMENTO DE DIZIMO";
+
+                details = $"{agentName} falhou no lançamento de dizimo. Erro: {ex.Message}";
+
+                eventRegistered = await _eventService.SaveEvent(process, details);
+
             }
 
             return RedirectToAction(nameof(LaunchAllUsers));
+
         }
 
         #endregion
