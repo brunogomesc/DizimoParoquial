@@ -192,74 +192,117 @@ namespace DizimoParoquial.Controllers
         public async Task<IActionResult> SaveTitheAllUsers(string value, string agentCode, string paymentType, int tithePayerId, DateTime[] dates)
         {
 
-            try
+            string? process, details, username;
+            bool eventRegistered;
+
+            string? code = HttpContext.Session.GetString("AgentCode");
+            string? agentName = HttpContext.Session.GetString("AgentName");
+            int? agentId = HttpContext.Session.GetInt32("Agent");
+
+            if (string.IsNullOrWhiteSpace(code))
             {
-
-                if (string.IsNullOrWhiteSpace(value))
+                try
                 {
-                    _notification.AddErrorToastMessage("Valor é obrigatório!");
-                    return RedirectToAction(nameof(LaunchAllUsers));
+
+                    if (string.IsNullOrWhiteSpace(value))
+                    {
+                        _notification.AddErrorToastMessage("Valor é obrigatório!");
+                        return RedirectToAction(nameof(LaunchAllUsers));
+                    }
+
+                    if (string.IsNullOrWhiteSpace(agentCode))
+                    {
+                        _notification.AddErrorToastMessage("Código do Agente do Dizimo é obrigatório!");
+                        return RedirectToAction(nameof(LaunchAllUsers));
+                    }
+
+                    if (string.IsNullOrWhiteSpace(paymentType))
+                    {
+                        _notification.AddErrorToastMessage("Tipo de Pagamento é obrigatório!");
+                        return RedirectToAction(nameof(LaunchAllUsers));
+                    }
+
+                    if (dates == null || dates.Length == 0)
+                    {
+                        _notification.AddErrorToastMessage("Data de Contribuição é obrigatório!");
+                        return RedirectToAction(nameof(LaunchAllUsers));
+                    }
+
+                    if (tithePayerId == 0)
+                    {
+                        _notification.AddErrorToastMessage("Dizimista é obrigatório!");
+                        return RedirectToAction(nameof(LaunchAllUsers));
+                    }
+
+                    AgentDTO agent = await _agentService.GetAgentByCode(agentCode);
+
+                    if (agent == null || !agent.Active)
+                    {
+                        _notification.AddErrorToastMessage("Agente do Dizimo não localizado ou inativo!");
+                        return RedirectToAction(nameof(LaunchAllUsers));
+                    }
+
+                    decimal decimalValue;
+                    CultureInfo culturaBrasileira = new CultureInfo("pt-BR");
+
+                    decimal.TryParse(value, NumberStyles.Currency, culturaBrasileira, out decimalValue);
+
+                    LauchingTithe tithe = new LauchingTithe
+                    {
+                        Value = decimalValue,
+                        AgentCode = agentCode,
+                        PaymentType = paymentType,
+                        PaymentDates = dates,
+                        TithePayerId = tithePayerId
+                    };
+
+                    bool titheWasSaved = await _titheService.SaveTithe(tithe);
+
+                    if (titheWasSaved)
+                    {
+
+                        _notification.AddSuccessToastMessage("Dizimo registrado com sucesso!");
+
+                        process = "LANÇAMENTO DIZIMO";
+
+                        details = $"{agentName} lançou o dizimo com sucesso!";
+
+                        eventRegistered = await _eventService.SaveEvent(process, details, agentId: agentId);
+
+                    }
+                    else
+                    {
+                        _notification.AddErrorToastMessage("Não foi possível registrar o dizimo!");
+
+                        process = "LANÇAMENTO DIZIMO";
+
+                        details = $"{agentName} não lançou o dizimo, devido a uma falha!";
+
+                        eventRegistered = await _eventService.SaveEvent(process, details, agentId: agentId);
+
+                    }
+                        
+                }
+                catch (Exception ex)
+                {
+                    _notification.AddErrorToastMessage(ex.Message);
+
+                    process = "LANÇAMENTO DE DIZIMO";
+
+                    details = $"{agentName} falhou no lançamento de dizimo. Erro: {ex.Message}";
+
+                    eventRegistered = await _eventService.SaveEvent(process, details);
+
                 }
 
-                if (string.IsNullOrWhiteSpace(agentCode))
-                {
-                    _notification.AddErrorToastMessage("Código do Agente do Dizimo é obrigatório!");
-                    return RedirectToAction(nameof(LaunchAllUsers));
-                }
-
-                if (string.IsNullOrWhiteSpace(paymentType))
-                {
-                    _notification.AddErrorToastMessage("Tipo de Pagamento é obrigatório!");
-                    return RedirectToAction(nameof(LaunchAllUsers));
-                }
-
-                if (dates == null || dates.Length == 0)
-                {
-                    _notification.AddErrorToastMessage("Data de Contribuição é obrigatório!");
-                    return RedirectToAction(nameof(LaunchAllUsers));
-                }
-
-                if (tithePayerId == 0)
-                {
-                    _notification.AddErrorToastMessage("Dizimista é obrigatório!");
-                    return RedirectToAction(nameof(LaunchAllUsers));
-                }
-
-                AgentDTO agent = await _agentService.GetAgentByCode(agentCode);
-
-                if (agent == null || !agent.Active)
-                {
-                    _notification.AddErrorToastMessage("Agente do Dizimo não localizado ou inativo!");
-                    return RedirectToAction(nameof(LaunchAllUsers));
-                }
-
-                decimal decimalValue;
-                CultureInfo culturaBrasileira = new CultureInfo("pt-BR");
-
-                decimal.TryParse(value, NumberStyles.Currency, culturaBrasileira, out decimalValue);
-
-                LauchingTithe tithe = new LauchingTithe
-                {
-                    Value = decimalValue,
-                    AgentCode = agentCode,
-                    PaymentType = paymentType,
-                    PaymentDates = dates,
-                    TithePayerId = tithePayerId
-                };
-
-                bool titheWasSaved = await _titheService.SaveTithe(tithe);
-
-                if (titheWasSaved)
-                    _notification.AddSuccessToastMessage("Dizimo registrado com sucesso!");
-                else
-                    _notification.AddErrorToastMessage("Não foi possível registrar o dizimo!");
+                return RedirectToAction(nameof(LaunchAllUsers));
             }
-            catch (Exception ex)
+            else
             {
-                _notification.AddErrorToastMessage(ex.Message);
+                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
+                return RedirectToAction("Index", "Login");
             }
-
-            return RedirectToAction(nameof(LaunchAllUsers));
+            
         }
 
         #endregion
