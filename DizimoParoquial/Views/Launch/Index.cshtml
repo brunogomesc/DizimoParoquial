@@ -1,8 +1,10 @@
 ﻿@model List<TithePayerLaunchDTO>
+@inject DizimoParoquial.Services.TitheService _titheService;
+
 @{
     Layout = "_Layout";
     //Listagem de datas para o select
-    List<DateTime> dates = GetDateTimes();
+    //List<DateTime> dates = await GetDateTimes();
 }
 
 <!DOCTYPE html>
@@ -13,61 +15,61 @@
     <title>Lançar Dizimo</title>
     <style>
         .btn-primary {
-            background-color: #007bff; /* Azul principal */
-            border-color: #007bff;
+        background-color: #007bff; /* Azul principal */
+        border-color: #007bff;
         }
 
-            .btn-primary:hover {
-                background-color: #0056b3;
-                border-color: #0056b3;
-            }
+        .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+        }
 
         .bg-primary {
-            background-color: #007bff !important;
+        background-color: #007bff !important;
         }
 
         .text-primary {
-            color: #007bff !important;
+        color: #007bff !important;
         }
 
         .btn-outline-primary {
-            color: #007bff;
-            border-color: #007bff;
+        color: #007bff;
+        border-color: #007bff;
         }
 
-            .btn-outline-primary:hover {
-                background-color: #007bff;
-                border-color: #007bff;
-                color: white;
-            }
+        .btn-outline-primary:hover {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: white;
+        }
 
         .btn-secondary {
-            background-color: #dc3545; /* Vermelho secundário */
-            border-color: #dc3545;
-            color: white;
+        background-color: #dc3545; /* Vermelho secundário */
+        border-color: #dc3545;
+        color: white;
         }
 
-            .btn-secondary:hover {
-                background-color: #c82333;
-                border-color: #c82333;
-                color: white;
-            }
+        .btn-secondary:hover {
+        background-color: #c82333;
+        border-color: #c82333;
+        color: white;
+        }
 
         .bg-secondary {
-            background-color: #dc3545 !important;
+        background-color: #dc3545 !important;
         }
 
         .text-secondary {
-            color: #dc3545 !important;
+        color: #dc3545 !important;
         }
 
         .modal-header {
-            background-color: #007bff;
-            color: white;
+        background-color: #007bff;
+        color: white;
         }
 
         .modal-title {
-            color: white;
+        color: white;
         }
     </style>
 </head>
@@ -203,15 +205,9 @@
                                     </div>
                                 </div>
                                 <div class="row g-3 mt-2">
-                                    <div class="col-md-12">
+                                    <div class="col-md-12" id="bodyDates">
                                         <label for="dates" class="form-label fw-bold text-primary">Meses à contribuir:</label>
-                                        <select class="form-control js-example-basic-multiple" name="dates[]" multiple="multiple">
-                                            <option></option>
-                                            @foreach (var date in dates)
-                                            {
-                                                <option value="@date.ToString("yyyy-MM")">@date.ToString("MM/yyyy")</option>
-                                            }
-                                        </select>
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -234,7 +230,7 @@
 <script>
     function openModalLaunch(id) {
         $.ajax({
-            url: '/Launch/SearchTithePayerAllUsers', // Rota para o método do controlador que retornará os dados
+            url: '/Launch/SearchTithePayer', // Rota para o método do controlador que retornará os dados
             type: 'GET',
             data: { code: id },
             success: function (data) {
@@ -243,6 +239,49 @@
                     document.getElementById("resultCode").value = data.tithePayerId;
                     document.getElementById("tithePayerId").value = data.tithePayerId;
                     document.getElementById("resultDateBirth").value = data.dateBirth ? new Date(data.dateBirth).toLocaleDateString('pt-BR') : '';
+
+                    var modalBodyContent = $('#bodyDates');
+                    modalBodyContent.empty();
+
+                    $.ajax({
+                        url: '/Launch/GetAvailableDates', // Rota para a sua nova Action
+                        type: 'GET',
+                        data: { tithePayerId: data.tithePayerId }, // Passa o ID do contribuinte
+                        success: function (dates) {
+                            if (dates && dates.length > 0) {
+
+                                modalBodyContent.append('<label for="dates" class="form-label fw-bold text-primary">Meses à contribuir:</label>');
+
+                                var selectElement = $('<select class="form-control js-example-basic-multiple" name="dates[]" multiple="multiple">'); // Cria o elemento select com as classes do Select2
+
+                                dates.forEach(function(date) {
+                                    const dateObject = typeof date === 'string' ? new Date(date) : date;
+                                    
+                                    const month = (dateObject.getMonth() + 1).toString().padStart(2, '0'); // Adiciona 1 porque getMonth() retorna de 0 a 11
+                                    const year = dateObject.getFullYear();
+
+                                    // Formata a string no formato MM/yyyy
+                                    const formattedDate = `${month}/${year}`;
+
+                                    selectElement.append(`<option value="${date}">${formattedDate}</option>`);
+                                });
+
+                                selectElement.append('</select>');
+
+                                modalBodyContent.append(selectElement);
+
+                                // Inicializa o Select2 novamente após adicionar o elemento
+                                $('.js-example-basic-multiple').select2({
+                                    width: '100%'
+                                });
+                            } else {
+                                modalBodyContent.append('<p>Nenhuma data disponível.</p>');
+                            }
+                        },
+                        error: function () {
+                            alert("Erro ao buscar as datas.");
+                        }
+                    });
 
                     // Exibe a div de resultados
                     $('#modal_tithe_launch').modal('show');
@@ -259,32 +298,14 @@
 
 <script>
     $(document).ready(function () {
-        $('#value').mask('#.##0,00', { reverse: true });
-    });
-</script>
-
-<script>
-    $(document).ready(function () {
         $('.js-example-basic-multiple').select2({
             width: '100%'
         });
     });
 </script>
 
-@functions {
-    private List<DateTime> GetDateTimes()
-    {
-        List<DateTime> dates = new List<DateTime>();
-        DateTime today = DateTime.Now;
-        for (int i = 12; i > 0; i--)
-        {
-            dates.Add(today.AddMonths(-i));
-        }
-        dates.Add(today);
-        for (int i = 1; i <= 12; i++)
-        {
-            dates.Add(today.AddMonths(i));
-        }
-        return dates;
-    }
-}
+<script>
+    $(document).ready(function () {
+        $('#value').mask('#.##0,00', { reverse: true });
+    });
+</script>

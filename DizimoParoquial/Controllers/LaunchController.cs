@@ -465,12 +465,21 @@ namespace DizimoParoquial.Controllers
 
                     decimal.TryParse(value, NumberStyles.Currency, culturaBrasileira, out decimalValue);
 
+                    DateTime[] formattedDates = new DateTime[dates.Length];
+                    int index = 0;
+
+                    foreach (DateTime data in dates)
+                    {
+                        formattedDates[index] = data.Date;
+                        index++;
+                    }
+
                     LauchingTithe tithe = new LauchingTithe
                     {
                         Value = decimalValue,
                         AgentCode = agentCode,
                         PaymentType = paymentType,
-                        PaymentDates = dates,
+                        PaymentDates = formattedDates,
                         TithePayerId = tithePayerId
                     };
 
@@ -735,5 +744,43 @@ namespace DizimoParoquial.Controllers
 
         #endregion
 
+
+        public async Task<IActionResult> GetAvailableDates(int tithePayerId)
+        {
+            List<DateTime> dates = await GetDateTimes(tithePayerId);
+
+            List<DateTime> datesNotDuplicate = dates.Distinct().ToList();
+
+            return Json(datesNotDuplicate);
+        }
+
+        private async Task<List<DateTime>> GetDateTimes(int tithePayerId)
+        {
+            List<DateTime> dates = new List<DateTime>();
+            DateTime today = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
+
+            var tithes = await _titheService.GetTithesByTithePayerId(tithePayerId);
+
+            for (int i = 6; i > 0; i--)
+                dates.Add(today.AddMonths(-i));
+
+            dates.Add(today);
+
+            for (int i = 1; i <= 6; i++)
+                dates.Add(today.AddMonths(i));
+
+            List<DateTime> datesAllowed = new List<DateTime>();
+
+            foreach (var tithe in tithes)
+            {
+                if(dates.Contains(tithe.PaymentMonth))
+                {
+                    dates.Remove(tithe.PaymentMonth);
+                }
+            }
+
+            return dates;
+        }
     }
+
 }

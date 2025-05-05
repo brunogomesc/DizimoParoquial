@@ -240,7 +240,7 @@ namespace DizimoParoquial.Controllers
 
                     eventRegistered = await _eventService.SaveEvent(process, details, userId: userId);
 
-                    return View(ROUTE_SCREEN_CONSULT_ALL_USERS, tithePayers);
+                    return View(ROUTE_SCREEN_CONSULT, tithePayers);
 
                 }
                 catch (Exception ex)
