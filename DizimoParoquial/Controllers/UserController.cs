@@ -16,134 +16,307 @@ namespace DizimoParoquial.Controllers
         private const string ROUTE_SCREEN_USERS = "/Views/User/Index.cshtml";
         private readonly IToastNotification _notification;
         private readonly UserService _userService;
+        private readonly EventService _eventService;
 
-        public UserController(IToastNotification notification, UserService userService)
+        public UserController(
+            IToastNotification notification, 
+            UserService userService,
+            EventService eventService)
         {
             _notification = notification;
             _userService = userService;
+            _eventService = eventService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            ViewBag.UserName = HttpContext.Session.GetString("Username");
-            return View();
+            string? process, details, username;
+            bool eventRegistered;
+
+            int? idUser = HttpContext.Session.GetInt32("User");
+
+            if (idUser != null && idUser != 0)
+            {
+
+                username = HttpContext.Session.GetString("Username");
+
+                ViewBag.UserName = username;
+
+                process = "ACESSO TELA USUÁRIOS DE ACESSO";
+
+                details = $"{username} acessou tela de usuários de acesso!";
+
+                eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                return View();
+            }
+            else
+            {
+                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
+                return RedirectToAction("Index", "Login");
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> SearchUser(string status, string name)
         {
+            string? process, details, username;
+            bool eventRegistered;
 
-            ViewBag.UserName = HttpContext.Session.GetString("Username");
-            List<UserDTO> users = new List<UserDTO>();
+            int? idUser = HttpContext.Session.GetInt32("User");
 
-            try
+            username = HttpContext.Session.GetString("Username");
+
+            if (idUser != null && idUser != 0)
             {
 
-                bool? statusConverted = status != null ? Convert.ToBoolean(status) : null;
+                List<UserDTO> users = new List<UserDTO>();
 
-                if (status == null && name == null)
-                    users = await _userService.GetUsersWithouthFilters();
+                try
+                {
 
-                else
-                    users = await _userService.GetUsersWithFilters(statusConverted, name);
+                    bool? statusConverted = status != null ? Convert.ToBoolean(status) : null;
 
+                    if (status == null && name == null)
+                        users = await _userService.GetUsersWithouthFilters();
+
+                    else
+                        users = await _userService.GetUsersWithFilters(statusConverted, name);
+
+                    ViewBag.UserName = username;
+
+                    process = "FILTRAGEM USUÁRIOS DE ACESSO";
+
+                    details = $"{username} filtrou os usuários de acesso!";
+
+                    eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                }
+                catch (Exception ex)
+                {
+                    _notification.AddErrorToastMessage(ex.Message);
+
+                    process = "FILTRAGEM DE USUÁRIOS DE ACESSO";
+
+                    details = $"{username} filtrou os usuários de acesso. Erro: {ex.Message}";
+
+                    eventRegistered = await _eventService.SaveEvent(process, details);
+
+                }
+
+                return View(ROUTE_SCREEN_USERS, users);
             }
-            catch (Exception ex)
+            else
             {
-                _notification.AddErrorToastMessage(ex.Message);
+                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
+                return RedirectToAction("Index", "Login");
             }
-
-            return View(ROUTE_SCREEN_USERS, users);
 
         }
 
         [HttpPost]
         public async Task<IActionResult> SaveUser(User user)
         {
+            string? process, details, username;
+            bool eventRegistered;
 
-            ViewBag.UserName = HttpContext.Session.GetString("Username");
+            int? idUser = HttpContext.Session.GetInt32("User");
 
-            try
+            username = HttpContext.Session.GetString("Username");
+
+            if (idUser != null && idUser != 0)
             {
-                if (!ModelState.IsValid)
+
+                try
                 {
-                    _notification.AddErrorToastMessage("Dados de cadastro não estão válidos!");
-                    return RedirectToAction(nameof(Index));
+                    if (!ModelState.IsValid)
+                    {
+                        _notification.AddErrorToastMessage("Dados de cadastro não estão válidos!");
+                        return RedirectToAction(nameof(Index));
+                    }
+
+                    bool userWasCreated = await _userService.RegisterUser(user);
+
+                    ViewBag.UserName = username;
+
+                    process = "CRIAÇÃO USUÁRIO DE ACESSO";
+
+                    if (userWasCreated)
+                    {
+                        _notification.AddSuccessToastMessage("Usuário de acesso criado com sucesso!");
+
+                        details = $"{username} criou o usuário de acesso com sucesso!";
+
+                        eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                    }
+                    else
+                    {
+                        _notification.AddErrorToastMessage("Não foi possível criar o usuário de acesso!");
+
+                        details = $"{username} não foi possível criar o usuário de acesso, devido a uma falha!";
+
+                        eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    _notification.AddErrorToastMessage(ex.Message);
+
+                    process = "CRIAÇÃO USUÁRIO DE ACESSO";
+
+                    details = $"{username} falhou na criação de usuário de acesso. Erro: {ex.Message}";
+
+                    eventRegistered = await _eventService.SaveEvent(process, details);
+
                 }
 
-                bool userWasCreated = await _userService.RegisterUser(user);
-
-                if (userWasCreated)
-                    _notification.AddSuccessToastMessage("Usuário criado com sucesso!");
-                else
-                    _notification.AddErrorToastMessage("Não foi possível criar o usuário!");
-
+                return RedirectToAction(nameof(Index));
             }
-            catch (Exception ex)
+            else
             {
-                _notification.AddErrorToastMessage(ex.Message);
+                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
+                return RedirectToAction("Index", "Login");
             }
-
-            return RedirectToAction(nameof(Index));
 
         }
 
         [HttpPost]
         public async Task<IActionResult> EditUser(User user)
         {
+            string? process, details, username;
+            bool eventRegistered;
 
-            ViewBag.UserName = HttpContext.Session.GetString("Username");
+            int? idUser = HttpContext.Session.GetInt32("User");
 
-            try
+            username = HttpContext.Session.GetString("Username");
+
+            if (idUser != null && idUser != 0)
             {
-                if (user.UserId == 0 || string.IsNullOrWhiteSpace(user.Name) || string.IsNullOrWhiteSpace(user.Username))
+
+                try
                 {
-                    _notification.AddErrorToastMessage("Dados de para alteração não estão válidos!");
-                    return RedirectToAction(nameof(Index));
+                    if (user.UserId == 0 || string.IsNullOrWhiteSpace(user.Name) || string.IsNullOrWhiteSpace(user.Username))
+                    {
+                        _notification.AddErrorToastMessage("Dados de para alteração não estão válidos!");
+                        return RedirectToAction(nameof(Index));
+                    }
+
+                    bool userWasUpdated = await _userService.UpdateUser(user);
+
+                    ViewBag.UserName = username;
+
+                    process = "EDIÇÃO USUÁRIO DE ACESSO";
+
+                    if (userWasUpdated)
+                    {
+                        _notification.AddSuccessToastMessage("Usuário de acesso editado com sucesso!");
+
+                        details = $"{username} editou o usuário de acesso com sucesso!";
+
+                        eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                    }
+                    else
+                    {
+                        _notification.AddErrorToastMessage("Não foi possível editar o usuário de acesso!");
+
+                        details = $"{username} não foi possível editar o usuário de acesso, devido a uma falha!";
+
+                        eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _notification.AddErrorToastMessage(ex.Message);
+
+                    process = "EDIÇÃO USUÁRIO DE ACESSO";
+
+                    details = $"{username} falhou na edição de usuário de acesso. Erro: {ex.Message}";
+
+                    eventRegistered = await _eventService.SaveEvent(process, details);
+
                 }
 
-                bool userWasUpdated = await _userService.UpdateUser(user);
-
-                if (userWasUpdated)
-                    _notification.AddSuccessToastMessage("Usuário alterado com sucesso!");
-                else
-                    _notification.AddErrorToastMessage("Não foi possível alterar o usuário!");
+                return RedirectToAction(nameof(Index));
             }
-            catch (Exception ex)
+            else
             {
-                _notification.AddErrorToastMessage(ex.Message);
+                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
+                return RedirectToAction("Index", "Login");
             }
 
-            return RedirectToAction(nameof(Index));
         }
 
 
         public async Task<IActionResult> DeleteUser(int userId)
         {
 
-            ViewBag.UserName = HttpContext.Session.GetString("Username");
+            string? process, details, username;
+            bool eventRegistered;
 
-            try
+            int? idUser = HttpContext.Session.GetInt32("User");
+
+            username = HttpContext.Session.GetString("Username");
+
+            if (idUser != null && idUser != 0)
             {
-                if (userId == 0)
+
+                try
                 {
-                    _notification.AddErrorToastMessage("Dados do usuário não localizado para a exclusão!");
-                    return RedirectToAction(nameof(Index));
+                    if (userId == 0)
+                    {
+                        _notification.AddErrorToastMessage("Dados do usuário não localizado para a exclusão!");
+                        return RedirectToAction(nameof(Index));
+                    }
+
+                    bool userWasDeleted = await _userService.DeleteUser(userId);
+
+                    ViewBag.UserName = username;
+
+                    process = "EXCLUSÃO USUÁRIO DE ACESSO";
+
+                    if (userWasDeleted)
+                    {
+                        _notification.AddSuccessToastMessage("Usuário de acesso excluido com sucesso!");
+
+                        details = $"{username} excluiu o usuário de acesso com sucesso!";
+
+                        eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                    }
+                    else
+                    {
+                        _notification.AddErrorToastMessage("Não foi possível excluir o usuário de acesso!");
+
+                        details = $"{username} não foi possível excluir o usuário de acesso, devido a uma falha!";
+
+                        eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _notification.AddErrorToastMessage(ex.Message);
+
+                    process = "EXCLUSÃO USUÁRIO DE ACESSO";
+
+                    details = $"{username} falhou na exclusão de usuário de acesso. Erro: {ex.Message}";
+
+                    eventRegistered = await _eventService.SaveEvent(process, details);
+
                 }
 
-                bool userWasDeleted = await _userService.DeleteUser(userId);
-
-                if (userWasDeleted)
-                    _notification.AddSuccessToastMessage("Usuário excluido com sucesso!");
-                else
-                    _notification.AddErrorToastMessage("Erro ao excluir o usuário!");
+                return RedirectToAction(nameof(Index));
             }
-            catch (Exception ex)
+            else
             {
-                _notification.AddErrorToastMessage(ex.Message);
+                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
+                return RedirectToAction("Index", "Login");
             }
-
-            return RedirectToAction(nameof(Index));
 
         }
 
@@ -151,26 +324,36 @@ namespace DizimoParoquial.Controllers
         public async Task<IActionResult> GetDetails(int id)
         {
 
-            ViewBag.UserName = HttpContext.Session.GetString("Username");
+            int? idUser = HttpContext.Session.GetInt32("User");
 
-            try
+            if(idUser != null && idUser != 0)
             {
-                UserDTO user = await _userService.GetUserById(id);
+                ViewBag.UserName = HttpContext.Session.GetString("Username");
 
-                if (user == null)
+                try
                 {
-                    _notification.AddErrorToastMessage("Usuário não localizado!");
-                    return RedirectToAction(nameof(Index));
+                    UserDTO user = await _userService.GetUserById(id);
+
+                    if (user == null)
+                    {
+                        _notification.AddErrorToastMessage("Usuário não localizado!");
+                        return RedirectToAction(nameof(Index));
+                    }
+
+                    return Json(user);
+                }
+                catch (Exception ex)
+                {
+                    _notification.AddErrorToastMessage(ex.Message);
                 }
 
-                return Json(user);
+                return RedirectToAction(nameof(Index));
             }
-            catch (Exception ex)
+            else
             {
-                _notification.AddErrorToastMessage(ex.Message);
+                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
+                return RedirectToAction("Index", "Login");
             }
-
-            return RedirectToAction(nameof(Index));
 
         }
     }

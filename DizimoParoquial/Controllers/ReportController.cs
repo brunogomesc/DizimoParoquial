@@ -18,15 +18,18 @@ namespace DizimoParoquial.Controllers
         private readonly IToastNotification _notification;
         private readonly TithePayerService _tithePayer;
         private readonly TitheService _titheService;
+        private readonly EventService _eventService;
 
         public ReportController(
             IToastNotification notification, 
             TithePayerService tithePayer,
-            TitheService titheService)
+            TitheService titheService,
+            EventService eventService)
         {
             _notification = notification;
             _tithePayer = tithePayer;
             _titheService = titheService;
+            _eventService = eventService;
         }
 
         #region Views
@@ -37,188 +40,416 @@ namespace DizimoParoquial.Controllers
             return View();
         }
 
-        public IActionResult ReportTithePayer()
+        public async Task<IActionResult> ReportTithePayer()
         {
-            ViewBag.UserName = HttpContext.Session.GetString("Username");
 
-            ViewBag.StartPaymentDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-            ViewBag.EndPaymentDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+            string? process, details, username;
+            bool eventRegistered;
 
-            return View();
+            int? idUser = HttpContext.Session.GetInt32("User");
+
+            if(idUser != null && idUser != 0)
+            {
+
+                ViewBag.StartPaymentDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                ViewBag.EndPaymentDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+                
+                username = HttpContext.Session.GetString("Username");
+
+                ViewBag.UserName = username;
+
+                process = "ACESSO RELATÓRIO ENTRADAS";
+
+                details = $"{username} acessou tela de relatório de entradas!";
+
+                eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                return View();
+            }
+            else
+            {
+                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
+                return RedirectToAction("Index", "Login");
+            }
         }
 
-        public IActionResult ReportTithePayerPerTithe()
+        public async Task<IActionResult> ReportTithePayerPerTithe()
         {
-            ViewBag.UserName = HttpContext.Session.GetString("Username");
-            return View();
+            string? process, details, username;
+            bool eventRegistered;
+
+            int? idUser = HttpContext.Session.GetInt32("User");
+
+            if (idUser != null && idUser != 0)
+            {
+
+                username = HttpContext.Session.GetString("Username");
+
+                ViewBag.UserName = username;
+
+                process = "ACESSO RELATÓRIO DIZIMO POR DIZIMISTAS";
+
+                details = $"{username} acessou tela de relatório de dizimo por dizimistas!";
+
+                eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                return View();
+            }
+            else
+            {
+                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
+                return RedirectToAction("Index", "Login");
+            }
         }
 
-        public IActionResult ReportBirthdays()
+        public async Task<IActionResult> ReportBirthdays()
         {
-            ViewBag.UserName = HttpContext.Session.GetString("Username");
+            
+            string? process, details, username;
+            bool eventRegistered;
 
-            ViewBag.StartBirthdayDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-            ViewBag.EndBirthdayDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+            int? idUser = HttpContext.Session.GetInt32("User");
 
-            return View();
+            if (idUser != null && idUser != 0)
+            {
+
+                ViewBag.StartBirthdayDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                ViewBag.EndBirthdayDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+
+                username = HttpContext.Session.GetString("Username");
+
+                ViewBag.UserName = username;
+
+                process = "ACESSO RELATÓRIO ANIVERSARIANTES";
+
+                details = $"{username} acessou tela de relatório de aniversariantes!";
+
+                eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                return View();
+            }
+            else
+            {
+                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
+                return RedirectToAction("Index", "Login");
+            }
         }
 
-        public IActionResult ReportTithes()
+        public async Task<IActionResult> ReportTithes()
         {
-            ViewBag.UserName = HttpContext.Session.GetString("Username");
+            string? process, details, username;
+            bool eventRegistered;
 
-            ViewBag.StartTitheDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-            ViewBag.EndTitheDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+            int? idUser = HttpContext.Session.GetInt32("User");
 
-            return View();
+            if (idUser != null && idUser != 0)
+            {
+
+                ViewBag.StartTitheDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                ViewBag.EndTitheDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+
+                username = HttpContext.Session.GetString("Username");
+
+                ViewBag.UserName = username;
+
+                process = "ACESSO RELATÓRIO DIZIMOS";
+
+                details = $"{username} acessou tela de relatório de dizimos!";
+
+                eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                return View();
+            }
+            else
+            {
+                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
+                return RedirectToAction("Index", "Login");
+            }
         }
 
         #endregion
 
         public async Task<IActionResult> SearchReportTithePayer(string paymentType, string name, DateTime startPaymentDate, DateTime endPaymentDate, bool generateExcel)
         {
-            ViewBag.UserName = HttpContext.Session.GetString("Username");
 
-            if(startPaymentDate == DateTime.MinValue)
+            string? process, details, username;
+            bool eventRegistered;
+
+            int? idUser = HttpContext.Session.GetInt32("User");
+
+            if(idUser != null && idUser != 0)
             {
-                startPaymentDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+
+                if (startPaymentDate == DateTime.MinValue)
+                {
+                    startPaymentDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                }
+
+                if (endPaymentDate == DateTime.MinValue)
+                {
+                    endPaymentDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+                }
+
+                if (startPaymentDate > endPaymentDate)
+                {
+                    _notification.AddErrorToastMessage("Data de inicio não pode ser maior que a data de término.");
+                    return RedirectToAction(nameof(ReportTithePayer));
+                }
+
+                var reportTithePayers = await _tithePayer.GetReportTithePayers(paymentType, name, startPaymentDate, endPaymentDate);
+
+                ViewBag.PaymentType = paymentType;
+                ViewBag.Name = name;
+                ViewBag.StartPaymentDate = startPaymentDate;
+                ViewBag.EndPaymentDate = endPaymentDate;
+
+                username = HttpContext.Session.GetString("Username");
+
+                ViewBag.UserName = username;
+
+                process = "CONSULTA RELATÓRIO ENTRADAS";
+
+                details = $"{username} consultou o relatório de entradas!";
+
+                eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                if (generateExcel)
+                {
+
+                    process = "EXPORTAÇÃO RELATÓRIO ENTRADAS";
+
+                    details = $"{username} exportou o relatório de entradas!";
+
+                    eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                    return GenerateExcelTithePayers(reportTithePayers);
+                }
+
+                return View(ROUTE_SCREEN_REPORTS, reportTithePayers);
+            }
+            else
+            {
+                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
+                return RedirectToAction("Index", "Login");
             }
 
-            if(endPaymentDate == DateTime.MinValue)
-            {
-                endPaymentDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
-            }
-
-            if(startPaymentDate > endPaymentDate)
-            {
-                _notification.AddErrorToastMessage("Data de inicio não pode ser maior que a data de término.");
-                return RedirectToAction(nameof(ReportTithePayer));
-            }
-
-            var reportTithePayers = await _tithePayer.GetReportTithePayers(paymentType, name, startPaymentDate, endPaymentDate);
-
-            ViewBag.PaymentType = paymentType;
-            ViewBag.Name = name;
-            ViewBag.StartPaymentDate = startPaymentDate;
-            ViewBag.EndPaymentDate = endPaymentDate;
-
-            if (generateExcel)
-                return GenerateExcelTithePayers(reportTithePayers);
-
-            return View(ROUTE_SCREEN_REPORTS, reportTithePayers);
         }
 
         public async Task<IActionResult> SearchTithes(int tithePayerCode, string document, bool generateExcel)
         {
-            ViewBag.UserName = HttpContext.Session.GetString("Username");
 
-            try
+            string? process, details, username;
+            bool eventRegistered;
+
+            int? idUser = HttpContext.Session.GetInt32("User");
+
+            username = HttpContext.Session.GetString("Username");
+
+            if (idUser != null && idUser != 0)
             {
 
-                if (tithePayerCode == 0 && string.IsNullOrWhiteSpace(document))
+                try
                 {
-                    _notification.AddErrorToastMessage("Informe o documento ou código do dizimista.");
-                    return RedirectToAction(nameof(ReportTithePayerPerTithe));
+
+                    if (tithePayerCode == 0 && string.IsNullOrWhiteSpace(document))
+                    {
+                        _notification.AddErrorToastMessage("Informe o documento ou código do dizimista.");
+                        return RedirectToAction(nameof(ReportTithePayerPerTithe));
+                    }
+
+                    if (document != null)
+                        document = document.Replace(".", "").Replace("-", "");
+
+                    List<TithePayerLaunchDTO> tithePayers = await _titheService.GetTithesWithFilters(null, tithePayerCode, document);
+
+                    if (tithePayers == null || tithePayers.Count == 0)
+                    {
+                        _notification.AddErrorToastMessage("Dizimista não encontrado.");
+                        return RedirectToAction(nameof(ReportTithePayerPerTithe));
+                    }
+
+                    List<TitheDTO> tithes = await _titheService.GetTithesByTithePayerId(tithePayers.First().TithePayerId);
+
+                    var tithesOrganized = tithes.OrderByDescending(t => t.PaymentMonth).ToList();
+
+                    ViewBag.UserName = username;
+
+                    process = "CONSULTA RELATÓRIO DIZIMOS";
+
+                    details = $"{username} consultou o relatório de dizimos!";
+
+                    eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                    if (generateExcel)
+                    {
+
+                        process = "EXPORTAÇÃO RELATÓRIO DIZIMOS";
+
+                        details = $"{username} exportou o relatório de dizimos!";
+
+                        eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                        return GenerateExcelTithes(tithesOrganized);
+                    }
+
+                    return View(ROUTE_SCREEN_TITHE_PER_TITHEPAYER, tithesOrganized);
+
+                }
+                catch (Exception ex)
+                {
+                    _notification.AddErrorToastMessage(ex.Message);
+
+                    process = "CONSULTA RELATÓRIO DE DIZIMOS";
+
+                    details = $"{username} falhou na consulta do relatório de dizimo. Erro: {ex.Message}";
+
+                    eventRegistered = await _eventService.SaveEvent(process, details);
+
                 }
 
-                if (document != null)
-                    document = document.Replace(".", "").Replace("-", "");
-
-                List<TithePayerLaunchDTO> tithePayers = await _titheService.GetTithesWithFilters(null, tithePayerCode, document);
-
-                if (tithePayers == null || tithePayers.Count == 0)
-                {
-                    _notification.AddErrorToastMessage("Dizimista não encontrado.");
-                    return RedirectToAction(nameof(ReportTithePayerPerTithe));
-                }
-
-                List<TitheDTO> tithes = await _titheService.GetTithesByTithePayerId(tithePayers.First().TithePayerId);
-
-                var tithesOrganized = tithes.OrderByDescending(t => t.PaymentMonth).ToList();
-
-                if (generateExcel)
-                    return GenerateExcelTithes(tithesOrganized);
-
-                return View(ROUTE_SCREEN_TITHE_PER_TITHEPAYER, tithesOrganized);
-
+                return RedirectToAction(nameof(ReportTithePayerPerTithe));
             }
-            catch (Exception ex)
+            else
             {
-                _notification.AddErrorToastMessage(ex.Message);
+                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
+                return RedirectToAction("Index", "Login");
             }
-
-            return RedirectToAction(nameof(ReportTithePayerPerTithe));
 
         }
 
         public async Task<IActionResult> SearchReportBirthdays(string name, DateTime startBirthdayDate, DateTime endBirthdayDate, bool generateExcel)
         {
-            ViewBag.UserName = HttpContext.Session.GetString("Username");
 
-            if (startBirthdayDate == DateTime.MinValue)
+            string? process, details, username;
+            bool eventRegistered;
+
+            int? idUser = HttpContext.Session.GetInt32("User");
+
+            username = HttpContext.Session.GetString("Username");
+
+            if (idUser != null && idUser != 0)
             {
-                startBirthdayDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+
+                if (startBirthdayDate == DateTime.MinValue)
+                {
+                    startBirthdayDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                }
+
+                if (endBirthdayDate == DateTime.MinValue)
+                {
+                    endBirthdayDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+                }
+
+                if (startBirthdayDate > endBirthdayDate)
+                {
+                    _notification.AddErrorToastMessage("Data de inicio não pode ser maior que a data de término.");
+                    return RedirectToAction(nameof(ReportBirthdays));
+                }
+
+                var birthdays = await _tithePayer.GetReportTithePayersBirthdays(name, startBirthdayDate, endBirthdayDate);
+
+                ViewBag.Name = name;
+                ViewBag.StartBirthdayDate = startBirthdayDate;
+                ViewBag.EndBirthdayDate = endBirthdayDate;
+
+                List<ReportBirthday>? reportBirthdays = new List<ReportBirthday>();
+
+                if (birthdays != null)
+                    reportBirthdays = birthdays.OrderBy(b => b.DateBirth).ToList();
+
+                ViewBag.UserName = username;
+
+                process = "CONSULTA RELATÓRIO ANIVERSARIANTES";
+
+                details = $"{username} consultou o relatório de aniversariantes!";
+
+                eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                if (generateExcel)
+                {
+
+                    process = "EXPORTAÇÃO RELATÓRIO ANIVERSARIANTES";
+
+                    details = $"{username} exportou o relatório de aniversariantes!";
+
+                    eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                    return GenerateExcelBirthdays(reportBirthdays);
+                }
+
+                return View(ROUTE_SCREEN_BIRTHDAYS, reportBirthdays);
+            }
+            else
+            {
+                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
+                return RedirectToAction("Index", "Login");
             }
 
-            if (endBirthdayDate == DateTime.MinValue)
-            {
-                endBirthdayDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
-            }
-
-            if (startBirthdayDate > endBirthdayDate)
-            {
-                _notification.AddErrorToastMessage("Data de inicio não pode ser maior que a data de término.");
-                return RedirectToAction(nameof(ReportBirthdays));
-            }
-
-            var birthdays = await _tithePayer.GetReportTithePayersBirthdays(name, startBirthdayDate, endBirthdayDate);
-
-            ViewBag.Name = name;
-            ViewBag.StartBirthdayDate = startBirthdayDate;
-            ViewBag.EndBirthdayDate = endBirthdayDate;
-
-            List<ReportBirthday>? reportBirthdays = new List<ReportBirthday>();
-
-            if (birthdays != null)
-                reportBirthdays = birthdays.OrderBy(b => b.DateBirth).ToList();
-
-            if (generateExcel)
-                return GenerateExcelBirthdays(reportBirthdays);
-
-            return View(ROUTE_SCREEN_BIRTHDAYS, reportBirthdays);
         }
 
         public async Task<IActionResult> SearchReportTithesMonth(string paymentType, string name, DateTime startPaymentDate, DateTime endPaymentDate, bool generateExcel)
         {
-            ViewBag.UserName = HttpContext.Session.GetString("Username");
 
-            if (startPaymentDate == DateTime.MinValue)
+            string? process, details, username;
+            bool eventRegistered;
+
+            int? idUser = HttpContext.Session.GetInt32("User");
+
+            username = HttpContext.Session.GetString("Username");
+
+            if (idUser != null && idUser != 0)
             {
-                startPaymentDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-            }
 
-            if (endPaymentDate == DateTime.MinValue)
+                if (startPaymentDate == DateTime.MinValue)
+                {
+                    startPaymentDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                }
+
+                if (endPaymentDate == DateTime.MinValue)
+                {
+                    endPaymentDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+                }
+
+                if (startPaymentDate > endPaymentDate)
+                {
+                    _notification.AddErrorToastMessage("Data de inicio não pode ser maior que a data de término.");
+                    return RedirectToAction(nameof(ReportTithes));
+                }
+
+                var reportTithes = await _titheService.GetReportTithesMonth(paymentType, name, startPaymentDate, endPaymentDate);
+
+                ViewBag.PaymentType = paymentType;
+                ViewBag.Name = name;
+                ViewBag.StartTitheDate = startPaymentDate;
+                ViewBag.EndTitheDate = endPaymentDate;
+
+                ViewBag.UserName = username;
+
+                process = "CONSULTA RELATÓRIO DIZIMOS";
+
+                details = $"{username} consultou o relatório de dizimos!";
+
+                eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                if (generateExcel)
+                {
+
+                    process = "EXPORTAÇÃO RELATÓRIO DIZIMOS";
+
+                    details = $"{username} exportou o relatório de dizimos!";
+
+                    eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                    return GenerateExcelTithes(reportTithes);
+                }
+
+                return View(ROUTE_SCREEN_TITHES, reportTithes);
+            }
+            else
             {
-                endPaymentDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
+                return RedirectToAction("Index", "Login");
             }
-
-            if (startPaymentDate > endPaymentDate)
-            {
-                _notification.AddErrorToastMessage("Data de inicio não pode ser maior que a data de término.");
-                return RedirectToAction(nameof(ReportTithes));
-            }
-
-            var reportTithes = await _titheService.GetReportTithesMonth(paymentType, name, startPaymentDate, endPaymentDate);
-
-            ViewBag.PaymentType = paymentType;
-            ViewBag.Name = name;
-            ViewBag.StartTitheDate = startPaymentDate;
-            ViewBag.EndTitheDate = endPaymentDate;
-
-            if (generateExcel)
-                return GenerateExcelTithes(reportTithes);
-
-            return View(ROUTE_SCREEN_TITHES, reportTithes);
 
         }
 
