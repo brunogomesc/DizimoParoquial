@@ -61,11 +61,12 @@ namespace DizimoParoquial.Controllers
 
         }
 
-        public async Task<IActionResult> SearchAgents(string status, string name)
+        public async Task<IActionResult> SearchAgents(string status, string name, string pageAmount, string page, string buttonPage)
         {
 
             string? process, details, username;
             bool eventRegistered;
+            List<AgentDTO> agentsPaginated = new();
 
             int? idUser = HttpContext.Session.GetInt32("User");
 
@@ -88,6 +89,57 @@ namespace DizimoParoquial.Controllers
                     else
                         agents = await _agentService.GetAgentsWithFilters(statusConverted, name);
 
+                    #region Paginação
+
+                    int actualPage = 0;
+
+                    if (buttonPage != null)
+                    {
+                        actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                    }
+
+                    int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                    int count = 0;
+                    string action = page is null ? "" : page.Substring(3, page.Length - 3);
+                    int totalPages = agents.Count % pageSize == 0 ? agents.Count / pageSize : (agents.Count / pageSize) + 1;
+                    ViewBag.TotalPages = totalPages;
+                    ViewBag.ActualPage = 0;
+
+                    if (action.Contains("back") || action.Contains("next"))
+                    {
+                        actualPage = action.Contains("back") ? ViewBag.ActualPage - 1 : ViewBag.ActualPage + 1;
+                    }
+                    else if (buttonPage != null)
+                    {
+                        actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                    }
+
+                    actualPage = actualPage < 0 ? 0 : actualPage;
+
+                    ViewBag.ActualPage = actualPage;
+
+                    if (agents.Count > pageSize)
+                    {
+                        for (int i = (actualPage * pageSize); i < agents.Count; i++)
+                        {
+                            agentsPaginated.Add(agents[i]);
+                            count++;
+
+                            if (count == pageSize)
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        agentsPaginated = agents;
+                    }
+
+                    TempData["TotalCredenciais"] = agents.Count;
+                    TempData["PrimeiroRegistro"] = (actualPage * pageSize) + 1;
+                    TempData["UltimoRegistro"] = agents.Count <= pageSize ? agents.Count : (actualPage * pageSize) + count;
+
+                    #endregion
+
                     process = "PESQUISA DE AGENTES";
 
                     details = $"{username} pesquisou os agentes!";
@@ -107,7 +159,7 @@ namespace DizimoParoquial.Controllers
 
                 }
 
-                return View(ROUTE_SCREEN_AGENTS, agents);
+                return View(ROUTE_SCREEN_AGENTS, agentsPaginated);
             }
             else
             {

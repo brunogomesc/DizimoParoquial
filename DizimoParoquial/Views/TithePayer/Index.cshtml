@@ -219,89 +219,91 @@
                         </table>
 
                         <br />
-                        <div style="display:flex;justify-content: space-between;">
-                            <h5>Mostrando registro de @TempData["PrimeiroRegistro"] até @TempData["UltimoRegistro"], do total de @TempData["TotalCredenciais"]</h5>
-                            <div style="display: flex;">
-                                @if (Convert.ToInt32(ViewBag.TotalPages) > 15)
-                                {
-                                    <button type="submit" name="buttonPage" value="1_@ViewBag.OrdenacaoAtual" style="width:60px;height:30px;border: 1px solid black;color: white;background-color: #3968c6;font-weight: 600; padding:0">Primeira</button>
-                                    int basePage = Convert.ToInt32(ViewBag.ActualPageView) - 6 < 0 ? 0 : Convert.ToInt32(ViewBag.ActualPageView) - 6;
-                                    @for (int i = basePage; i <= basePage + 6; i++)
+
+                        <div class="container">
+                            <div class="d-flex justify-content-between flex-wrap align-items-center mb-2">
+                                <h5 class="m-0">Mostrando registro de @TempData["PrimeiroRegistro"] até @TempData["UltimoRegistro"], do total de @TempData["TotalCredenciais"]</h5>
+                                <div class="d-flex flex-wrap gap-2 align-items-center">
+                                    @if (Convert.ToInt32(ViewBag.TotalPages) > 15)
                                     {
-                                        @if (i < ViewBag.TotalPages - 5)
+                                        <button type="submit" name="buttonPage" value="1_@ViewBag.OrdenacaoAtual" class="btn btn-sm btn-primary fw-semibold">Primeira</button>
+                                        int basePage = Convert.ToInt32(ViewBag.ActualPageView) - 6 < 0 ? 0 : Convert.ToInt32(ViewBag.ActualPageView) - 6;
+                                        @for (int i = basePage; i <= basePage + 6; i++)
+                                        {
+                                            @if (i < ViewBag.TotalPages - 5)
+                                            {
+                                                @if (@ViewBag.ActualPageView - 1 == i)
+                                                {
+                                                    <button type="submit" name="buttonPage" value="@(i + 1)_@ViewBag.OrdenacaoAtual" class="btn btn-sm btn-outline-secondary fw-semibold">@(i + 1)</button>
+                                                }
+                                                else
+                                                {
+                                                    <button type="submit" name="buttonPage" value="@(i + 1)_@ViewBag.OrdenacaoAtual" class="btn btn-sm btn-primary fw-semibold">@(@i + 1)</button>
+                                                }
+
+                                            }
+                                        }
+                                        <span class="border border-secondary rounded d-flex align-items-center justify-content-center text-secondary fw-bold" style="width: 30px; height: 30px; font-size: 0.8em;">
+                                            ...
+                                        </span>
+                                        @for (int i = Convert.ToInt32(ViewBag.TotalPages) - 5; i < Convert.ToInt32(ViewBag.TotalPages); i++)
                                         {
                                             @if (@ViewBag.ActualPageView - 1 == i)
                                             {
-                                                <button type="submit" name="buttonPage" value="@(i + 1)_@ViewBag.OrdenacaoAtual" style="width:30px;height:30px;border: 1px solid black;color: black;background-color: white;font-weight: 600; padding:0">@(i + 1)</button>
+                                                <button type="submit" name="buttonPage" value="@(i + 1)_@ViewBag.OrdenacaoAtual" class="btn btn-sm btn-outline-secondary fw-semibold">@(i + 1)</button>
                                             }
                                             else
                                             {
-                                                <button type="submit" name="buttonPage" value="@(i + 1)_@ViewBag.OrdenacaoAtual" style="width:30px;height:30px;border: 1px solid black;color: white;background-color: #3968c6;font-weight: 600; padding:0">@(@i + 1)</button>
+                                                <button type="submit" name="buttonPage" value="@(i + 1)_@ViewBag.OrdenacaoAtual" class="btn btn-sm btn-primary fw-semibold">@(@i + 1)</button>
                                             }
-
                                         }
+                                        <button type="submit" name="buttonPage" value="@ViewBag.TotalPages _@ViewBag.OrdenacaoAtual" class="btn btn-sm btn-primary fw-semibold">Última</button>
                                     }
-                                    <div style="border: 1px solid black; width: 30px; height: 30px; color: black; font-weight: 800;">
-                                        ...
-                                    </div>
-                                    @for (int i = Convert.ToInt32(ViewBag.TotalPages) - 5; i < Convert.ToInt32(ViewBag.TotalPages); i++)
+                                    else
                                     {
-                                        @if (@ViewBag.ActualPageView - 1 == i)
+                                        @for (int i = 0; i < Convert.ToInt32(ViewBag.TotalPages); i++)
                                         {
-                                            <button type="submit" name="buttonPage" value="@(i + 1)_@ViewBag.OrdenacaoAtual" style="width:30px;height:30px;border: 1px solid black;color: black;background-color: white;font-weight: 600; padding:0">@(i + 1)</button>
-                                        }
-                                        else
-                                        {
-                                            <button type="submit" name="buttonPage" value="@(i + 1)_@ViewBag.OrdenacaoAtual" style="width:30px;height:30px;border: 1px solid black;color: white;background-color: #3968c6;font-weight: 600; padding:0">@(@i + 1)</button>
-                                        }
-                                    }
-                                    <button type="submit" name="buttonPage" value="@ViewBag.TotalPages _@ViewBag.OrdenacaoAtual" style="width:60px;height:30px;border: 1px solid black;color: white;background-color: #3968c6;font-weight: 600; padding:0">Última</button>
-                                }
-                                else
-                                {
-                                    @for (int i = 0; i < Convert.ToInt32(ViewBag.TotalPages); i++)
-                                    {
 
-                                        @if (@ViewBag.ActualPageView == i + 1)
-                                        {
-                                            <button type="submit" name="buttonPage" value="@(i + 1)_@ViewBag.OrdenacaoAtual" style="width:30px;height:30px;border: 1px solid black;color: black;background-color: white;font-weight: 600; padding:0">@(i + 1)</button>
-                                        }
-                                        else
-                                        {
-                                            <button type="submit" name="buttonPage" value="@(i + 1)_@ViewBag.OrdenacaoAtual" style="width:30px;height:30px;border: 1px solid black;color: white;background-color: #3968c6;font-weight: 600; padding:0">@(@i + 1)</button>
+                                            @if (@ViewBag.ActualPageView == i + 1)
+                                            {
+                                                <button type="submit" name="buttonPage" value="@(i + 1)_@ViewBag.OrdenacaoAtual" class="btn btn-sm btn-outline-secondary fw-semibold">@(i + 1)</button>
+                                            }
+                                            else
+                                            {
+                                                <button type="submit" name="buttonPage" value="@(i + 1)_@ViewBag.OrdenacaoAtual" class="btn btn-sm btn-primary fw-semibold">@(@i + 1)</button>
+                                            }
                                         }
                                     }
-                                }
+                                </div>
+                            </div>
+                            <div class="d-flex flex-column align-items-center gap-2">
+                                <div>
+                                    <br />
+                                    <h3 class="h6 m-0">Página @ViewBag.ActualPageView de @ViewBag.TotalPages</h3>
+                                    <br />
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    @if (ViewBag.ActualPageView == 1)
+                                    {
+                                        <button disabled class="btn btn-primary fw-semibold btn-sm" id="BtnPrevious" name="page" value="@ViewBag.ActualPage _back_@ViewBag.OrdenacaoAtual" type="submit"><u>Anterior</u></button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-primary fw-semibold btn-sm" id="BtnPrevious" name="page" value="@ViewBag.ActualPage _back_@ViewBag.OrdenacaoAtual" type="submit"><u>Anterior</u></button>
+                                    }
+
+                                    @if (ViewBag.ActualPageView == ViewBag.TotalPages)
+                                    {
+                                        <button disabled class="btn btn-primary fw-semibold btn-sm" id="BtnNext" name="page" value="@ViewBag.ActualPage _next_@ViewBag.OrdenacaoAtual" type="submit"><u>Próxima</u></button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-primary fw-semibold btn-sm" id="BtnNext" name="page" value="@ViewBag.ActualPage _next_@ViewBag.OrdenacaoAtual" type="submit"><u>Próxima</u></button>
+                                    }
+                                </div>
                             </div>
                         </div>
-                        <div>
-                            <div>
-                                <br />
-                                <h3>Página @ViewBag.ActualPageView de @ViewBag.TotalPages</h3>
-                                <br />
-                            </div>
-
-                            <div>
-                                @if (ViewBag.ActualPageView == 1)
-                                {
-                                    <button disabled class="btn btn-primary" id="BtnPrevious" name="page" value="@ViewBag.ActualPage _back_@ViewBag.OrdenacaoAtual" type="submit" style="font-weight:600"><u>Anterior</u></button>
-                                }
-                                else
-                                {
-                                    <button class="btn btn-primary" id="BtnPrevious" name="page" value="@ViewBag.ActualPage _back_@ViewBag.OrdenacaoAtual" type="submit" style="font-weight:600"><u>Anterior</u></button>
-                                }
-
-                                @if (ViewBag.ActualPageView == ViewBag.TotalPages)
-                                {
-                                    <button disabled class="btn btn-primary" id="BtnNext" name="page" value="@ViewBag.ActualPage _next_@ViewBag.OrdenacaoAtual" type="submit" style="font-weight:600"><u>Próxima</u></button>
-                                }
-                                else
-                                {
-                                    <button class="btn btn-primary" id="BtnNext" name="page" value="@ViewBag.ActualPage _next_@ViewBag.OrdenacaoAtual" type="submit" style="font-weight:600"><u>Próxima</u></button>
-                                }
-                            </div>
-                        </div>
-
                     </div>
                 </div>
             </div>

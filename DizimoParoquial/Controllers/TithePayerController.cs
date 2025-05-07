@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using NToastNotify;
 using System;
 using System.Diagnostics;
+using static Microsoft.IO.RecyclableMemoryStreamManager;
 
 namespace DizimoParoquial.Controllers
 {
@@ -80,7 +81,7 @@ namespace DizimoParoquial.Controllers
 
                 TempData["TotalCredenciais"] = tithePayers.Count;
                 TempData["PrimeiroRegistro"] = (actualPage * pageSize) + 1;
-                TempData["UltimoRegistro"] = (actualPage * pageSize) + count;
+                TempData["UltimoRegistro"] = TempData["UltimoRegistro"] = tithePayers.Count < pageSize ? tithePayers.Count : (actualPage * pageSize) + count;
 
                 #endregion
 
@@ -181,7 +182,7 @@ namespace DizimoParoquial.Controllers
 
                     TempData["TotalCredenciais"] = tithePayers.Count;
                     TempData["PrimeiroRegistro"] = (actualPage * pageSize) + 1;
-                    TempData["UltimoRegistro"] = (actualPage * pageSize) + count;
+                    TempData["UltimoRegistro"] = tithePayers.Count <= pageSize ? tithePayers.Count : (actualPage * pageSize) + count;
 
                     #endregion
 

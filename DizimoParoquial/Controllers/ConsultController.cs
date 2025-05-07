@@ -2,6 +2,7 @@
 using DizimoParoquial.Models;
 using DizimoParoquial.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using NToastNotify;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -91,12 +92,12 @@ namespace DizimoParoquial.Controllers
 
         #region Public Methods - All Users
 
-        public async Task<IActionResult> SearchTithesAllUsers(string name, int tithePayerCode, string document)
+        public async Task<IActionResult> SearchTithesAllUsers(string name, int tithePayerCode, string document, string pageAmount, string page, string buttonPage)
         {
 
             string? process, details;
             bool eventRegistered;
-
+            
             string? agentCode = HttpContext.Session.GetString("AgentCode");
             string? agentName = HttpContext.Session.GetString("AgentName");
             int? agentId = HttpContext.Session.GetInt32("Agent");
@@ -123,13 +124,65 @@ namespace DizimoParoquial.Controllers
                         return RedirectToAction(nameof(ConsultAllUsers));
                     }
 
+                    #region Paginação
+
+                    int actualPage = 0;
+                    List<TithePayerLaunchDTO> tithePayersPaginated = new();
+
+                    if (buttonPage != null)
+                    {
+                        actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                    }
+
+                    int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                    int count = 0;
+                    string action = page is null ? "" : page.Substring(3, page.Length - 3);
+                    int totalPages = tithePayers.Count % pageSize == 0 ? tithePayers.Count / pageSize : (tithePayers.Count / pageSize) + 1;
+                    ViewBag.TotalPages = totalPages;
+                    ViewBag.ActualPage = 0;
+
+                    if (action.Contains("back") || action.Contains("next"))
+                    {
+                        actualPage = action.Contains("back") ? ViewBag.ActualPage - 1 : ViewBag.ActualPage + 1;
+                    }
+                    else if (buttonPage != null)
+                    {
+                        actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                    }
+
+                    actualPage = actualPage < 0 ? 0 : actualPage;
+
+                    ViewBag.ActualPage = actualPage;
+
+                    if (tithePayers.Count > pageSize)
+                    {
+                        for (int i = (actualPage * pageSize); i < tithePayers.Count; i++)
+                        {
+                            tithePayersPaginated.Add(tithePayers[i]);
+                            count++;
+
+                            if (count == pageSize)
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        tithePayersPaginated = tithePayers;
+                    }
+
+                    TempData["TotalCredenciais"] = tithePayers.Count;
+                    TempData["PrimeiroRegistro"] = (actualPage * pageSize) + 1;
+                    TempData["UltimoRegistro"] = tithePayers.Count <= pageSize ? tithePayers.Count : (actualPage * pageSize) + count;
+
+                    #endregion
+
                     process = "CONSULTA DE DIZIMISTAS";
 
                     details = $"{agentName} acessou tela de consulta de dizimos!";
 
                     eventRegistered = await _eventService.SaveEvent(process, details, agentId: agentId);
 
-                    return View(ROUTE_SCREEN_CONSULT_ALL_USERS, tithePayers);
+                    return View(ROUTE_SCREEN_CONSULT_ALL_USERS, tithePayersPaginated);
 
                 }
                 catch (Exception ex)
@@ -202,7 +255,7 @@ namespace DizimoParoquial.Controllers
 
         #region Methods - User Authenticated
 
-        public async Task<IActionResult> SearchTithes(string name, int tithePayerCode, string document)
+        public async Task<IActionResult> SearchTithes(string name, int tithePayerCode, string document, string pageAmount, string page, string buttonPage)
         {
             string? process, details, username;
             bool eventRegistered;
@@ -234,13 +287,65 @@ namespace DizimoParoquial.Controllers
                         return RedirectToAction(nameof(Index));
                     }
 
+                    #region Paginação
+
+                    int actualPage = 0;
+                    List<TithePayerLaunchDTO> tithePayersPaginated = new();
+
+                    if (buttonPage != null)
+                    {
+                        actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                    }
+
+                    int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                    int count = 0;
+                    string action = page is null ? "" : page.Substring(3, page.Length - 3);
+                    int totalPages = tithePayers.Count % pageSize == 0 ? tithePayers.Count / pageSize : (tithePayers.Count / pageSize) + 1;
+                    ViewBag.TotalPages = totalPages;
+                    ViewBag.ActualPage = 0;
+
+                    if (action.Contains("back") || action.Contains("next"))
+                    {
+                        actualPage = action.Contains("back") ? ViewBag.ActualPage - 1 : ViewBag.ActualPage + 1;
+                    }
+                    else if (buttonPage != null)
+                    {
+                        actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                    }
+
+                    actualPage = actualPage < 0 ? 0 : actualPage;
+
+                    ViewBag.ActualPage = actualPage;
+
+                    if (tithePayers.Count > pageSize)
+                    {
+                        for (int i = (actualPage * pageSize); i < tithePayers.Count; i++)
+                        {
+                            tithePayersPaginated.Add(tithePayers[i]);
+                            count++;
+
+                            if (count == pageSize)
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        tithePayersPaginated = tithePayers;
+                    }
+
+                    TempData["TotalCredenciais"] = tithePayers.Count;
+                    TempData["PrimeiroRegistro"] = (actualPage * pageSize) + 1;
+                    TempData["UltimoRegistro"] = tithePayers.Count <= pageSize ? tithePayers.Count : (actualPage * pageSize) + count;
+
+                    #endregion
+
                     process = "CONSULTA DE DIZIMISTAS";
 
                     details = $"{username} realizou a consulta de dizimistas!";
 
                     eventRegistered = await _eventService.SaveEvent(process, details, userId: userId);
 
-                    return View(ROUTE_SCREEN_CONSULT, tithePayers);
+                    return View(ROUTE_SCREEN_CONSULT, tithePayersPaginated);
 
                 }
                 catch (Exception ex)
