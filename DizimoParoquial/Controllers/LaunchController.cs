@@ -4,6 +4,7 @@ using DizimoParoquial.Services;
 using DizimoParoquial.Utils.Filters;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using NToastNotify;
 using System.Diagnostics;
 using System.Globalization;
@@ -159,7 +160,7 @@ namespace DizimoParoquial.Controllers
 
         }
 
-        public async Task<IActionResult> SearchTithePayerLaunchAllUsers(string name, int tithePayerCode)
+        public async Task<IActionResult> SearchTithePayerLaunchAllUsers(string name, int tithePayerCode, string pageAmount, string page, string buttonPage)
         {
 
             int? agentId = HttpContext.Session.GetInt32("Agent");
@@ -175,15 +176,67 @@ namespace DizimoParoquial.Controllers
                         return RedirectToAction(nameof(LaunchAllUsers));
                     }
 
-                    List<TithePayerLaunchDTO> tithePayer = await _tithePayerService.GetTithePayersLauchingWithFilters(name, tithePayerCode);
+                    List<TithePayerLaunchDTO> tithePayers = await _tithePayerService.GetTithePayersLauchingWithFilters(name, tithePayerCode);
 
-                    if (tithePayer == null)
+                    if (tithePayers == null)
                     {
                         _notification.AddErrorToastMessage("Dizimista não encontrado.");
                         return RedirectToAction(nameof(LaunchAllUsers));
                     }
 
-                    return View(ROUTE_SCREEN_LAUNCH_ALLUSERS, tithePayer);
+                    #region Paginação
+
+                    int actualPage = 0;
+                    List<TithePayerLaunchDTO> tithePayersPaginated = new();
+
+                    if (buttonPage != null)
+                    {
+                        actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                    }
+
+                    int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                    int count = 0;
+                    string action = page is null ? "" : page.Substring(3, page.Length - 3);
+                    int totalPages = tithePayers.Count % pageSize == 0 ? tithePayers.Count / pageSize : (tithePayers.Count / pageSize) + 1;
+                    ViewBag.TotalPages = totalPages;
+                    ViewBag.ActualPage = 0;
+
+                    if (action.Contains("back") || action.Contains("next"))
+                    {
+                        actualPage = action.Contains("back") ? ViewBag.ActualPage - 1 : ViewBag.ActualPage + 1;
+                    }
+                    else if (buttonPage != null)
+                    {
+                        actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                    }
+
+                    actualPage = actualPage < 0 ? 0 : actualPage;
+
+                    ViewBag.ActualPage = actualPage;
+
+                    if (tithePayers.Count > pageSize)
+                    {
+                        for (int i = (actualPage * pageSize); i < tithePayers.Count; i++)
+                        {
+                            tithePayersPaginated.Add(tithePayers[i]);
+                            count++;
+
+                            if (count == pageSize)
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        tithePayersPaginated = tithePayers;
+                    }
+
+                    TempData["TotalCredenciais"] = tithePayers.Count;
+                    TempData["PrimeiroRegistro"] = (actualPage * pageSize) + 1;
+                    TempData["UltimoRegistro"] = tithePayers.Count <= pageSize ? tithePayers.Count : (actualPage * pageSize) + count;
+
+                    #endregion
+
+                    return View(ROUTE_SCREEN_LAUNCH_ALLUSERS, tithePayersPaginated);
                 }
                 catch (Exception ex)
                 {
@@ -364,7 +417,7 @@ namespace DizimoParoquial.Controllers
 
         }
 
-        public async Task<IActionResult> SearchTithePayerLaunch(string name, int tithePayerCode)
+        public async Task<IActionResult> SearchTithePayerLaunch(string name, int tithePayerCode, string pageAmount, string page, string buttonPage)
         {
 
             int? idUser = HttpContext.Session.GetInt32("User");
@@ -382,15 +435,67 @@ namespace DizimoParoquial.Controllers
                         return RedirectToAction(nameof(Index));
                     }
 
-                    List<TithePayerLaunchDTO> tithePayer = await _tithePayerService.GetTithePayersLauchingWithFilters(name, tithePayerCode);
+                    List<TithePayerLaunchDTO> tithePayers = await _tithePayerService.GetTithePayersLauchingWithFilters(name, tithePayerCode);
 
-                    if (tithePayer == null)
+                    if (tithePayers == null)
                     {
                         _notification.AddErrorToastMessage("Dizimista não encontrado.");
                         return RedirectToAction(nameof(Index));
                     }
 
-                    return View(ROUTE_SCREEN_LAUNCH, tithePayer);
+                    #region Paginação
+
+                    int actualPage = 0;
+                    List<TithePayerLaunchDTO> tithePayersPaginated = new();
+
+                    if (buttonPage != null)
+                    {
+                        actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                    }
+
+                    int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                    int count = 0;
+                    string action = page is null ? "" : page.Substring(3, page.Length - 3);
+                    int totalPages = tithePayers.Count % pageSize == 0 ? tithePayers.Count / pageSize : (tithePayers.Count / pageSize) + 1;
+                    ViewBag.TotalPages = totalPages;
+                    ViewBag.ActualPage = 0;
+
+                    if (action.Contains("back") || action.Contains("next"))
+                    {
+                        actualPage = action.Contains("back") ? ViewBag.ActualPage - 1 : ViewBag.ActualPage + 1;
+                    }
+                    else if (buttonPage != null)
+                    {
+                        actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                    }
+
+                    actualPage = actualPage < 0 ? 0 : actualPage;
+
+                    ViewBag.ActualPage = actualPage;
+
+                    if (tithePayers.Count > pageSize)
+                    {
+                        for (int i = (actualPage * pageSize); i < tithePayers.Count; i++)
+                        {
+                            tithePayersPaginated.Add(tithePayers[i]);
+                            count++;
+
+                            if (count == pageSize)
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        tithePayersPaginated = tithePayers;
+                    }
+
+                    TempData["TotalCredenciais"] = tithePayers.Count;
+                    TempData["PrimeiroRegistro"] = (actualPage * pageSize) + 1;
+                    TempData["UltimoRegistro"] = tithePayers.Count <= pageSize ? tithePayers.Count : (actualPage * pageSize) + count;
+
+                    #endregion
+
+                    return View(ROUTE_SCREEN_LAUNCH, tithePayersPaginated);
                 }
                 catch (Exception ex)
                 {
@@ -530,7 +635,7 @@ namespace DizimoParoquial.Controllers
             
         }
 
-        public async Task<IActionResult> SearchTithesEditLaunch(int tithePayerCode, string document)
+        public async Task<IActionResult> SearchTithesEditLaunch(int tithePayerCode, string document, string pageAmount, string page, string buttonPage)
         {
 
             int? idUser = HttpContext.Session.GetInt32("User");
@@ -561,7 +666,59 @@ namespace DizimoParoquial.Controllers
 
                     List<TitheDTO> tithes = await _titheService.GetTithesByTithePayerId(tithePayers.First().TithePayerId);
 
-                    var tithesOrganized = tithes.OrderByDescending(t => t.PaymentMonth).ToList();
+                    #region Paginação
+
+                    int actualPage = 0;
+                    List<TitheDTO> tithePayersPaginated = new();
+
+                    if (buttonPage != null)
+                    {
+                        actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                    }
+
+                    int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                    int count = 0;
+                    string action = page is null ? "" : page.Substring(3, page.Length - 3);
+                    int totalPages = tithes.Count % pageSize == 0 ? tithes.Count / pageSize : (tithes.Count / pageSize) + 1;
+                    ViewBag.TotalPages = totalPages;
+                    ViewBag.ActualPage = 0;
+
+                    if (action.Contains("back") || action.Contains("next"))
+                    {
+                        actualPage = action.Contains("back") ? ViewBag.ActualPage - 1 : ViewBag.ActualPage + 1;
+                    }
+                    else if (buttonPage != null)
+                    {
+                        actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                    }
+
+                    actualPage = actualPage < 0 ? 0 : actualPage;
+
+                    ViewBag.ActualPage = actualPage;
+
+                    if (tithes.Count > pageSize)
+                    {
+                        for (int i = (actualPage * pageSize); i < tithes.Count; i++)
+                        {
+                            tithePayersPaginated.Add(tithes[i]);
+                            count++;
+
+                            if (count == pageSize)
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        tithePayersPaginated = tithes;
+                    }
+
+                    TempData["TotalCredenciais"] = tithes.Count;
+                    TempData["PrimeiroRegistro"] = (actualPage * pageSize) + 1;
+                    TempData["UltimoRegistro"] = tithes.Count <= pageSize ? tithes.Count : (actualPage * pageSize) + count;
+
+                    #endregion
+
+                    var tithesOrganized = tithePayersPaginated.OrderByDescending(t => t.PaymentMonth).ToList();
 
                     return View(ROUTE_SCREEN_EDIT_LAUNCH, tithesOrganized);
 

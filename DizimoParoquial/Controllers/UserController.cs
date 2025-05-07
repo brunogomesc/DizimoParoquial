@@ -58,7 +58,7 @@ namespace DizimoParoquial.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SearchUser(string status, string name)
+        public async Task<IActionResult> SearchUser(string status, string name, string pageAmount, string page, string buttonPage)
         {
             string? process, details, username;
             bool eventRegistered;
@@ -84,6 +84,58 @@ namespace DizimoParoquial.Controllers
                         users = await _userService.GetUsersWithFilters(statusConverted, name);
 
                     ViewBag.UserName = username;
+
+                    #region Paginação
+
+                    int actualPage = 0;
+                    List<UserDTO> usersPaginated = new();
+
+                    if (buttonPage != null)
+                    {
+                        actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                    }
+
+                    int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                    int count = 0;
+                    string action = page is null ? "" : page.Substring(3, page.Length - 3);
+                    int totalPages = users.Count % pageSize == 0 ? users.Count / pageSize : (users.Count / pageSize) + 1;
+                    ViewBag.TotalPages = totalPages;
+                    ViewBag.ActualPage = 0;
+
+                    if (action.Contains("back") || action.Contains("next"))
+                    {
+                        actualPage = action.Contains("back") ? ViewBag.ActualPage - 1 : ViewBag.ActualPage + 1;
+                    }
+                    else if (buttonPage != null)
+                    {
+                        actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                    }
+
+                    actualPage = actualPage < 0 ? 0 : actualPage;
+
+                    ViewBag.ActualPage = actualPage;
+
+                    if (users.Count > pageSize)
+                    {
+                        for (int i = (actualPage * pageSize); i < users.Count; i++)
+                        {
+                            usersPaginated.Add(users[i]);
+                            count++;
+
+                            if (count == pageSize)
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        usersPaginated = users;
+                    }
+
+                    TempData["TotalCredenciais"] = users.Count;
+                    TempData["PrimeiroRegistro"] = (actualPage * pageSize) + 1;
+                    TempData["UltimoRegistro"] = users.Count <= pageSize ? users.Count : (actualPage * pageSize) + count;
+
+                    #endregion
 
                     process = "FILTRAGEM USUÁRIOS DE ACESSO";
 

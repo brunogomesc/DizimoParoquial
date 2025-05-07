@@ -169,7 +169,7 @@ namespace DizimoParoquial.Controllers
 
         #endregion
 
-        public async Task<IActionResult> SearchReportTithePayer(string paymentType, string name, DateTime startPaymentDate, DateTime endPaymentDate, bool generateExcel)
+        public async Task<IActionResult> SearchReportTithePayer(string paymentType, string name, DateTime startPaymentDate, DateTime endPaymentDate, bool generateExcel, string pageAmount, string page, string buttonPage)
         {
 
             string? process, details, username;
@@ -207,6 +207,58 @@ namespace DizimoParoquial.Controllers
 
                 ViewBag.UserName = username;
 
+                #region Paginação
+
+                int actualPage = 0;
+                List<ReportTithePayer> tithePayersPaginated = new();
+
+                if (buttonPage != null)
+                {
+                    actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                }
+
+                int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                int count = 0;
+                string action = page is null ? "" : page.Substring(3, page.Length - 3);
+                int totalPages = reportTithePayers.Count % pageSize == 0 ? reportTithePayers.Count / pageSize : (reportTithePayers.Count / pageSize) + 1;
+                ViewBag.TotalPages = totalPages;
+                ViewBag.ActualPage = 0;
+
+                if (action.Contains("back") || action.Contains("next"))
+                {
+                    actualPage = action.Contains("back") ? ViewBag.ActualPage - 1 : ViewBag.ActualPage + 1;
+                }
+                else if (buttonPage != null)
+                {
+                    actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                }
+
+                actualPage = actualPage < 0 ? 0 : actualPage;
+
+                ViewBag.ActualPage = actualPage;
+
+                if (reportTithePayers.Count > pageSize)
+                {
+                    for (int i = (actualPage * pageSize); i < reportTithePayers.Count; i++)
+                    {
+                        tithePayersPaginated.Add(reportTithePayers[i]);
+                        count++;
+
+                        if (count == pageSize)
+                            break;
+                    }
+                }
+                else
+                {
+                    tithePayersPaginated = reportTithePayers;
+                }
+
+                TempData["TotalCredenciais"] = reportTithePayers.Count;
+                TempData["PrimeiroRegistro"] = (actualPage * pageSize) + 1;
+                TempData["UltimoRegistro"] = reportTithePayers.Count <= pageSize ? reportTithePayers.Count : (actualPage * pageSize) + count;
+
+                #endregion
+
                 process = "CONSULTA RELATÓRIO ENTRADAS";
 
                 details = $"{username} consultou o relatório de entradas!";
@@ -225,7 +277,7 @@ namespace DizimoParoquial.Controllers
                     return GenerateExcelTithePayers(reportTithePayers);
                 }
 
-                return View(ROUTE_SCREEN_REPORTS, reportTithePayers);
+                return View(ROUTE_SCREEN_REPORTS, tithePayersPaginated);
             }
             else
             {
@@ -235,7 +287,7 @@ namespace DizimoParoquial.Controllers
 
         }
 
-        public async Task<IActionResult> SearchTithes(int tithePayerCode, string document, bool generateExcel)
+        public async Task<IActionResult> SearchTithes(int tithePayerCode, string document, bool generateExcel, string pageAmount, string page, string buttonPage)
         {
 
             string? process, details, username;
@@ -270,6 +322,58 @@ namespace DizimoParoquial.Controllers
 
                     List<TitheDTO> tithes = await _titheService.GetTithesByTithePayerId(tithePayers.First().TithePayerId);
 
+                    #region Paginação
+
+                    int actualPage = 0;
+                    List<TitheDTO> tithePaginated = new();
+
+                    if (buttonPage != null)
+                    {
+                        actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                    }
+
+                    int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                    int count = 0;
+                    string action = page is null ? "" : page.Substring(3, page.Length - 3);
+                    int totalPages = tithes.Count % pageSize == 0 ? tithes.Count / pageSize : (tithes.Count / pageSize) + 1;
+                    ViewBag.TotalPages = totalPages;
+                    ViewBag.ActualPage = 0;
+
+                    if (action.Contains("back") || action.Contains("next"))
+                    {
+                        actualPage = action.Contains("back") ? ViewBag.ActualPage - 1 : ViewBag.ActualPage + 1;
+                    }
+                    else if (buttonPage != null)
+                    {
+                        actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                    }
+
+                    actualPage = actualPage < 0 ? 0 : actualPage;
+
+                    ViewBag.ActualPage = actualPage;
+
+                    if (tithes.Count > pageSize)
+                    {
+                        for (int i = (actualPage * pageSize); i < tithes.Count; i++)
+                        {
+                            tithePaginated.Add(tithes[i]);
+                            count++;
+
+                            if (count == pageSize)
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        tithePaginated = tithes;
+                    }
+
+                    TempData["TotalCredenciais"] = tithes.Count;
+                    TempData["PrimeiroRegistro"] = (actualPage * pageSize) + 1;
+                    TempData["UltimoRegistro"] = tithes.Count <= pageSize ? tithes.Count : (actualPage * pageSize) + count;
+
+                    #endregion
+
                     var tithesOrganized = tithes.OrderByDescending(t => t.PaymentMonth).ToList();
 
                     ViewBag.UserName = username;
@@ -292,7 +396,7 @@ namespace DizimoParoquial.Controllers
                         return GenerateExcelTithes(tithesOrganized);
                     }
 
-                    return View(ROUTE_SCREEN_TITHE_PER_TITHEPAYER, tithesOrganized);
+                    return View(ROUTE_SCREEN_TITHE_PER_TITHEPAYER, tithePaginated.OrderByDescending(t => t.PaymentMonth).ToList());
 
                 }
                 catch (Exception ex)
@@ -317,7 +421,7 @@ namespace DizimoParoquial.Controllers
 
         }
 
-        public async Task<IActionResult> SearchReportBirthdays(string name, DateTime startBirthdayDate, DateTime endBirthdayDate, bool generateExcel)
+        public async Task<IActionResult> SearchReportBirthdays(string name, DateTime startBirthdayDate, DateTime endBirthdayDate, bool generateExcel, string pageAmount, string page, string buttonPage)
         {
 
             string? process, details, username;
@@ -357,6 +461,58 @@ namespace DizimoParoquial.Controllers
                 if (birthdays != null)
                     reportBirthdays = birthdays.OrderBy(b => b.DateBirth).ToList();
 
+                #region Paginação
+
+                int actualPage = 0;
+                List<ReportBirthday> birthdaysPaginated = new();
+
+                if (buttonPage != null)
+                {
+                    actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                }
+
+                int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                int count = 0;
+                string action = page is null ? "" : page.Substring(3, page.Length - 3);
+                int totalPages = reportBirthdays.Count % pageSize == 0 ? reportBirthdays.Count / pageSize : (reportBirthdays.Count / pageSize) + 1;
+                ViewBag.TotalPages = totalPages;
+                ViewBag.ActualPage = 0;
+
+                if (action.Contains("back") || action.Contains("next"))
+                {
+                    actualPage = action.Contains("back") ? ViewBag.ActualPage - 1 : ViewBag.ActualPage + 1;
+                }
+                else if (buttonPage != null)
+                {
+                    actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                }
+
+                actualPage = actualPage < 0 ? 0 : actualPage;
+
+                ViewBag.ActualPage = actualPage;
+
+                if (reportBirthdays.Count > pageSize)
+                {
+                    for (int i = (actualPage * pageSize); i < reportBirthdays.Count; i++)
+                    {
+                        birthdaysPaginated.Add(reportBirthdays[i]);
+                        count++;
+
+                        if (count == pageSize)
+                            break;
+                    }
+                }
+                else
+                {
+                    birthdaysPaginated = reportBirthdays;
+                }
+
+                TempData["TotalCredenciais"] = reportBirthdays.Count;
+                TempData["PrimeiroRegistro"] = (actualPage * pageSize) + 1;
+                TempData["UltimoRegistro"] = reportBirthdays.Count <= pageSize ? reportBirthdays.Count : (actualPage * pageSize) + count;
+
+                #endregion
+
                 ViewBag.UserName = username;
 
                 process = "CONSULTA RELATÓRIO ANIVERSARIANTES";
@@ -377,7 +533,7 @@ namespace DizimoParoquial.Controllers
                     return GenerateExcelBirthdays(reportBirthdays);
                 }
 
-                return View(ROUTE_SCREEN_BIRTHDAYS, reportBirthdays);
+                return View(ROUTE_SCREEN_BIRTHDAYS, birthdaysPaginated);
             }
             else
             {
@@ -387,7 +543,7 @@ namespace DizimoParoquial.Controllers
 
         }
 
-        public async Task<IActionResult> SearchReportTithesMonth(string paymentType, string name, DateTime startPaymentDate, DateTime endPaymentDate, bool generateExcel)
+        public async Task<IActionResult> SearchReportTithesMonth(string paymentType, string name, DateTime startPaymentDate, DateTime endPaymentDate, bool generateExcel, string pageAmount, string page, string buttonPage)
         {
 
             string? process, details, username;
@@ -423,6 +579,58 @@ namespace DizimoParoquial.Controllers
                 ViewBag.StartTitheDate = startPaymentDate;
                 ViewBag.EndTitheDate = endPaymentDate;
 
+                #region Paginação
+
+                int actualPage = 0;
+                List<TitheDTO> tithesPaginated = new();
+
+                if (buttonPage != null)
+                {
+                    actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                }
+
+                int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                int count = 0;
+                string action = page is null ? "" : page.Substring(3, page.Length - 3);
+                int totalPages = reportTithes.Count % pageSize == 0 ? reportTithes.Count / pageSize : (reportTithes.Count / pageSize) + 1;
+                ViewBag.TotalPages = totalPages;
+                ViewBag.ActualPage = 0;
+
+                if (action.Contains("back") || action.Contains("next"))
+                {
+                    actualPage = action.Contains("back") ? ViewBag.ActualPage - 1 : ViewBag.ActualPage + 1;
+                }
+                else if (buttonPage != null)
+                {
+                    actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                }
+
+                actualPage = actualPage < 0 ? 0 : actualPage;
+
+                ViewBag.ActualPage = actualPage;
+
+                if (reportTithes.Count > pageSize)
+                {
+                    for (int i = (actualPage * pageSize); i < reportTithes.Count; i++)
+                    {
+                        tithesPaginated.Add(reportTithes[i]);
+                        count++;
+
+                        if (count == pageSize)
+                            break;
+                    }
+                }
+                else
+                {
+                    tithesPaginated = reportTithes;
+                }
+
+                TempData["TotalCredenciais"] = reportTithes.Count;
+                TempData["PrimeiroRegistro"] = (actualPage * pageSize) + 1;
+                TempData["UltimoRegistro"] = reportTithes.Count <= pageSize ? reportTithes.Count : (actualPage * pageSize) + count;
+
+                #endregion
+
                 ViewBag.UserName = username;
 
                 process = "CONSULTA RELATÓRIO DIZIMOS";
@@ -443,7 +651,7 @@ namespace DizimoParoquial.Controllers
                     return GenerateExcelTithes(reportTithes);
                 }
 
-                return View(ROUTE_SCREEN_TITHES, reportTithes);
+                return View(ROUTE_SCREEN_TITHES, tithesPaginated);
             }
             else
             {
