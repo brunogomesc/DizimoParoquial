@@ -3,6 +3,7 @@ using DizimoParoquial.Models;
 using DizimoParoquial.Services;
 using DizimoParoquial.Utils;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using NToastNotify;
 using System;
 using System.Diagnostics;
@@ -28,11 +29,9 @@ namespace DizimoParoquial.Controllers
             _eventService = eventService;
         }
 
-        public async Task<IActionResult> Index(int pageNumber = 1)
+        public async Task<IActionResult> Index(string pageAmount, string page, string buttonPage)
         {
-
-            string? process, details, username;
-            bool eventRegistered;
+            int actualPage = 0;
 
             int? idUser = HttpContext.Session.GetInt32("User");
 
@@ -40,6 +39,55 @@ namespace DizimoParoquial.Controllers
             {
 
                 List<TithePayer> tithePayers = await _tithePayerService.GetTithePayersWithouthFilters();
+
+                #region Paginação
+
+                int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                int count = 0;
+                string action = page is null ? "" : page.Substring(3, page.Length - 3);
+                int totalPages = tithePayers.Count % pageSize == 0 ? tithePayers.Count / pageSize : (tithePayers.Count / pageSize) + 1;
+                ViewBag.TotalPages = totalPages;
+                ViewBag.ActualPage = 0;
+
+                if (action.Contains("back") || action.Contains("next"))
+                {
+                    actualPage = action.Contains("back") ? ViewBag.ActualPage - 1 : ViewBag.ActualPage + 1;
+                    ViewBag.ActualPage = actualPage;
+                }
+                else if (buttonPage != null)
+                {
+                    actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                    ViewBag.ActualPage = actualPage;
+                }
+
+                List<TithePayer> tithePayersPaginated = new();
+
+                if (tithePayers.Count > pageSize)
+                {
+                    for (int i = (actualPage * pageSize); i < tithePayers.Count; i++)
+                    {
+                        tithePayersPaginated.Add(tithePayers[i]);
+                        count++;
+
+                        if (count == pageSize)
+                            break;
+                    }
+                }
+                else
+                {
+                    tithePayersPaginated = tithePayers;
+                }
+
+                TempData["TotalCredenciais"] = tithePayers.Count;
+                TempData["PrimeiroRegistro"] = (actualPage * pageSize) + 1;
+                TempData["UltimoRegistro"] = (actualPage * pageSize) + count;
+
+                #endregion
+
+                #region Event
+
+                string? process, details, username;
+                bool eventRegistered;
 
                 username = HttpContext.Session.GetString("Username");
 
@@ -51,7 +99,9 @@ namespace DizimoParoquial.Controllers
 
                 eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
 
-                return View(ROUTE_SCREEN_TITHEPAYERS, tithePayers);
+                #endregion
+
+                return View(ROUTE_SCREEN_TITHEPAYERS, tithePayersPaginated);
             }
             else
             {
@@ -61,10 +111,11 @@ namespace DizimoParoquial.Controllers
 
         }
 
-        public async Task<IActionResult> SearchTithePayer(string name, string document, int pageNumber = 1)
+        public async Task<IActionResult> SearchTithePayer(string name, string document, string pageAmount, string page, string buttonPage)
         {
             string? process, details, username;
             bool eventRegistered;
+            List<TithePayer> tithePayersPaginated = new();
 
             int? idUser = HttpContext.Session.GetInt32("User");
 
@@ -82,6 +133,57 @@ namespace DizimoParoquial.Controllers
 
                     else
                         tithePayers = await _tithePayerService.GetTithePayersWithFilters(document?.Replace(".", "").Replace("-", ""), name);
+
+                    #region Paginação
+
+                    int actualPage = 0;
+
+                    if (buttonPage != null)
+                    {
+                        actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                    }
+
+                    int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                    int count = 0;
+                    string action = page is null ? "" : page.Substring(3, page.Length - 3);
+                    int totalPages = tithePayers.Count % pageSize == 0 ? tithePayers.Count / pageSize : (tithePayers.Count / pageSize) + 1;
+                    ViewBag.TotalPages = totalPages;
+                    ViewBag.ActualPage = 0;
+
+                    if (action.Contains("back") || action.Contains("next"))
+                    {
+                        actualPage = action.Contains("back") ? ViewBag.ActualPage - 1 : ViewBag.ActualPage + 1;
+                    }
+                    else if (buttonPage != null)
+                    {
+                        actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                    }
+
+                    actualPage = actualPage < 0 ? 0 : actualPage;
+
+                    ViewBag.ActualPage = actualPage;
+
+                    if (tithePayers.Count > pageSize)
+                    {
+                        for (int i = (actualPage * pageSize); i < tithePayers.Count; i++)
+                        {
+                            tithePayersPaginated.Add(tithePayers[i]);
+                            count++;
+
+                            if (count == pageSize)
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        tithePayersPaginated = tithePayers;
+                    }
+
+                    TempData["TotalCredenciais"] = tithePayers.Count;
+                    TempData["PrimeiroRegistro"] = (actualPage * pageSize) + 1;
+                    TempData["UltimoRegistro"] = (actualPage * pageSize) + count;
+
+                    #endregion
 
                     ViewBag.UserName = username;
 
@@ -104,7 +206,7 @@ namespace DizimoParoquial.Controllers
 
                 }
 
-                return View(ROUTE_SCREEN_TITHEPAYERS, tithePayers);
+                return View(ROUTE_SCREEN_TITHEPAYERS, tithePayersPaginated);
             }
             else
             {

@@ -24,10 +24,13 @@ namespace DizimoParoquial.Services
             try
             {
 
-                List<TithePayer> tithePayerExisting = await GetTithePayersWithFilters(tithePayer.Document, null);
+                if(tithePayer.Document != null)
+                {
+                    List<TithePayer> tithePayerExisting = await GetTithePayersWithFilters(tithePayer.Document, null);
 
-                if (tithePayerExisting != null && tithePayerExisting.Count > 0)
-                    throw new ValidationException("Dizimista já cadastrado");
+                    if (tithePayerExisting != null && tithePayerExisting.Count > 0)
+                        throw new ValidationException("Dizimista já cadastrado");
+                }
 
                 byte[]? imageBytes = null;
                 string? extension = null;
@@ -51,7 +54,7 @@ namespace DizimoParoquial.Services
                     PhoneNumber = tithePayer.PhoneNumber,
                     Address = tithePayer.Address,
                     Number = tithePayer.Number,
-                    ZipCode = tithePayer.ZipCode.Replace("-", ""),
+                    ZipCode = tithePayer.ZipCode != null ? tithePayer.ZipCode.Replace("-", "") : null,
                     Neighborhood = tithePayer.Neighborhood,
                     Complement = tithePayer.Complement,
                     CreatedAt = DateTime.Now,
