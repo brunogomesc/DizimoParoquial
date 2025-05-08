@@ -143,13 +143,17 @@ namespace DizimoParoquial.Controllers
                     {
                         actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
                     }
+                    else if (page != null)
+                    {
+                        actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
+                    }
 
                     int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
                     int count = 0;
                     string action = page is null ? "" : page.Substring(3, page.Length - 3);
                     int totalPages = tithePayers.Count % pageSize == 0 ? tithePayers.Count / pageSize : (tithePayers.Count / pageSize) + 1;
                     ViewBag.TotalPages = totalPages;
-                    ViewBag.ActualPage = 0;
+                    ViewBag.ActualPage = actualPage;
 
                     if (action.Contains("back") || action.Contains("next"))
                     {

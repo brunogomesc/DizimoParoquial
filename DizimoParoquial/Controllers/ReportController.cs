@@ -216,13 +216,17 @@ namespace DizimoParoquial.Controllers
                 {
                     actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
                 }
+                else if (page != null)
+                {
+                    actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
+                }
 
                 int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
                 int count = 0;
                 string action = page is null ? "" : page.Substring(3, page.Length - 3);
                 int totalPages = reportTithePayers.Count % pageSize == 0 ? reportTithePayers.Count / pageSize : (reportTithePayers.Count / pageSize) + 1;
                 ViewBag.TotalPages = totalPages;
-                ViewBag.ActualPage = 0;
+                ViewBag.ActualPage = actualPage;
 
                 if (action.Contains("back") || action.Contains("next"))
                 {
@@ -331,13 +335,17 @@ namespace DizimoParoquial.Controllers
                     {
                         actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
                     }
+                    else if (page != null)
+                    {
+                        actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
+                    }
 
                     int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
                     int count = 0;
                     string action = page is null ? "" : page.Substring(3, page.Length - 3);
                     int totalPages = tithes.Count % pageSize == 0 ? tithes.Count / pageSize : (tithes.Count / pageSize) + 1;
                     ViewBag.TotalPages = totalPages;
-                    ViewBag.ActualPage = 0;
+                    ViewBag.ActualPage = actualPage;
 
                     if (action.Contains("back") || action.Contains("next"))
                     {
@@ -470,13 +478,17 @@ namespace DizimoParoquial.Controllers
                 {
                     actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
                 }
+                else if (page != null)
+                {
+                    actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
+                }
 
                 int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
                 int count = 0;
                 string action = page is null ? "" : page.Substring(3, page.Length - 3);
                 int totalPages = reportBirthdays.Count % pageSize == 0 ? reportBirthdays.Count / pageSize : (reportBirthdays.Count / pageSize) + 1;
                 ViewBag.TotalPages = totalPages;
-                ViewBag.ActualPage = 0;
+                ViewBag.ActualPage = actualPage;
 
                 if (action.Contains("back") || action.Contains("next"))
                 {
@@ -588,13 +600,17 @@ namespace DizimoParoquial.Controllers
                 {
                     actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
                 }
+                else if(page != null)
+                {
+                    actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
+                }
 
                 int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
                 int count = 0;
                 string action = page is null ? "" : page.Substring(3, page.Length - 3);
                 int totalPages = reportTithes.Count % pageSize == 0 ? reportTithes.Count / pageSize : (reportTithes.Count / pageSize) + 1;
                 ViewBag.TotalPages = totalPages;
-                ViewBag.ActualPage = 0;
+                ViewBag.ActualPage = actualPage;
 
                 if (action.Contains("back") || action.Contains("next"))
                 {

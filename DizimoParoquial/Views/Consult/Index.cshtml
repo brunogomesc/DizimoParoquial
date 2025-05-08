@@ -13,15 +13,15 @@
     <title>Consultar Dizimo</title>
 </head>
 <body>
-    <div class="container my-4">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h2 class="d-flex align-items-center border-bottom pb-2 mb-3 fw-bold text-primary">
-                    <i class="fa fa-search me-2" aria-hidden="true"></i>
-                    Consultar Dizimo
-                </h2>
-                @using (Html.BeginForm("SearchTithes", "Consult", FormMethod.Post, new { enctype = "multipart/form-data" }))
-                {
+    @using (Html.BeginForm("SearchTithes", "Consult", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <div class="container my-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="d-flex align-items-center border-bottom pb-2 mb-3 fw-bold text-primary">
+                        <i class="fa fa-search me-2" aria-hidden="true"></i>
+                        Consultar Dizimo
+                    </h2>
                     <div class="row g-3">
                         <div class="col-md-5">
                             <label for="Name" class="form-label fw-bold">Nome:</label>
@@ -43,13 +43,10 @@
                             </button>
                         </div>
                     </div>
-                }
+                </div>
             </div>
         </div>
-    </div>
-    <br />
-    @using (Html.BeginForm("SearchTithes", "Consult", FormMethod.Post, new { enctype = "multipart/form-data" }))
-    {
+        <br />
         @if (Model != null && Model.Any())
         {
             <div class="card mt-4 shadow-sm">
