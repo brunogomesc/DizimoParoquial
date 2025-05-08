@@ -112,15 +112,15 @@
     </style>
 </head>
 <body>
-    <div class="container my-4">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h2 class="d-flex align-items-center border-bottom pb-2 mb-3 fw-bold text-primary" style="font-family: system-ui;">
-                    <i class="fa fa-search me-2" aria-hidden="true"></i>
-                    Buscar Usuários
-                </h2>
-                @using (Html.BeginForm("SearchUser", "User", FormMethod.Post, new { enctype = "multipart/form-data" }))
-                {
+    @using (Html.BeginForm("SearchUser", "User", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <div class="container my-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="d-flex align-items-center border-bottom pb-2 mb-3 fw-bold text-primary" style="font-family: system-ui;">
+                        <i class="fa fa-search me-2" aria-hidden="true"></i>
+                        Buscar Usuários
+                    </h2>
                     <div class="row g-3">
                         <div class="col-md-6 col-sm-12">
                             <label for="Status" class="form-label fw-bold text-primary"><b>Status:</b></label>
@@ -142,20 +142,17 @@
                             </button>
                         </div>
                     </div>
-                }
-                <div class="row g-3 mt-3">
-                    <div class="col-12">
-                        <button class="btn btn-outline-success w-100" data-bs-toggle="modal" data-bs-target="#modal_user_add">
-                            <i class="fa-solid fa-user-plus me-2"></i> Adicionar Usuário
-                        </button>
+                    <div class="row g-3 mt-3">
+                        <div class="col-12">
+                            <button class="btn btn-outline-success w-100" data-bs-toggle="modal" data-bs-target="#modal_user_add">
+                                <i class="fa-solid fa-user-plus me-2"></i> Adicionar Usuário
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <br />
-    @using (Html.BeginForm("SearchUser", "User", FormMethod.Post, new { enctype = "multipart/form-data" }))
-    {
+        <br />
         @if (Model != null && Model.Any())
         {
             <div class="card mt-4 shadow-sm">
