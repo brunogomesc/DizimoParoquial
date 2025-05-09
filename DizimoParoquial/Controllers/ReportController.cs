@@ -13,6 +13,7 @@ namespace DizimoParoquial.Controllers
         private const string ROUTE_SCREEN_REPORTS = "/Views/Report/ReportTithePayer.cshtml";
         private const string ROUTE_SCREEN_TITHE_PER_TITHEPAYER = "/Views/Report/ReportTithePayerPerTithe.cshtml";
         private const string ROUTE_SCREEN_BIRTHDAYS = "/Views/Report/ReportBirthdays.cshtml";
+        private const string ROUTE_SCREEN_NEIGHBORHOOD = "/Views/Report/ReportNeighborhood.cshtml";
         private const string ROUTE_SCREEN_TITHES = "/Views/Report/ReportTithes.cshtml";
 
         private readonly IToastNotification _notification;
@@ -166,6 +167,37 @@ namespace DizimoParoquial.Controllers
                 return RedirectToAction("Index", "Login");
             }
         }
+
+        public async Task<IActionResult> ReportNeighborhood()
+        {
+
+            string? process, details, username;
+            bool eventRegistered;
+
+            int? idUser = HttpContext.Session.GetInt32("User");
+
+            if (idUser != null && idUser != 0)
+            {
+
+                username = HttpContext.Session.GetString("Username");
+
+                ViewBag.UserName = username;
+
+                process = "ACESSO RELATÓRIO BAIRROS";
+
+                details = $"{username} acessou tela de relatório de bairros!";
+
+                eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                return View();
+            }
+            else
+            {
+                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
+                return RedirectToAction("Index", "Login");
+            }
+        }
+
 
         #endregion
 
@@ -555,6 +587,110 @@ namespace DizimoParoquial.Controllers
 
         }
 
+        public async Task<IActionResult> SearchReportNeighborhood(string name, string neighborhood, bool generateExcel, string pageAmount, string page, string buttonPage)
+        {
+
+            string? process, details, username;
+            bool eventRegistered;
+
+            int? idUser = HttpContext.Session.GetInt32("User");
+
+            username = HttpContext.Session.GetString("Username");
+
+            if (idUser != null && idUser != 0)
+            {
+
+                List<ReportNeighborhood> reportNeighborhoods = await _tithePayer.GetReportTithePayerPerNeighborhood(name, neighborhood);
+
+                ViewBag.Name = name;
+                ViewBag.Neighborhood = neighborhood; 
+
+                #region Paginação
+
+                int actualPage = 0;
+                List<ReportNeighborhood> reportNeighborhoodsPaginated = new();
+
+                if (buttonPage != null)
+                {
+                    actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                }
+                else if (page != null)
+                {
+                    actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
+                }
+
+                int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                int count = 0;
+                string action = page is null ? "" : page.Substring(3, page.Length - 3);
+                int totalPages = reportNeighborhoods.Count % pageSize == 0 ? reportNeighborhoods.Count / pageSize : (reportNeighborhoods.Count / pageSize) + 1;
+                ViewBag.TotalPages = totalPages;
+                ViewBag.ActualPage = actualPage;
+
+                if (action.Contains("back") || action.Contains("next"))
+                {
+                    actualPage = action.Contains("back") ? ViewBag.ActualPage - 1 : ViewBag.ActualPage + 1;
+                }
+                else if (buttonPage != null)
+                {
+                    actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                }
+
+                actualPage = actualPage < 0 ? 0 : actualPage;
+
+                ViewBag.ActualPage = actualPage;
+
+                if (reportNeighborhoods.Count > pageSize)
+                {
+                    for (int i = (actualPage * pageSize); i < reportNeighborhoods.Count; i++)
+                    {
+                        reportNeighborhoodsPaginated.Add(reportNeighborhoods[i]);
+                        count++;
+
+                        if (count == pageSize)
+                            break;
+                    }
+                }
+                else
+                {
+                    reportNeighborhoodsPaginated = reportNeighborhoods;
+                }
+
+                TempData["TotalCredenciais"] = reportNeighborhoods.Count;
+                TempData["PrimeiroRegistro"] = (actualPage * pageSize) + 1;
+                TempData["UltimoRegistro"] = reportNeighborhoods.Count <= pageSize ? reportNeighborhoods.Count : (actualPage * pageSize) + count;
+
+                #endregion
+
+                ViewBag.UserName = username;
+
+                process = "CONSULTA RELATÓRIO ANIVERSARIANTES";
+
+                details = $"{username} consultou o relatório de aniversariantes!";
+
+                eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                if (generateExcel)
+                {
+
+                    process = "EXPORTAÇÃO RELATÓRIO ANIVERSARIANTES";
+
+                    details = $"{username} exportou o relatório de aniversariantes!";
+
+                    eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                    return GenerateExcelNeighborhoods(reportNeighborhoods);
+                }
+
+                return View(ROUTE_SCREEN_NEIGHBORHOOD, reportNeighborhoodsPaginated);
+            }
+            else
+            {
+                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
+                return RedirectToAction("Index", "Login");
+            }
+
+        }
+
         public async Task<IActionResult> SearchReportTithesMonth(string paymentType, string name, DateTime startPaymentDate, DateTime endPaymentDate, bool generateExcel, string pageAmount, string page, string buttonPage)
         {
 
@@ -839,6 +975,63 @@ namespace DizimoParoquial.Controllers
 
                 // Retornar o arquivo para download
                 string excelFileName = $"Entradas_{DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss").Replace("/", "").Replace(" ", "").Replace(":", "")}.xlsx";
+
+                return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelFileName);
+            }
+
+        }
+
+        [HttpPost]
+        public IActionResult GenerateExcelNeighborhoods(List<ReportNeighborhood> neighborhoods)
+        {
+
+            if (neighborhoods == null || neighborhoods.Count == 0)
+            {
+                _notification.AddErrorToastMessage("Sem bairros para exportar!");
+                return View(ROUTE_SCREEN_NEIGHBORHOOD);
+            }
+
+            // Configuração para permitir a geração do arquivo
+            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+            // Criar uma nova planilha
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Bairros");
+
+                // Cabeçalhos
+                worksheet.Cells[1, 1].Value = "Código Dizimista";
+                worksheet.Cells[1, 2].Value = "Nome Dizimista";
+                worksheet.Cells[1, 3].Value = "Endereço";
+                worksheet.Cells[1, 4].Value = "Número";
+                worksheet.Cells[1, 5].Value = "Bairro";
+                worksheet.Cells[1, 6].Value = "CEP";
+                worksheet.Cells[1, 6].Value = "Complemento";
+
+                // Preencher os dados a partir da lista de objetos
+                int row = 2;
+
+                foreach (var neighborhood in neighborhoods)
+                {
+                    worksheet.Cells[row, 1].Value = neighborhood.TithePayerId;
+                    worksheet.Cells[row, 2].Value = neighborhood.Name;
+                    worksheet.Cells[row, 3].Value = neighborhood.Address;
+                    worksheet.Cells[row, 4].Value = neighborhood.Number;
+                    worksheet.Cells[row, 5].Value = neighborhood.Neighborhood;
+                    worksheet.Cells[row, 6].Value = neighborhood.ZipCode;
+                    worksheet.Cells[row, 7].Value = neighborhood.Complement;
+
+                    row++;
+                }
+
+                // Formatar cabeçalhos
+                worksheet.Cells[1, 1, 1, 7].Style.Font.Bold = true;
+                worksheet.Cells[1, 1, 1, 7].AutoFitColumns();
+
+                var excelBytes = package.GetAsByteArray();
+
+                // Retornar o arquivo para download
+                string excelFileName = $"Bairros_{DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss").Replace("/", "").Replace(" ", "").Replace(":", "")}.xlsx";
 
                 return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelFileName);
             }

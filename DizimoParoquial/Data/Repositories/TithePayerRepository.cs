@@ -7,6 +7,7 @@ using DizimoParoquial.Services;
 using MySql.Data.MySqlClient;
 using System.Data.Common;
 using System.Text;
+using System.Xml.Linq;
 
 namespace DizimoParoquial.Data.Repositories
 {
@@ -397,5 +398,71 @@ namespace DizimoParoquial.Data.Repositories
             }
         }
 
+        public async Task<List<string>> GetAllAddressOfTithePayers()
+        {
+            List<string> address = new List<string>();
+
+            try
+            {
+                StringBuilder query = new StringBuilder();
+
+                query.Append("SELECT DISTINCT TP.Neighborhood FROM TithePayer TP WHERE TP.Neighborhood IS NOT NULL; ");
+
+                using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
+                {
+                    var result = await connection.QueryAsync<string>(query.ToString());
+
+                    address = result.ToList();
+
+                    return address;
+                }
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consulta Endereços - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("Consulta Endereços - Erro interno.", ex);
+            }
+        }
+
+        public async Task<List<ReportNeighborhood>> GetReportTithePayerPerNeighborhood(string? name, string? neighborhood)
+        {
+            List<ReportNeighborhood> report = new List<ReportNeighborhood>();
+
+            try
+            {
+                StringBuilder query = new StringBuilder();
+
+                query.Append("SELECT TP.TithePayerId, TP.Name, TP.Address, ");
+                query.Append("TP.Number, TP.Neighborhood, TP.ZipCode, TP.Complement ");
+                query.Append("FROM TithePayer TP ");
+                query.Append("WHERE TP.Neighborhood IS NOT NULL ");
+
+                if (name != null)
+                    query.Append($"AND TP.Name LIKE '%{name}%' ");
+
+                if (neighborhood != null)
+                    query.Append($"AND TP.Neighborhood = '{neighborhood}' ");
+
+                using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
+                {
+                    var result = await connection.QueryAsync<ReportNeighborhood>(query.ToString());
+
+                    report = result.ToList();
+
+                    return report;
+                }
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consulta Relatório Bairros - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("Consulta Relatório Bairros - Erro interno.", ex);
+            }
+        }
     }
 }

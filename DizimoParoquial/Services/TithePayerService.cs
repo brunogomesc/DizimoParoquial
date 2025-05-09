@@ -4,6 +4,7 @@ using DizimoParoquial.DTOs;
 using DizimoParoquial.Exceptions;
 using DizimoParoquial.Models;
 using System.Data.Common;
+using System.Xml.Linq;
 
 namespace DizimoParoquial.Services
 {
@@ -400,6 +401,74 @@ namespace DizimoParoquial.Services
             }
         }
 
+        public async Task<List<string>> GetAllAddressOfTithePayers()
+        {
+            List<string> address = new List<string>();
+
+            try
+            {
+
+                address = await GetAllAddressOfTithePayersRepository();
+
+                return address;
+
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consultar Endereços - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Consultar Endereços - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Consultar Endereços - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Consultar Endereços - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Consultar Endereços - Dados vazios.");
+            }
+        }
+
+        public async Task<List<ReportNeighborhood>> GetReportTithePayerPerNeighborhood(string? name, string? neighborhood)
+        {
+            List<ReportNeighborhood> reportNeighborhoods = new List<ReportNeighborhood>();
+
+            try
+            {
+
+                reportNeighborhoods = await GetReportTithePayerPerNeighborhoodRepository(name, neighborhood);
+
+                return reportNeighborhoods;
+
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consultar Relatório Bairros - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Consultar Relatório Bairros - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Consultar Relatório Bairros - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Consultar Relatório Bairros - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Consultar Relatório Bairros - Dados vazios.");
+            }
+        }
+
         #region Repositories Methods
 
         private async Task<int> RegisterTithePayerRepository(TithePayer tithePayer)
@@ -689,6 +758,71 @@ namespace DizimoParoquial.Services
                 throw new NullException("Consultar Relatório Aniversariante - Dados vazios.");
             }
         }
+
+        private async Task<List<string>> GetAllAddressOfTithePayersRepository()
+        {
+            List<string> address = new List<string>();
+
+            try
+            {
+                address = await _tithePayerRepository.GetAllAddressOfTithePayers();
+
+                return address;
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consultar Endereços - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Consultar Endereços - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Consultar Endereços - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Consultar Endereços - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Consultar Endereços - Dados vazios.");
+            }
+        }
+
+        private async Task<List<ReportNeighborhood>> GetReportTithePayerPerNeighborhoodRepository(string? name, string? neighborhood)
+        {
+            List<ReportNeighborhood> reportNeighborhoods = new List<ReportNeighborhood>();
+
+            try
+            {
+                reportNeighborhoods = await _tithePayerRepository.GetReportTithePayerPerNeighborhood(name, neighborhood);
+
+                return reportNeighborhoods;
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consultar Relatório Bairros - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Consultar Relatório Bairros - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Consultar Relatório Bairros - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Consultar Relatório Bairros - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Consultar Relatório Bairros - Dados vazios.");
+            }
+        }
+
 
         #endregion
 
