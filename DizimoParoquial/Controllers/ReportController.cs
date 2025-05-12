@@ -202,7 +202,7 @@ namespace DizimoParoquial.Controllers
             }
         }
 
-        public async Task<IActionResult> ReportSum()
+        public async Task<IActionResult> ReportSum(string buttonPage, string page, string pageAmount)
         {
 
             string? process, details, username;
@@ -213,10 +213,77 @@ namespace DizimoParoquial.Controllers
             if (idUser != null && idUser != 0)
             {
 
-                ViewBag.StartPaymentDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-                ViewBag.EndPaymentDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+                DateTime startPaymentDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                DateTime endPaymentDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+
+                ViewBag.StartPaymentDate = startPaymentDate;
+                ViewBag.EndPaymentDate = endPaymentDate;
+
+                var reportSum = await _incomeService.GetReportSum(null, startPaymentDate, endPaymentDate);
+
+                ViewBag.PaymentType = null;
+                ViewBag.StartPaymentDate = startPaymentDate;
+                ViewBag.EndPaymentDate = endPaymentDate;
 
                 username = HttpContext.Session.GetString("Username");
+
+                ViewBag.UserName = username;
+
+                #region Paginação
+
+                int actualPage = 0;
+                List<ReportSum> reportSumPaginated = new();
+
+                if (buttonPage != null)
+                {
+                    actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                }
+                else if (page != null)
+                {
+                    actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
+                }
+
+                int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                int count = 0;
+                string action = page is null ? "" : page.Substring(3, page.Length - 3);
+                int totalPages = reportSum.Count % pageSize == 0 ? reportSum.Count / pageSize : (reportSum.Count / pageSize) + 1;
+                ViewBag.TotalPages = totalPages;
+                ViewBag.ActualPage = actualPage;
+
+                if (action.Contains("back") || action.Contains("next"))
+                {
+                    actualPage = action.Contains("back") ? ViewBag.ActualPage - 1 : ViewBag.ActualPage + 1;
+                }
+                else if (buttonPage != null)
+                {
+                    actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                }
+
+                actualPage = actualPage < 0 ? 0 : actualPage;
+
+                ViewBag.ActualPage = actualPage;
+
+                if (reportSum.Count > pageSize)
+                {
+                    for (int i = (actualPage * pageSize); i < reportSum.Count; i++)
+                    {
+                        reportSumPaginated.Add(reportSum[i]);
+                        count++;
+
+                        if (count == pageSize)
+                            break;
+                    }
+                }
+                else
+                {
+                    reportSumPaginated = reportSum;
+                }
+
+                TempData["TotalCredenciais"] = reportSum.Count;
+                TempData["PrimeiroRegistro"] = (actualPage * pageSize) + 1;
+                TempData["UltimoRegistro"] = reportSum.Count <= pageSize ? reportSum.Count : (actualPage * pageSize) + count;
+
+                #endregion
 
                 ViewBag.UserName = username;
 
@@ -226,7 +293,7 @@ namespace DizimoParoquial.Controllers
 
                 eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
 
-                return View();
+                return View(reportSumPaginated);
             }
             else
             {
