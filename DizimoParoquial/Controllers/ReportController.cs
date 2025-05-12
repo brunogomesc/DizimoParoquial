@@ -15,22 +15,26 @@ namespace DizimoParoquial.Controllers
         private const string ROUTE_SCREEN_BIRTHDAYS = "/Views/Report/ReportBirthdays.cshtml";
         private const string ROUTE_SCREEN_NEIGHBORHOOD = "/Views/Report/ReportNeighborhood.cshtml";
         private const string ROUTE_SCREEN_TITHES = "/Views/Report/ReportTithes.cshtml";
+        private const string ROUTE_SCREEN_SUM = "/Views/Report/ReportSum.cshtml";
 
         private readonly IToastNotification _notification;
         private readonly TithePayerService _tithePayer;
         private readonly TitheService _titheService;
         private readonly EventService _eventService;
+        private readonly IncomeService _incomeService;
 
         public ReportController(
             IToastNotification notification, 
             TithePayerService tithePayer,
             TitheService titheService,
-            EventService eventService)
+            EventService eventService,
+            IncomeService incomeService)
         {
             _notification = notification;
             _tithePayer = tithePayer;
             _titheService = titheService;
             _eventService = eventService;
+            _incomeService = incomeService;
         }
 
         #region Views
@@ -198,6 +202,38 @@ namespace DizimoParoquial.Controllers
             }
         }
 
+        public async Task<IActionResult> ReportSum()
+        {
+
+            string? process, details, username;
+            bool eventRegistered;
+
+            int? idUser = HttpContext.Session.GetInt32("User");
+
+            if (idUser != null && idUser != 0)
+            {
+
+                ViewBag.StartPaymentDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                ViewBag.EndPaymentDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+
+                username = HttpContext.Session.GetString("Username");
+
+                ViewBag.UserName = username;
+
+                process = "ACESSO RELATÓRIO TOTAIS";
+
+                details = $"{username} acessou tela de relatório totais!";
+
+                eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                return View();
+            }
+            else
+            {
+                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
+                return RedirectToAction("Index", "Login");
+            }
+        }
 
         #endregion
 
@@ -813,6 +849,126 @@ namespace DizimoParoquial.Controllers
 
         }
 
+        public async Task<IActionResult> SearchReportSum(string paymentType, DateTime startPaymentDate, DateTime endPaymentDate, bool generateExcel, string pageAmount, string page, string buttonPage)
+        {
+
+            string? process, details, username;
+            bool eventRegistered;
+
+            int? idUser = HttpContext.Session.GetInt32("User");
+
+            if (idUser != null && idUser != 0)
+            {
+
+                if (startPaymentDate == DateTime.MinValue)
+                {
+                    startPaymentDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                }
+
+                if (endPaymentDate == DateTime.MinValue)
+                {
+                    endPaymentDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+                }
+
+                if (startPaymentDate > endPaymentDate)
+                {
+                    _notification.AddErrorToastMessage("Data de inicio não pode ser maior que a data de término.");
+                    return RedirectToAction(nameof(ReportSum));
+                }
+
+                var reportSum = await _incomeService.GetReportSum(paymentType, startPaymentDate, endPaymentDate);
+
+                ViewBag.PaymentType = paymentType;
+                ViewBag.StartPaymentDate = startPaymentDate;
+                ViewBag.EndPaymentDate = endPaymentDate;
+
+                username = HttpContext.Session.GetString("Username");
+
+                ViewBag.UserName = username;
+
+                #region Paginação
+
+                int actualPage = 0;
+                List<ReportSum> reportSumPaginated = new();
+
+                if (buttonPage != null)
+                {
+                    actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                }
+                else if (page != null)
+                {
+                    actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
+                }
+
+                int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                int count = 0;
+                string action = page is null ? "" : page.Substring(3, page.Length - 3);
+                int totalPages = reportSum.Count % pageSize == 0 ? reportSum.Count / pageSize : (reportSum.Count / pageSize) + 1;
+                ViewBag.TotalPages = totalPages;
+                ViewBag.ActualPage = actualPage;
+
+                if (action.Contains("back") || action.Contains("next"))
+                {
+                    actualPage = action.Contains("back") ? ViewBag.ActualPage - 1 : ViewBag.ActualPage + 1;
+                }
+                else if (buttonPage != null)
+                {
+                    actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                }
+
+                actualPage = actualPage < 0 ? 0 : actualPage;
+
+                ViewBag.ActualPage = actualPage;
+
+                if (reportSum.Count > pageSize)
+                {
+                    for (int i = (actualPage * pageSize); i < reportSum.Count; i++)
+                    {
+                        reportSumPaginated.Add(reportSum[i]);
+                        count++;
+
+                        if (count == pageSize)
+                            break;
+                    }
+                }
+                else
+                {
+                    reportSumPaginated = reportSum;
+                }
+
+                TempData["TotalCredenciais"] = reportSum.Count;
+                TempData["PrimeiroRegistro"] = (actualPage * pageSize) + 1;
+                TempData["UltimoRegistro"] = reportSum.Count <= pageSize ? reportSum.Count : (actualPage * pageSize) + count;
+
+                #endregion
+
+                process = "CONSULTA RELATÓRIO TOTAIS";
+
+                details = $"{username} consultou o relatório de totais!";
+
+                eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                if (generateExcel)
+                {
+
+                    process = "EXPORTAÇÃO RELATÓRIO TOTAIS";
+
+                    details = $"{username} exportou o relatório de totais!";
+
+                    eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                    return GenerateExcelSum(reportSum);
+                }
+
+                return View(ROUTE_SCREEN_SUM, reportSumPaginated);
+            }
+            else
+            {
+                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
+                return RedirectToAction("Index", "Login");
+            }
+
+        }
 
         #region Excel
 
@@ -1032,6 +1188,55 @@ namespace DizimoParoquial.Controllers
 
                 // Retornar o arquivo para download
                 string excelFileName = $"Bairros_{DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss").Replace("/", "").Replace(" ", "").Replace(":", "")}.xlsx";
+
+                return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelFileName);
+            }
+
+        }
+
+        [HttpPost]
+        public IActionResult GenerateExcelSum(List<ReportSum> sums)
+        {
+
+            if (sums == null || sums.Count == 0)
+            {
+                _notification.AddErrorToastMessage("Sem somas para exportar!");
+                return View(ROUTE_SCREEN_SUM);
+            }
+
+            // Configuração para permitir a geração do arquivo
+            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+            // Criar uma nova planilha
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Total");
+
+                // Cabeçalhos
+                worksheet.Cells[1, 1].Value = "Forma de Contribuição";
+                worksheet.Cells[1, 2].Value = "Valor";
+                worksheet.Cells[1, 3].Value = "Quantidade de Contribuições";
+
+                // Preencher os dados a partir da lista de objetos
+                int row = 2;
+
+                foreach (var sum in sums)
+                {
+                    worksheet.Cells[row, 1].Value = sum.PaymentType;
+                    worksheet.Cells[row, 2].Value = $"R$ {sum.TotalValue.ToString("F2")}";
+                    worksheet.Cells[row, 3].Value = sum.AmountPayments;
+
+                    row++;
+                }
+
+                // Formatar cabeçalhos
+                worksheet.Cells[1, 1, 1, 3].Style.Font.Bold = true;
+                worksheet.Cells[1, 1, 1, 3].AutoFitColumns();
+
+                var excelBytes = package.GetAsByteArray();
+
+                // Retornar o arquivo para download
+                string excelFileName = $"Total_{DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss").Replace("/", "").Replace(" ", "").Replace(":", "")}.xlsx";
 
                 return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelFileName);
             }

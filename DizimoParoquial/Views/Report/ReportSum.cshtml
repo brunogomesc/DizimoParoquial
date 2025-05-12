@@ -1,0 +1,259 @@
+﻿@using DizimoParoquial.Utils;
+
+@model List<ReportSum>
+
+@{
+    ViewData["Username"] = @ViewBag.UserName;
+    ViewBag.ActualPageView = ViewBag.ActualPage + 1;
+}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Relatório Totais</title>
+    <style>
+        .btn-primary {
+            background-color: #007bff; /* Azul principal */
+            border-color: #007bff;
+        }
+
+            .btn-primary:hover {
+                background-color: #0056b3;
+                border-color: #0056b3;
+            }
+
+        .bg-primary {
+            background-color: #007bff !important;
+        }
+
+        .text-primary {
+            color: #007bff !important;
+        }
+
+        .table thead th {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .table tbody tr:nth-child(odd) {
+            background-color: #f8f9fa;
+        }
+
+        .table tbody td {
+            border-color: #dee2e6;
+        }
+    </style>
+</head>
+<body>
+    @using (Html.BeginForm("SearchReportSum", "Report", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <div class="container my-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="d-flex align-items-center border-bottom pb-2 mb-3 fw-bold text-primary" style="font-family: system-ui;">
+                        <i class="fa fa-report me-2" aria-hidden="true"></i>
+                        Relatório Totais
+                    </h2>
+                    <div class="row g-3">
+                        <div class="col-md-6 col-sm-12">
+                            <label for="Status" class="form-label fw-bold text-primary"><b>Forma de Contribuição:</b></label>
+                            <select id="paymentType" name="paymentType" class="form-control">
+                                <option></option>
+
+                                @if (ViewBag.PaymentType == "Pix")
+                                {
+                                    <option selected value="Pix">Pix</option>
+                                }
+                                else
+                                {
+                                    <option value="Pix">Pix</option>
+                                }
+
+                                @if (ViewBag.PaymentType == "Dinheiro")
+                                {
+                                    <option selected value="Dinheiro">Dinheiro</option>
+                                }
+                                else
+                                {
+                                    <option value="Dinheiro">Dinheiro</option>
+                                }
+
+                                @if (ViewBag.PaymentType == "Cartão de Crédito")
+                                {
+                                    <option selected value="Cartão de Crédito">Cartão de Crédito</option>
+                                }
+                                else
+                                {
+                                    <option value="Cartão de Crédito">Cartão de Crédito</option>
+                                }
+
+                                @if (ViewBag.PaymentType == "Cartão de Débito")
+                                {
+                                    <option selected value="Cartão de Débito">Cartão de Débito</option>
+                                }
+                                else
+                                {
+                                    <option value="Cartão de Débito">Cartão de Débito</option>
+                                }
+
+                                @if (ViewBag.PaymentType == "Transferência Bancária")
+                                {
+                                    <option selected value="Transferência Bancária">Transferência Bancária</option>
+                                }
+                                else
+                                {
+                                    <option value="Transferência Bancária">Transferência Bancária</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6 col-sm-12">
+                            <label for="startPaymentDate" class="form-label fw-bold text-primary"><b>Data de Contribuição (Início): <b class="text-danger">*</b></b></label>
+                            <input name="startPaymentDate" value="@ViewBag.StartPaymentDate?.ToString("yyyy-MM-dd")" type="date" class="form-control" required />
+                        </div>
+                        <div class="col-md-6 col-sm-12">
+                            <label for="endPaymentDate" class="form-label fw-bold text-primary"><b>Data de Contribuição (Final): <b class="text-danger">*</b></b></label>
+                            <input name="endPaymentDate" value="@ViewBag.EndPaymentDate?.ToString("yyyy-MM-dd")" class="form-control" type="date" required />
+                        </div>
+                    </div>
+                    <div class="row g-3 mt-3">
+                        <div class="col-md-6 col-sm-12">
+                            <button class="btn btn-primary w-100">
+                                <i class="fa fa-search me-2"></i> Pesquisar
+                            </button>
+                        </div>
+                        <div class="col-md-6 col-sm-12">
+                            <button class="btn btn-primary w-100" type="submit" name="generateExcel" value="true">
+                                <i class="fa fa-file-excel me-2"></i> Gerar Excel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="card mt-4 shadow-sm">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-hover mb-0">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Forma de Contribuição</th>
+                                <th>Valor</th>
+                                <th>Quantidade de Contribuições</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var payment in Model)
+                            {
+                                <tr>
+                                    <td>@payment.PaymentType</td>
+                                    <td>R$ @payment.TotalValue.ToString("F2")</td>
+                                    <td>@payment.AmountPayments</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                    <br />
+
+                    <div class="container">
+                        <div class="d-flex justify-content-between flex-wrap align-items-center mb-2">
+                            <h5 class="m-0">Mostrando registro de @TempData["PrimeiroRegistro"] até @TempData["UltimoRegistro"], do total de @TempData["TotalCredenciais"]</h5>
+                            <div class="d-flex flex-wrap gap-2 align-items-center">
+                                @if (Convert.ToInt32(ViewBag.TotalPages) > 15)
+                                {
+                                    <button type="submit" name="buttonPage" value="1_@ViewBag.OrdenacaoAtual" class="btn btn-sm btn-primary fw-semibold">Primeira</button>
+                                    int basePage = Convert.ToInt32(ViewBag.ActualPageView) - 6 < 0 ? 0 : Convert.ToInt32(ViewBag.ActualPageView) - 6;
+                                    @for (int i = basePage; i <= basePage + 6; i++)
+                                    {
+                                        @if (i < ViewBag.TotalPages - 5)
+                                        {
+                                            @if (@ViewBag.ActualPageView - 1 == i)
+                                            {
+                                                <button type="submit" name="buttonPage" value="@(i + 1)_@ViewBag.OrdenacaoAtual" class="btn btn-sm btn-outline-secondary fw-semibold">@(i + 1)</button>
+                                            }
+                                            else
+                                            {
+                                                <button type="submit" name="buttonPage" value="@(i + 1)_@ViewBag.OrdenacaoAtual" class="btn btn-sm btn-primary fw-semibold">@(@i + 1)</button>
+                                            }
+
+                                        }
+                                    }
+                                    <span class="border border-secondary rounded d-flex align-items-center justify-content-center text-secondary fw-bold" style="width: 30px; height: 30px; font-size: 0.8em;">
+                                        ...
+                                    </span>
+                                    @for (int i = Convert.ToInt32(ViewBag.TotalPages) - 5; i < Convert.ToInt32(ViewBag.TotalPages); i++)
+                                    {
+                                        @if (@ViewBag.ActualPageView - 1 == i)
+                                        {
+                                            <button type="submit" name="buttonPage" value="@(i + 1)_@ViewBag.OrdenacaoAtual" class="btn btn-sm btn-outline-secondary fw-semibold">@(i + 1)</button>
+                                        }
+                                        else
+                                        {
+                                            <button type="submit" name="buttonPage" value="@(i + 1)_@ViewBag.OrdenacaoAtual" class="btn btn-sm btn-primary fw-semibold">@(@i + 1)</button>
+                                        }
+                                    }
+                                    <button type="submit" name="buttonPage" value="@ViewBag.TotalPages _@ViewBag.OrdenacaoAtual" class="btn btn-sm btn-primary fw-semibold">Última</button>
+                                }
+                                else
+                                {
+                                    @for (int i = 0; i < Convert.ToInt32(ViewBag.TotalPages); i++)
+                                    {
+
+                                        @if (@ViewBag.ActualPageView == i + 1)
+                                        {
+                                            <button type="submit" name="buttonPage" value="@(i + 1)_@ViewBag.OrdenacaoAtual" class="btn btn-sm btn-outline-secondary fw-semibold">@(i + 1)</button>
+                                        }
+                                        else
+                                        {
+                                            <button type="submit" name="buttonPage" value="@(i + 1)_@ViewBag.OrdenacaoAtual" class="btn btn-sm btn-primary fw-semibold">@(@i + 1)</button>
+                                        }
+                                    }
+                                }
+                            </div>
+                        </div>
+                        <div class="d-flex flex-column align-items-center gap-2">
+                            <div>
+                                <br />
+                                <h3 class="h6 m-0">Página @ViewBag.ActualPageView de @ViewBag.TotalPages</h3>
+                                <br />
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                @if (ViewBag.ActualPageView == 1)
+                                {
+                                    <button disabled class="btn btn-primary fw-semibold btn-sm" id="BtnPrevious" name="page" value="@ViewBag.ActualPage _back_@ViewBag.OrdenacaoAtual" type="submit"><u>Anterior</u></button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-primary fw-semibold btn-sm" id="BtnPrevious" name="page" value="@ViewBag.ActualPage _back_@ViewBag.OrdenacaoAtual" type="submit"><u>Anterior</u></button>
+                                }
+
+                                @if (ViewBag.ActualPageView == ViewBag.TotalPages)
+                                {
+                                    <button disabled class="btn btn-primary fw-semibold btn-sm" id="BtnNext" name="page" value="@ViewBag.ActualPage _next_@ViewBag.OrdenacaoAtual" type="submit"><u>Próxima</u></button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-primary fw-semibold btn-sm" id="BtnNext" name="page" value="@ViewBag.ActualPage _next_@ViewBag.OrdenacaoAtual" type="submit"><u>Próxima</u></button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <h4 class="text-center text-muted mt-4">Sem resultados para serem exibidos</h4>
+        }
+    }
+</body>
+</html>
