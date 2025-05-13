@@ -12,50 +12,74 @@
     <title>Agentes do Dizimo</title>
 </head>
 <body>
-    <div class="container my-4">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h2 class="d-flex align-items-center border-bottom pb-2 mb-3 fw-bold text-primary">
-                    <i class="fa fa-search me-2" aria-hidden="true"></i>
-                    Buscar Agentes do Dizimo
-                </h2>
-                @using (Html.BeginForm("SearchAgents", "Agent", FormMethod.Post, new { enctype = "multipart/form-data" }))
-                {
+    @using (Html.BeginForm("SearchAgents", "Agent", FormMethod.Post, new { enctype = "multipart/form-data", @id = "formSearch" }))
+    {
+        <div class="container my-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="d-flex align-items-center border-bottom pb-2 mb-3 fw-bold text-primary">
+                        <i class="fa fa-search me-2" aria-hidden="true"></i>
+                        Buscar Agentes do Dizimo
+                    </h2>            
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label for="Status" class="form-label fw-bold">Status:</label>
                             <select name="status" class="form-select">
-                                <option value="">Todos</option>
-                                <option value="true">Ativo</option>
-                                <option value="false">Inativo</option>
+                                @if(ViewBag.Status == null)
+                                {
+                                    <option value="" selected>Todos</option>
+                                    <option value="true">Ativo</option>
+                                    <option value="false">Inativo</option>
+                                }
+                                else if(Convert.ToBoolean(ViewBag.Status) == true)
+                                {
+                                    <option value="">Todos</option>
+                                    <option value="true" selected>Ativo</option>
+                                    <option value="false">Inativo</option>
+                                }
+                                else
+                                {
+                                    <option value="">Todos</option>
+                                    <option value="true">Ativo</option>
+                                    <option value="false" selected>Inativo</option>
+                                }
+
                             </select>
                         </div>
                         <div class="col-md-6">
                             <label for="Name" class="form-label fw-bold">Nome:</label>
-                            <input name="name" class="form-control" type="text" />
+                            <input name="name" class="form-control" value="@ViewBag.Name" type="text" />
                         </div>
                     </div>
                     <div class="row g-3 mt-3">
                         <div class="col-md-3">
-                            <button class="btn btn-outline-primary w-100">
+                            <button type="submit" class="btn btn-outline-primary w-100">
                                 <i class="fa fa-search me-2"></i> Pesquisar
                             </button>
                         </div>
                     </div>
-                }
-                <div class="row g-3 mt-3">
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modal_agent_add">
-                        <i class="fa-solid fa-user-plus me-2"></i> Adicionar Agente do Dizimo
-                    </button>
+                    <div class="row g-3 mt-3">
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modal_agent_add">
+                            <i class="fa-solid fa-user-plus me-2"></i> Adicionar Agente do Dizimo
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
-        <br />
-        @using (Html.BeginForm("SearchAgents", "Agent", FormMethod.Post, new { enctype = "multipart/form-data" }))
-        {
+            <br />
             @if (Model != null && Model.Any())
             {
                 <div class="card mt-4 shadow-sm">
+                    <div class="row align-items-center g-2">
+                        <div class="col-md-auto">
+                            <label class="form-label mb-0">Registros por Páginas:</label>
+                        </div>
+                        <div class="col-md-auto">
+                            @Html.DropDownList("AmountPages", (IEnumerable<SelectListItem>)ViewBag.AmountPages, new { @class = "form-select w-auto", id = "AmountPages" })
+                        </div>
+                        <div class="col-md-auto">
+                            <input type="hidden" id="inputPages" name="amount" />
+                        </div>
+                    </div>
                     <div class="card-body">
                         <h3 class="border-bottom pb-2 mb-3 fw-bold text-info">Lista de Agentes</h3>
                         <div class="table-responsive">
@@ -182,6 +206,8 @@
             {
                 <h4 class="text-center mt-4 text-muted">Sem resultados para serem exibidos</h4>
             }
+        
+        </div>
         }
 
         @* Modal Add Agent *@
@@ -262,7 +288,6 @@
             </div>
         </div>
         @* End Modal Edit User *@
-    </div>
 </body>
 </html>
 
@@ -285,4 +310,20 @@
             }
         });
     }
+</script>
+
+<script>
+    // Adicionando um evento onchange ao dropdownlist
+    document.getElementById("AmountPages").onchange = function () {
+        // Obtém o valor selecionado do dropdownlist
+        var valueSelected = this.value;
+
+        var input = document.getElementById("inputPages");
+        var form = document.getElementById("formSearch");
+
+        input.value = valueSelected;
+
+        form.submit();
+
+    };
 </script>

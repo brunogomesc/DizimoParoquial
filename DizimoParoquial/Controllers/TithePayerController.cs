@@ -4,6 +4,7 @@ using DizimoParoquial.Services;
 using DizimoParoquial.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using NToastNotify;
 using System;
 using System.Diagnostics;
@@ -102,6 +103,8 @@ namespace DizimoParoquial.Controllers
 
                 #endregion
 
+                ViewBag.AmountPages = AmountPages.GetAmountPageInput();
+
                 return View(ROUTE_SCREEN_TITHEPAYERS, tithePayersPaginated);
             }
             else
@@ -112,7 +115,7 @@ namespace DizimoParoquial.Controllers
 
         }
 
-        public async Task<IActionResult> SearchTithePayer(string name, string document, string pageAmount, string page, string buttonPage)
+        public async Task<IActionResult> SearchTithePayer(string name, string document, string page, string buttonPage, string amountPages)
         {
             string? process, details, username;
             bool eventRegistered;
@@ -148,7 +151,7 @@ namespace DizimoParoquial.Controllers
                         actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
                     }
 
-                    int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                    int pageSize = amountPages != null ? Convert.ToInt32(amountPages) : 10;
                     int count = 0;
                     string action = page is null ? "" : page.Substring(3, page.Length - 3);
                     int totalPages = tithePayers.Count % pageSize == 0 ? tithePayers.Count / pageSize : (tithePayers.Count / pageSize) + 1;
@@ -189,6 +192,8 @@ namespace DizimoParoquial.Controllers
                     TempData["UltimoRegistro"] = tithePayers.Count <= pageSize ? tithePayers.Count : (actualPage * pageSize) + count;
 
                     #endregion
+
+                    ViewBag.AmountPages = AmountPages.GetAmountPageInput();
 
                     ViewBag.UserName = username;
 

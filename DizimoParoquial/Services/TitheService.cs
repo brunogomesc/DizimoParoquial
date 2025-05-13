@@ -261,6 +261,42 @@ namespace DizimoParoquial.Services
             }
         }
 
+        public async Task<bool> DeleteTithe(int titheId)
+        {
+            bool userWasDeleted = false;
+
+            try
+            {
+
+                TitheDTO titheDelete = await GetTitheById(titheId);
+
+                //userWasDeleted = await DeleteTitheRepository(titheId);
+
+                return userWasDeleted;
+
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Excluir Lançamento - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Excluir Lançamento - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Excluir Lançamento - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Excluir Lançamento - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Excluir Lançamento - Dados vazios.");
+            }
+        }
+
         #region Repositories Methods
 
         private async Task<bool> SaveTithesRepository(List<Tithe> tithes)
