@@ -26,7 +26,7 @@ namespace DizimoParoquial.Data.Interface
 
         public Task<List<string>> GetAllAddressOfTithePayers();
 
-        public Task<List<ReportNeighborhood>> GetReportTithePayerPerNeighborhood(string? name, string? neighborhood);
+        public Task<List<ReportNeighborhood>> GetReportTithePayerPerNeighborhood(string? name, string? address);
 
     }
 }

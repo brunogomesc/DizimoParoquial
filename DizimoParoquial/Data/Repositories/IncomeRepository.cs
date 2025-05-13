@@ -6,6 +6,7 @@ using DizimoParoquial.Models;
 using DizimoParoquial.Services;
 using Google.Protobuf.WellKnownTypes;
 using MySql.Data.MySqlClient;
+using Org.BouncyCastle.Tls.Crypto;
 using System.Data.Common;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -116,6 +117,45 @@ namespace DizimoParoquial.Data.Repositories
             catch (Exception ex)
             {
                 throw new RepositoryException("Consulta Relatório de Totais - Erro interno.", ex);
+            }
+        }
+
+        public async Task<List<ReportSumAddress>> GetReportSumAddress()
+        {
+
+            List<ReportSumAddress> report = new List<ReportSumAddress>();
+
+            try
+            {
+                StringBuilder query = new StringBuilder();
+
+                query.Append("SELECT TP.Address, ");
+                query.Append("TP.Neighborhood, ");
+                query.Append("COUNT(TP.TithePayerId) as AmountAddress ");
+                query.Append("FROM TithePayer TP ");
+                query.Append("GROUP BY TP.Address, TP.Neighborhood ");
+                query.Append("UNION ");
+                query.Append("SELECT 'Total Dizimistas' AS Address, ");
+                query.Append("' ' AS Neighborhood, ");
+                query.Append("COUNT(TP.TithePayerId) as AmountAddress ");
+                query.Append("FROM TithePayer TP; ");
+
+                using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
+                {
+                    var result = await connection.QueryAsync<ReportSumAddress>(query.ToString());
+
+                    report = result.ToList();
+
+                    return report;
+                }
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consulta Relatório de Ruas - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("Consulta Relatório de Ruas - Erro interno.", ex);
             }
         }
 

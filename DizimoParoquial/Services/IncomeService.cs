@@ -82,6 +82,40 @@ namespace DizimoParoquial.Services
             }
         }
 
+        public async Task<List<ReportSumAddress>> GetReportSumAddress()
+        {
+            List<ReportSumAddress> report = new List<ReportSumAddress>();
+
+            try
+            {
+
+                report = await GetReportSumAddressRepository();
+
+                return report;
+
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consultar Relatório de Ruas - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Consultar Relatório de Ruas - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Consultar Relatório de Ruas - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Consultar Relatório de Ruas - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Consultar Relatório de Ruas - Dados vazios.");
+            }
+        }
+
         #region Repositories Methods
 
         private async Task<int> SaveIncomeRepository(Income income)
@@ -145,6 +179,38 @@ namespace DizimoParoquial.Services
             catch (ArgumentNullException)
             {
                 throw new NullException("Consultar Relatório de Totais - Dados vazios.");
+            }
+        }
+
+        private async Task<List<ReportSumAddress>> GetReportSumAddressRepository()
+        {
+            List<ReportSumAddress> report = new List<ReportSumAddress>();
+
+            try
+            {
+                report = await _incomeRepository.GetReportSumAddress();
+
+                return report;
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consultar Relatório de Ruas - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Consultar Relatório de Ruas - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Consultar Relatório de Ruas - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Consultar Relatório de Ruas - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Consultar Relatório de Ruas - Dados vazios.");
             }
         }
 

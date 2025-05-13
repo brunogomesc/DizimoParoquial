@@ -16,6 +16,7 @@ namespace DizimoParoquial.Controllers
         private const string ROUTE_SCREEN_NEIGHBORHOOD = "/Views/Report/ReportNeighborhood.cshtml";
         private const string ROUTE_SCREEN_TITHES = "/Views/Report/ReportTithes.cshtml";
         private const string ROUTE_SCREEN_SUM = "/Views/Report/ReportSum.cshtml";
+        private const string ROUTE_SCREEN_SUM_ADDRESS = "/Views/Report/ReportSumAddress.cshtml";
 
         private readonly IToastNotification _notification;
         private readonly TithePayerService _tithePayer;
@@ -294,6 +295,96 @@ namespace DizimoParoquial.Controllers
                 eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
 
                 return View(reportSumPaginated);
+            }
+            else
+            {
+                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
+                return RedirectToAction("Index", "Login");
+            }
+        }
+
+        public async Task<IActionResult> ReportSumAddress(string buttonPage, string page, string pageAmount)
+        {
+
+            string? process, details, username;
+            bool eventRegistered;
+
+            int? idUser = HttpContext.Session.GetInt32("User");
+
+            if (idUser != null && idUser != 0)
+            {
+
+                var reportSumAddress = await _incomeService.GetReportSumAddress();
+
+                username = HttpContext.Session.GetString("Username");
+
+                ViewBag.UserName = username;
+
+                #region Paginação
+
+                int actualPage = 0;
+                List<ReportSumAddress> reportSumAddressPaginated = new();
+
+                if (buttonPage != null)
+                {
+                    actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                }
+                else if (page != null)
+                {
+                    actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
+                }
+
+                int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                int count = 0;
+                string action = page is null ? "" : page.Substring(3, page.Length - 3);
+                int totalPages = reportSumAddress.Count % pageSize == 0 ? reportSumAddress.Count / pageSize : (reportSumAddress.Count / pageSize) + 1;
+                ViewBag.TotalPages = totalPages;
+                ViewBag.ActualPage = actualPage;
+
+                if (action.Contains("back") || action.Contains("next"))
+                {
+                    actualPage = action.Contains("back") ? ViewBag.ActualPage - 1 : ViewBag.ActualPage + 1;
+                }
+                else if (buttonPage != null)
+                {
+                    actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                }
+
+                actualPage = actualPage < 0 ? 0 : actualPage;
+
+                ViewBag.ActualPage = actualPage;
+
+                if (reportSumAddress.Count > pageSize)
+                {
+                    for (int i = (actualPage * pageSize); i < reportSumAddress.Count; i++)
+                    {
+                        reportSumAddressPaginated.Add(reportSumAddress[i]);
+                        count++;
+
+                        if (count == pageSize)
+                            break;
+                    }
+                }
+                else
+                {
+                    reportSumAddressPaginated = reportSumAddress;
+                }
+
+                TempData["TotalCredenciais"] = reportSumAddress.Count;
+                TempData["PrimeiroRegistro"] = (actualPage * pageSize) + 1;
+                TempData["UltimoRegistro"] = reportSumAddress.Count <= pageSize ? reportSumAddress.Count : (actualPage * pageSize) + count;
+
+                #endregion
+
+                ViewBag.UserName = username;
+
+                process = "ACESSO RELATÓRIO RUAS";
+
+                details = $"{username} acessou tela de relatório ruas!";
+
+                eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                return View(reportSumAddressPaginated);
             }
             else
             {
@@ -690,7 +781,7 @@ namespace DizimoParoquial.Controllers
 
         }
 
-        public async Task<IActionResult> SearchReportNeighborhood(string name, string neighborhood, bool generateExcel, string pageAmount, string page, string buttonPage)
+        public async Task<IActionResult> SearchReportNeighborhood(string name, string address, bool generateExcel, string pageAmount, string page, string buttonPage)
         {
 
             string? process, details, username;
@@ -703,10 +794,10 @@ namespace DizimoParoquial.Controllers
             if (idUser != null && idUser != 0)
             {
 
-                List<ReportNeighborhood> reportNeighborhoods = await _tithePayer.GetReportTithePayerPerNeighborhood(name, neighborhood);
+                List<ReportNeighborhood> reportNeighborhoods = await _tithePayer.GetReportTithePayerPerNeighborhood(name, address);
 
                 ViewBag.Name = name;
-                ViewBag.Neighborhood = neighborhood; 
+                ViewBag.Address = address; 
 
                 #region Paginação
 
@@ -1037,6 +1128,107 @@ namespace DizimoParoquial.Controllers
 
         }
 
+        public async Task<IActionResult> SearchReportSumAddress(bool generateExcel, string pageAmount, string page, string buttonPage)
+        {
+
+            string? process, details, username;
+            bool eventRegistered;
+
+            int? idUser = HttpContext.Session.GetInt32("User");
+
+            if (idUser != null && idUser != 0)
+            {
+
+                var reportSumAddress = await _incomeService.GetReportSumAddress();
+
+                username = HttpContext.Session.GetString("Username");
+
+                ViewBag.UserName = username;
+
+                #region Paginação
+
+                int actualPage = 0;
+                List<ReportSumAddress> reportSumAddressPaginated = new();
+
+                if (buttonPage != null)
+                {
+                    actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                }
+                else if (page != null)
+                {
+                    actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
+                }
+
+                int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                int count = 0;
+                string action = page is null ? "" : page.Substring(3, page.Length - 3);
+                int totalPages = reportSumAddress.Count % pageSize == 0 ? reportSumAddress.Count / pageSize : (reportSumAddress.Count / pageSize) + 1;
+                ViewBag.TotalPages = totalPages;
+                ViewBag.ActualPage = actualPage;
+
+                if (action.Contains("back") || action.Contains("next"))
+                {
+                    actualPage = action.Contains("back") ? ViewBag.ActualPage - 1 : ViewBag.ActualPage + 1;
+                }
+                else if (buttonPage != null)
+                {
+                    actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                }
+
+                actualPage = actualPage < 0 ? 0 : actualPage;
+
+                ViewBag.ActualPage = actualPage;
+
+                if (reportSumAddress.Count > pageSize)
+                {
+                    for (int i = (actualPage * pageSize); i < reportSumAddress.Count; i++)
+                    {
+                        reportSumAddressPaginated.Add(reportSumAddress[i]);
+                        count++;
+
+                        if (count == pageSize)
+                            break;
+                    }
+                }
+                else
+                {
+                    reportSumAddressPaginated = reportSumAddress;
+                }
+
+                TempData["TotalCredenciais"] = reportSumAddress.Count;
+                TempData["PrimeiroRegistro"] = (actualPage * pageSize) + 1;
+                TempData["UltimoRegistro"] = reportSumAddress.Count <= pageSize ? reportSumAddress.Count : (actualPage * pageSize) + count;
+
+                #endregion
+
+                process = "CONSULTA RELATÓRIO RUAS";
+
+                details = $"{username} consultou o relatório de ruas!";
+
+                eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                if (generateExcel)
+                {
+
+                    process = "EXPORTAÇÃO RELATÓRIO RUAS";
+
+                    details = $"{username} exportou o relatório de ruas!";
+
+                    eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                    return GenerateExcelSumAddress(reportSumAddress);
+                }
+
+                return View(ROUTE_SCREEN_SUM_ADDRESS, reportSumAddressPaginated);
+            }
+            else
+            {
+                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
+                return RedirectToAction("Index", "Login");
+            }
+
+        }
+
         #region Excel
 
         [HttpPost]
@@ -1304,6 +1496,55 @@ namespace DizimoParoquial.Controllers
 
                 // Retornar o arquivo para download
                 string excelFileName = $"Total_{DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss").Replace("/", "").Replace(" ", "").Replace(":", "")}.xlsx";
+
+                return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelFileName);
+            }
+
+        }
+
+        [HttpPost]
+        public IActionResult GenerateExcelSumAddress(List<ReportSumAddress> sums)
+        {
+
+            if (sums == null || sums.Count == 0)
+            {
+                _notification.AddErrorToastMessage("Sem somas para exportar!");
+                return View(ROUTE_SCREEN_SUM);
+            }
+
+            // Configuração para permitir a geração do arquivo
+            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+            // Criar uma nova planilha
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Total");
+
+                // Cabeçalhos
+                worksheet.Cells[1, 1].Value = "Rua";
+                worksheet.Cells[1, 2].Value = "Bairro";
+                worksheet.Cells[1, 3].Value = "Quantidade de Dizimistas";
+
+                // Preencher os dados a partir da lista de objetos
+                int row = 2;
+
+                foreach (var sum in sums)
+                {
+                    worksheet.Cells[row, 1].Value = sum.Address;
+                    worksheet.Cells[row, 2].Value = sum.Neighborhood;
+                    worksheet.Cells[row, 3].Value = sum.AmountAddress;
+
+                    row++;
+                }
+
+                // Formatar cabeçalhos
+                worksheet.Cells[1, 1, 1, 3].Style.Font.Bold = true;
+                worksheet.Cells[1, 1, 1, 3].AutoFitColumns();
+
+                var excelBytes = package.GetAsByteArray();
+
+                // Retornar o arquivo para download
+                string excelFileName = $"Ruas_{DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss").Replace("/", "").Replace(" ", "").Replace(":", "")}.xlsx";
 
                 return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelFileName);
             }

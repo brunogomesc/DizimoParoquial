@@ -15,7 +15,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Relatório de Dizimistas por Bairro</title>
+    <title>Relatório de Dizimistas por Ruas</title>
     <style>
         .btn-primary {
         background-color: #007bff; /* Azul principal */
@@ -66,12 +66,12 @@
                             <input name="name" value="@ViewBag.Name" class="form-control" type="text" />
                         </div>
                         <div class="col-md-6 col-sm-12">
-                            <label for="neighborhood" class="form-label fw-bold text-primary"><b>Bairro:</b></label>
-                            <select id="neighborhood" name="neighborhood" class="form-control">
+                            <label for="address" class="form-label fw-bold text-primary"><b>Rua:</b></label>
+                            <select id="address" name="address" class="form-control">
                                 <option></option>
                                 @foreach(var item in address)
                                 {
-                                    @if (ViewBag.Neighborhood == item)
+                                    @if (ViewBag.Address == item)
                                     {
                                         <option selected value="@item">@item</option>
                                     }
