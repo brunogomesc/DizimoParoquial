@@ -69,6 +69,18 @@
         color: white;
         }
     </style>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#value').mask('000.000.000.000.000,00', {reverse: true});
+        });
+    </script>
+
 </head>
 <body>
     @using (Html.BeginForm("SearchTithePayerLaunchAllUsers", "Launch", FormMethod.Post, new { enctype = "multipart/form-data" }))
@@ -270,7 +282,7 @@
                                 <div class="row g-3">
                                     <div class="col-md-3">
                                         <label for="value" class="form-label fw-bold text-primary">Valor (R$):</label>
-                                        <input data-mask="#.##0,00" data-mask-reverse="true" type="text" class="form-control" id="value" name="value">
+                                        <input data-mask="#.##0,00" data-mask-reverse="true" type="text" class="form-control" id="value" name="value" placeholder="0,00">
                                     </div>
                                     <div class="col-md-3">
                                         <label for="agentCode" class="form-label fw-bold text-primary">Código Agente:</label>
@@ -377,12 +389,6 @@
             }
         });
     }
-</script>
-
-<script>
-    $(document).ready(function () {
-        $('#value').mask('#.##0,00', { reverse: true });
-    });
 </script>
 
 <script>

@@ -4,8 +4,12 @@ using DizimoParoquial.DTOs;
 using DizimoParoquial.Exceptions;
 using DizimoParoquial.Models;
 using DizimoParoquial.Services;
+using Google.Protobuf.WellKnownTypes;
 using MySql.Data.MySqlClient;
+using Org.BouncyCastle.Tls.Crypto;
 using System.Data.Common;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace DizimoParoquial.Data.Repositories
 {
@@ -71,5 +75,89 @@ namespace DizimoParoquial.Data.Repositories
                 }
             }
         }
+
+        public async Task<List<ReportSum>> GetReportSum(string? paymentType, DateTime startPaymentDate, DateTime endPaymentDate)
+        {
+
+            List<ReportSum> report = new List<ReportSum>();
+
+            try
+            {
+                StringBuilder query = new StringBuilder();
+
+                query.Append("SELECT I.PaymentType, ");
+                query.Append("SUM(Value) AS TotalValue, ");
+                query.Append("COUNT(PaymentType) AS AmountPayments ");
+                query.Append("FROM Income I ");
+                query.Append($"WHERE I.RegistrationDate BETWEEN '{startPaymentDate.ToString("yyyy-MM-dd HH:mm:ss")}' AND '{endPaymentDate.AddDays(1).ToString("yyyy-MM-dd HH:mm:ss")}' ");
+                
+                if (paymentType != null)
+                    query.Append($"AND I.PaymentType = '{paymentType}' ");
+
+                query.Append("GROUP BY I.PaymentType ");
+                query.Append("UNION ");
+                query.Append("SELECT 'Total' AS PaymentType, ");
+                query.Append("SUM(Value) as TotalValue, ");
+                query.Append("COUNT(PaymentType) AS AmountPayments ");
+                query.Append("FROM Income I; ");
+
+                using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
+                {
+                    var result = await connection.QueryAsync<ReportSum>(query.ToString());
+
+                    report = result.ToList();
+
+                    return report;
+                }
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consulta Relatório de Totais - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("Consulta Relatório de Totais - Erro interno.", ex);
+            }
+        }
+
+        public async Task<List<ReportSumAddress>> GetReportSumAddress()
+        {
+
+            List<ReportSumAddress> report = new List<ReportSumAddress>();
+
+            try
+            {
+                StringBuilder query = new StringBuilder();
+
+                query.Append("SELECT TP.Address, ");
+                query.Append("TP.Neighborhood, ");
+                query.Append("COUNT(TP.TithePayerId) as AmountAddress ");
+                query.Append("FROM TithePayer TP ");
+                query.Append("GROUP BY TP.Address, TP.Neighborhood ");
+                query.Append("UNION ");
+                query.Append("SELECT 'Total Dizimistas' AS Address, ");
+                query.Append("' ' AS Neighborhood, ");
+                query.Append("COUNT(TP.TithePayerId) as AmountAddress ");
+                query.Append("FROM TithePayer TP; ");
+
+                using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
+                {
+                    var result = await connection.QueryAsync<ReportSumAddress>(query.ToString());
+
+                    report = result.ToList();
+
+                    return report;
+                }
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consulta Relatório de Ruas - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("Consulta Relatório de Ruas - Erro interno.", ex);
+            }
+        }
+
     }
 }

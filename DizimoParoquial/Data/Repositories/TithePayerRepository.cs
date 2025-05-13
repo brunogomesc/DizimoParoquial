@@ -406,7 +406,7 @@ namespace DizimoParoquial.Data.Repositories
             {
                 StringBuilder query = new StringBuilder();
 
-                query.Append("SELECT DISTINCT TP.Neighborhood FROM TithePayer TP WHERE TP.Neighborhood IS NOT NULL; ");
+                query.Append("SELECT DISTINCT TP.Address FROM TithePayer TP WHERE TP.Neighborhood IS NOT NULL; ");
 
                 using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
                 {
@@ -427,7 +427,7 @@ namespace DizimoParoquial.Data.Repositories
             }
         }
 
-        public async Task<List<ReportNeighborhood>> GetReportTithePayerPerNeighborhood(string? name, string? neighborhood)
+        public async Task<List<ReportNeighborhood>> GetReportTithePayerPerNeighborhood(string? name, string? address)
         {
             List<ReportNeighborhood> report = new List<ReportNeighborhood>();
 
@@ -443,8 +443,8 @@ namespace DizimoParoquial.Data.Repositories
                 if (name != null)
                     query.Append($"AND TP.Name LIKE '%{name}%' ");
 
-                if (neighborhood != null)
-                    query.Append($"AND TP.Neighborhood = '{neighborhood}' ");
+                if (address != null)
+                    query.Append($"AND TP.Address = '{address}' ");
 
                 using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
                 {

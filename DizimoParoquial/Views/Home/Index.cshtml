@@ -11,12 +11,21 @@
     <title>Dizimo Migrantes</title>
 </head>
 <body>
-    <div class="container my-5">
+    <div class="text-center my-5">
+        <h1 class="display-5 mb-4 text-primary">Dizimo Migrantes</h1>
+        <h5 class="display-10 mb-4 text-secondary">Administradores</h5>
         <div class="row justify-content-center">
-            <div class="col-md-8 col-lg-6 text-center">
-                <h1 class="display-4 mb-4">Dizimo Migrantes</h1>
-                <img src="~/img/Brasao_Migrantes.png" alt="Logo" class="img-fluid" style="max-width: 250px;">
+            <div class="col-md-6 mb-3">
+                <a class="btn btn-primary btn-lg w-100 d-flex align-items-center justify-content-center" href="@Url.Action("LaunchAllUsers","Launch")">
+                    <i class="fa fa-plus me-2"></i> Lançar
+                </a>
             </div>
+            <div class="col-md-6 mb-3">
+                <a class="btn btn-danger btn-lg w-100 d-flex align-items-center justify-content-center" href="@Url.Action("ConsultAllUsers","Consult")">
+                    <i class="fa fa-search me-2"></i> Consultar
+                </a>
+            </div>
+            <img src="~/img/Brasao_Migrantes.png" alt="Logo" class="img-fluid" style="max-width: 250px;">
         </div>
     </div>
 </body>

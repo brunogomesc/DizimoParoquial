@@ -435,14 +435,14 @@ namespace DizimoParoquial.Services
             }
         }
 
-        public async Task<List<ReportNeighborhood>> GetReportTithePayerPerNeighborhood(string? name, string? neighborhood)
+        public async Task<List<ReportNeighborhood>> GetReportTithePayerPerNeighborhood(string? name, string? address)
         {
             List<ReportNeighborhood> reportNeighborhoods = new List<ReportNeighborhood>();
 
             try
             {
 
-                reportNeighborhoods = await GetReportTithePayerPerNeighborhoodRepository(name, neighborhood);
+                reportNeighborhoods = await GetReportTithePayerPerNeighborhoodRepository(name, address);
 
                 return reportNeighborhoods;
 
@@ -791,13 +791,13 @@ namespace DizimoParoquial.Services
             }
         }
 
-        private async Task<List<ReportNeighborhood>> GetReportTithePayerPerNeighborhoodRepository(string? name, string? neighborhood)
+        private async Task<List<ReportNeighborhood>> GetReportTithePayerPerNeighborhoodRepository(string? name, string? address)
         {
             List<ReportNeighborhood> reportNeighborhoods = new List<ReportNeighborhood>();
 
             try
             {
-                reportNeighborhoods = await _tithePayerRepository.GetReportTithePayerPerNeighborhood(name, neighborhood);
+                reportNeighborhoods = await _tithePayerRepository.GetReportTithePayerPerNeighborhood(name, address);
 
                 return reportNeighborhoods;
             }
