@@ -99,7 +99,8 @@ namespace DizimoParoquial.Data.Repositories
                 query.Append("SELECT 'Total' AS PaymentType, ");
                 query.Append("SUM(Value) as TotalValue, ");
                 query.Append("COUNT(PaymentType) AS AmountPayments ");
-                query.Append("FROM Income I; ");
+                query.Append("FROM Income I ");
+                query.Append($"WHERE I.RegistrationDate BETWEEN '{startPaymentDate.ToString("yyyy-MM-dd HH:mm:ss")}' AND '{endPaymentDate.AddDays(1).ToString("yyyy-MM-dd HH:mm:ss")}'; ");
 
                 using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
                 {
