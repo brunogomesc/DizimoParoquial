@@ -100,16 +100,16 @@
                     <div class="row g-3">
                         <div class="col-md-5">
                             <label for="document" class="form-label fw-bold text-primary">Documento:</label>
-                            <input name="document" id="document" class="form-control" type="text" />
+                            <input name="document" id="document" value="@ViewBag.Document" class="form-control" type="text" />
                         </div>
                         <div class="col-md-2">
                             <label for="tithePayerCode" class="form-label fw-bold text-primary">Código Dizimista:</label>
-                            <input name="tithePayerCode" id="tithePayerCode" class="form-control" type="number" />
+                            <input name="tithePayerCode" id="tithePayerCode" value="@ViewBag.TithePayerId" class="form-control" type="number" />
                         </div>
                     </div>
                     <div class="row g-3 mt-3">
                         <div class="col-md-3">
-                            <button type="submit" class="btn btn-outline-primary w-100" type="submit">
+                            <button class="btn btn-outline-primary w-100" type="submit">
                                 <i class="fa fa-search me-2"></i> Pesquisar
                             </button>
                         </div>

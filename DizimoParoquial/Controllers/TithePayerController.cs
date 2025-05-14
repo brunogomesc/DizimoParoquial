@@ -31,7 +31,7 @@ namespace DizimoParoquial.Controllers
             _eventService = eventService;
         }
 
-        public async Task<IActionResult> Index(string pageAmount, string page, string buttonPage)
+        public async Task<IActionResult> Index(string amountPages, string page, string buttonPage)
         {
             int actualPage = 0;
 
@@ -44,7 +44,7 @@ namespace DizimoParoquial.Controllers
 
                 #region Paginação
 
-                int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                int pageSize = amountPages != null ? Convert.ToInt32(amountPages) : 10;
                 int count = 0;
                 string action = page is null ? "" : page.Substring(3, page.Length - 3);
                 int totalPages = tithePayers.Count % pageSize == 0 ? tithePayers.Count / pageSize : (tithePayers.Count / pageSize) + 1;
@@ -103,6 +103,8 @@ namespace DizimoParoquial.Controllers
 
                 #endregion
 
+                ViewBag.Name = null;
+                ViewBag.Document = null;
                 ViewBag.AmountPages = AmountPages.GetAmountPageInput();
 
                 return View(ROUTE_SCREEN_TITHEPAYERS, tithePayersPaginated);
@@ -193,6 +195,8 @@ namespace DizimoParoquial.Controllers
 
                     #endregion
 
+                    ViewBag.Name = name;
+                    ViewBag.Document = document;
                     ViewBag.AmountPages = AmountPages.GetAmountPageInput();
 
                     ViewBag.UserName = username;

@@ -78,7 +78,7 @@ namespace DizimoParoquial.Data.Repositories
             }
         }
 
-        public async Task<bool> UpdateTithe(Tithe tithe)
+        public async Task<bool> UpdateTithe(Tithe tithe, decimal oldValue)
         {
 
             using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
@@ -106,6 +106,21 @@ namespace DizimoParoquial.Data.Repositories
                                 tithe.Value,
                                 tithe.PaymentMonth,
                                 tithe.TitheId
+                            }
+                        );
+
+                        StringBuilder queryIncome = new StringBuilder();
+
+                        queryIncome.Append("CALL UpdateIncomeValue(@titheId, @newValue, @oldValue);");
+
+                        int rowsAffectedIncome = 0;
+
+                        rowsAffectedIncome = await connection.ExecuteAsync(queryIncome.ToString(),
+                            new
+                            {
+                                tithe.TitheId,
+                                newValue = tithe.Value,
+                                oldValue
                             }
                         );
 
@@ -312,6 +327,52 @@ namespace DizimoParoquial.Data.Repositories
             catch (Exception ex)
             {
                 throw new RepositoryException("Consulta Dizimista Detalhes - Erro interno.", ex);
+            }
+        }
+
+        public async Task<bool> DeleteTithe(int titheId)
+        {
+
+            using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
+            {
+
+                await connection.OpenAsync();
+
+                using (var transaction = connection.BeginTransaction())
+                {
+
+                    try
+                    {
+                        var query = $"CALL DeleteTithe(@titheId);";
+
+                        int rowsAffected = 0;
+
+                        rowsAffected = await connection.ExecuteAsync(query,
+                            new
+                            {
+                                titheId,
+                            }
+                        );
+
+                        transaction.Commit();
+
+                        await connection.DisposeAsync();
+
+                        return rowsAffected > 0;
+                    }
+                    catch (DbException ex)
+                    {
+                        transaction.Rollback();
+                        await connection.DisposeAsync();
+                        throw new RepositoryException("Atualizar Dizimo - Erro ao acessar o banco de dados.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        await connection.DisposeAsync();
+                        throw new RepositoryException("Atualizar Dizimo - Erro interno.", ex);
+                    }
+                }
             }
         }
 

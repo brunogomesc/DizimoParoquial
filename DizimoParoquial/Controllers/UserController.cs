@@ -2,6 +2,7 @@
 using DizimoParoquial.Exceptions;
 using DizimoParoquial.Models;
 using DizimoParoquial.Services;
+using DizimoParoquial.Utils;
 using DizimoParoquial.Utils.Filters;
 using Microsoft.AspNetCore.Mvc;
 using NToastNotify;
@@ -58,7 +59,7 @@ namespace DizimoParoquial.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SearchUser(string status, string name, string pageAmount, string page, string buttonPage)
+        public async Task<IActionResult> SearchUser(string status, string name, string amountPages, string page, string buttonPage)
         {
             string? process, details, username;
             bool eventRegistered;
@@ -99,7 +100,7 @@ namespace DizimoParoquial.Controllers
                         actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
                     }
 
-                    int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                    int pageSize = amountPages != null ? Convert.ToInt32(amountPages) : 10;
                     int count = 0;
                     string action = page is null ? "" : page.Substring(3, page.Length - 3);
                     int totalPages = users.Count % pageSize == 0 ? users.Count / pageSize : (users.Count / pageSize) + 1;
@@ -140,6 +141,10 @@ namespace DizimoParoquial.Controllers
                     TempData["UltimoRegistro"] = users.Count <= pageSize ? users.Count : (actualPage * pageSize) + count;
 
                     #endregion
+
+                    ViewBag.Name = name;
+                    ViewBag.Status = status;
+                    ViewBag.AmountPages = AmountPages.GetAmountPageInput();
 
                     process = "FILTRAGEM USUÁRIOS DE ACESSO";
 

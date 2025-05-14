@@ -208,86 +208,86 @@
             }
         
         </div>
-        }
+   }
 
-        @* Modal Add Agent *@
-        <div class="modal fade" id="modal_agent_add" tabindex="-1" aria-labelledby="modal_agent_add_label" aria-hidden="true">
-            <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header bg-success text-white">
-                        <h5 class="modal-title" id="modal_agent_add_label"><i class="fa-solid fa-user-plus me-2"></i> Cadastrar Agente</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    @using (Html.BeginForm("SaveAgent", "Agent", FormMethod.Post, new { enctype = "multipart/form-data" }))
-                    {
-                        <div class="modal-body">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label for="name" class="form-label fw-bold">Nome:</label>
-                                    <input class="form-control" id="name" name="name" required />
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="phonenumber" class="form-label fw-bold">Telefone:</label>
-                                    <input type="number" class="form-control" id="phonenumber" name="phonenumber" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                            <button type="submit" class="btn btn-success" id="saveButton"><i class="fa-solid fa-check me-2"></i> Salvar Agente</button>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-        @* End Modal Add Agent *@
+   @* Modal Add Agent *@
+   <div class="modal fade" id="modal_agent_add" tabindex="-1" aria-labelledby="modal_agent_add_label" aria-hidden="true">
+       <div class="modal-dialog modal-lg modal-dialog-centered">
+           <div class="modal-content">
+               <div class="modal-header bg-success text-white">
+                   <h5 class="modal-title" id="modal_agent_add_label"><i class="fa-solid fa-user-plus me-2"></i> Cadastrar Agente</h5>
+                   <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+               </div>
+               @using (Html.BeginForm("SaveAgent", "Agent", FormMethod.Post, new { enctype = "multipart/form-data" }))
+               {
+                   <div class="modal-body">
+                       <div class="row g-3">
+                           <div class="col-md-6">
+                               <label for="name" class="form-label fw-bold">Nome:</label>
+                               <input class="form-control" id="name" name="name" required />
+                           </div>
+                           <div class="col-md-6">
+                               <label for="phonenumber" class="form-label fw-bold">Telefone:</label>
+                               <input type="number" class="form-control" id="phonenumber" name="phonenumber" />
+                           </div>
+                       </div>
+                   </div>
+                   <div class="modal-footer">
+                       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                       <button type="submit" class="btn btn-success" id="saveButton"><i class="fa-solid fa-check me-2"></i> Salvar Agente</button>
+                   </div>
+               }
+           </div>
+       </div>
+   </div>
+   @* End Modal Add Agent *@
 
-        @* Modal Edit Agent *@
-        <div class="modal fade" id="modal_agent_edit" tabindex="-1" aria-labelledby="modal_agent_edit_label" aria-hidden="true">
-            <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header bg-primary text-white">
-                        <h5 class="modal-title" id="modal_agent_edit_label"><i class="fa-solid fa-user-pen me-2"></i> Editar Agente</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    @using (Html.BeginForm("EditAgent", "Agent", FormMethod.Post, new { enctype = "multipart/form-data" }))
-                    {
-                        <div class="modal-body">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label for="nameEdit" class="form-label fw-bold">Nome:</label>
-                                    <input class="form-control" id="nameEdit" name="name" required />
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="codeEdit" class="form-label fw-bold">Código:</label>
-                                    <input disabled class="form-control" id="codeEdit" name="code" />
-                                </div>
-                            </div>
-                            <div class="row g-3 mt-3">
-                                <div class="col-md-6">
-                                    <label for="statusEdit" class="form-label fw-bold">Status:</label>
-                                    <select name="active" id="statusEdit" class="form-select">
-                                        <option value="">Selecione</option>
-                                        <option value="true">Ativo</option>
-                                        <option value="false">Inativo</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="phoneNumberEdit" class="form-label fw-bold">Telefone:</label>
-                                    <input type="number" class="form-control" id="phoneNumberEdit" name="phoneNumberEdit" />
-                                </div>
-                            </div>
-                            <input hidden type="text" name="agentId" id="agentIdEdit" />
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                            <button type="submit" class="btn btn-primary" id="saveButtonEdit"><i class="fa-solid fa-save me-2"></i> Salvar Alterações</button>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-        @* End Modal Edit User *@
+   @* Modal Edit Agent *@
+   <div class="modal fade" id="modal_agent_edit" tabindex="-1" aria-labelledby="modal_agent_edit_label" aria-hidden="true">
+       <div class="modal-dialog modal-lg modal-dialog-centered">
+           <div class="modal-content">
+               <div class="modal-header bg-primary text-white">
+                   <h5 class="modal-title" id="modal_agent_edit_label"><i class="fa-solid fa-user-pen me-2"></i> Editar Agente</h5>
+                   <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+               </div>
+               @using (Html.BeginForm("EditAgent", "Agent", FormMethod.Post, new { enctype = "multipart/form-data" }))
+               {
+                   <div class="modal-body">
+                       <div class="row g-3">
+                           <div class="col-md-6">
+                               <label for="nameEdit" class="form-label fw-bold">Nome:</label>
+                               <input class="form-control" id="nameEdit" name="name" required />
+                           </div>
+                           <div class="col-md-6">
+                               <label for="codeEdit" class="form-label fw-bold">Código:</label>
+                               <input disabled class="form-control" id="codeEdit" name="code" />
+                           </div>
+                       </div>
+                       <div class="row g-3 mt-3">
+                           <div class="col-md-6">
+                               <label for="statusEdit" class="form-label fw-bold">Status:</label>
+                               <select name="active" id="statusEdit" class="form-select">
+                                   <option value="">Selecione</option>
+                                   <option value="true">Ativo</option>
+                                   <option value="false">Inativo</option>
+                               </select>
+                           </div>
+                           <div class="col-md-6">
+                               <label for="phoneNumberEdit" class="form-label fw-bold">Telefone:</label>
+                               <input type="number" class="form-control" id="phoneNumberEdit" name="phoneNumberEdit" />
+                           </div>
+                       </div>
+                       <input hidden type="text" name="agentId" id="agentIdEdit" />
+                   </div>
+                   <div class="modal-footer">
+                       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                       <button type="submit" class="btn btn-primary" id="saveButtonEdit"><i class="fa-solid fa-save me-2"></i> Salvar Alterações</button>
+                   </div>
+               }
+           </div>
+       </div>
+   </div>
+   @* End Modal Edit User *@
 </body>
 </html>
 

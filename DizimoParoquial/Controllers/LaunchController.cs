@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using NToastNotify;
 using System.Diagnostics;
 using System.Globalization;
+using System.Reflection.Metadata;
+using System.Xml.Linq;
 
 namespace DizimoParoquial.Controllers
 {
@@ -161,7 +163,7 @@ namespace DizimoParoquial.Controllers
 
         }
 
-        public async Task<IActionResult> SearchTithePayerLaunchAllUsers(string name, int tithePayerCode, string pageAmount, string page, string buttonPage)
+        public async Task<IActionResult> SearchTithePayerLaunchAllUsers(string name, int tithePayerCode, string amountPages, string page, string buttonPage)
         {
 
             int? agentId = HttpContext.Session.GetInt32("Agent");
@@ -199,7 +201,7 @@ namespace DizimoParoquial.Controllers
                         actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
                     }
 
-                    int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                    int pageSize = amountPages != null ? Convert.ToInt32(amountPages) : 10;
                     int count = 0;
                     string action = page is null ? "" : page.Substring(3, page.Length - 3);
                     int totalPages = tithePayers.Count % pageSize == 0 ? tithePayers.Count / pageSize : (tithePayers.Count / pageSize) + 1;
@@ -240,6 +242,10 @@ namespace DizimoParoquial.Controllers
                     TempData["UltimoRegistro"] = tithePayers.Count <= pageSize ? tithePayers.Count : (actualPage * pageSize) + count;
 
                     #endregion
+
+                    ViewBag.Name = name;
+                    ViewBag.TithePayerId = tithePayerCode;
+                    ViewBag.AmountPages = AmountPages.GetAmountPageInput();
 
                     return View(ROUTE_SCREEN_LAUNCH_ALLUSERS, tithePayersPaginated);
                 }
@@ -422,7 +428,7 @@ namespace DizimoParoquial.Controllers
 
         }
 
-        public async Task<IActionResult> SearchTithePayerLaunch(string name, int tithePayerCode, string pageAmount, string page, string buttonPage)
+        public async Task<IActionResult> SearchTithePayerLaunch(string name, int tithePayerCode, string amountPages, string page, string buttonPage)
         {
 
             int? idUser = HttpContext.Session.GetInt32("User");
@@ -462,7 +468,7 @@ namespace DizimoParoquial.Controllers
                         actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
                     }
 
-                    int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                    int pageSize = amountPages != null ? Convert.ToInt32(amountPages) : 10;
                     int count = 0;
                     string action = page is null ? "" : page.Substring(3, page.Length - 3);
                     int totalPages = tithePayers.Count % pageSize == 0 ? tithePayers.Count / pageSize : (tithePayers.Count / pageSize) + 1;
@@ -503,6 +509,10 @@ namespace DizimoParoquial.Controllers
                     TempData["UltimoRegistro"] = tithePayers.Count <= pageSize ? tithePayers.Count : (actualPage * pageSize) + count;
 
                     #endregion
+
+                    ViewBag.Name = name;
+                    ViewBag.TithePayerId = tithePayerCode;
+                    ViewBag.AmountPages = AmountPages.GetAmountPageInput();
 
                     return View(ROUTE_SCREEN_LAUNCH, tithePayersPaginated);
                 }
@@ -731,6 +741,8 @@ namespace DizimoParoquial.Controllers
 
                     #endregion
 
+                    ViewBag.Document = document;
+                    ViewBag.TithePayerId = tithePayerCode;
                     ViewBag.AmountPages = AmountPages.GetAmountPageInput();
 
                     var tithesOrganized = tithePayersPaginated.OrderByDescending(t => t.PaymentMonth).ToList();
@@ -869,7 +881,7 @@ namespace DizimoParoquial.Controllers
                         Value = decimalValue
                     };
 
-                    bool titheWasUpdated = await _titheService.UpdateTithe(titheUpdated);
+                    bool titheWasUpdated = await _titheService.UpdateTithe(titheUpdated, tithe.Value);
 
                     process = "EDIÇÃO DIZIMO";
 
@@ -1013,9 +1025,12 @@ namespace DizimoParoquial.Controllers
 
             foreach (var tithe in tithes)
             {
-                if(dates.Contains(tithe.PaymentMonth))
+
+                DateTime dateFormatted = new DateTime(tithe.PaymentMonth.Year, tithe.PaymentMonth.Month, today.Day, today.Hour, today.Minute, today.Second);
+
+                if (dates.Contains(dateFormatted))
                 {
-                    dates.Remove(tithe.PaymentMonth);
+                    dates.Remove(dateFormatted);
                 }
             }
 
