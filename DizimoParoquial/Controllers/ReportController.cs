@@ -1,6 +1,7 @@
 ﻿using DizimoParoquial.DTOs;
 using DizimoParoquial.Models;
 using DizimoParoquial.Services;
+using DizimoParoquial.Utils;
 using Microsoft.AspNetCore.Mvc;
 using NToastNotify;
 using OfficeOpenXml;
@@ -40,12 +41,6 @@ namespace DizimoParoquial.Controllers
 
         #region Views
 
-        public IActionResult ReportValuePerPaymentType()
-        {
-            ViewBag.UserName = HttpContext.Session.GetString("Username");
-            return View();
-        }
-
         public async Task<IActionResult> ReportTithePayer()
         {
 
@@ -63,6 +58,8 @@ namespace DizimoParoquial.Controllers
                 username = HttpContext.Session.GetString("Username");
 
                 ViewBag.UserName = username;
+
+                ViewBag.AmountPages = AmountPages.GetAmountPageInput();
 
                 process = "ACESSO RELATÓRIO ENTRADAS";
 
@@ -92,6 +89,8 @@ namespace DizimoParoquial.Controllers
                 username = HttpContext.Session.GetString("Username");
 
                 ViewBag.UserName = username;
+
+                ViewBag.AmountPages = AmountPages.GetAmountPageInput();
 
                 process = "ACESSO RELATÓRIO DIZIMO POR DIZIMISTAS";
 
@@ -126,6 +125,8 @@ namespace DizimoParoquial.Controllers
 
                 ViewBag.UserName = username;
 
+                ViewBag.AmountPages = AmountPages.GetAmountPageInput();
+
                 process = "ACESSO RELATÓRIO ANIVERSARIANTES";
 
                 details = $"{username} acessou tela de relatório de aniversariantes!";
@@ -158,6 +159,8 @@ namespace DizimoParoquial.Controllers
 
                 ViewBag.UserName = username;
 
+                ViewBag.AmountPages = AmountPages.GetAmountPageInput();
+
                 process = "ACESSO RELATÓRIO DIZIMOS";
 
                 details = $"{username} acessou tela de relatório de dizimos!";
@@ -188,6 +191,8 @@ namespace DizimoParoquial.Controllers
 
                 ViewBag.UserName = username;
 
+                ViewBag.AmountPages = AmountPages.GetAmountPageInput();
+
                 process = "ACESSO RELATÓRIO BAIRROS";
 
                 details = $"{username} acessou tela de relatório de bairros!";
@@ -203,7 +208,7 @@ namespace DizimoParoquial.Controllers
             }
         }
 
-        public async Task<IActionResult> ReportSum(string buttonPage, string page, string pageAmount)
+        public async Task<IActionResult> ReportSum(string buttonPage, string page, string amountPages)
         {
 
             string? process, details, username;
@@ -217,14 +222,12 @@ namespace DizimoParoquial.Controllers
                 DateTime startPaymentDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
                 DateTime endPaymentDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
 
-                ViewBag.StartPaymentDate = startPaymentDate;
-                ViewBag.EndPaymentDate = endPaymentDate;
-
                 var reportSum = await _incomeService.GetReportSum(null, startPaymentDate, endPaymentDate);
 
                 ViewBag.PaymentType = null;
                 ViewBag.StartPaymentDate = startPaymentDate;
                 ViewBag.EndPaymentDate = endPaymentDate;
+                ViewBag.AmountPages = AmountPages.GetAmountPageInput();
 
                 username = HttpContext.Session.GetString("Username");
 
@@ -244,7 +247,7 @@ namespace DizimoParoquial.Controllers
                     actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
                 }
 
-                int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                int pageSize = amountPages != null ? Convert.ToInt32(amountPages) : 10;
                 int count = 0;
                 string action = page is null ? "" : page.Substring(3, page.Length - 3);
                 int totalPages = reportSum.Count % pageSize == 0 ? reportSum.Count / pageSize : (reportSum.Count / pageSize) + 1;
@@ -286,8 +289,6 @@ namespace DizimoParoquial.Controllers
 
                 #endregion
 
-                ViewBag.UserName = username;
-
                 process = "ACESSO RELATÓRIO TOTAIS";
 
                 details = $"{username} acessou tela de relatório totais!";
@@ -303,7 +304,7 @@ namespace DizimoParoquial.Controllers
             }
         }
 
-        public async Task<IActionResult> ReportSumAddress(string buttonPage, string page, string pageAmount)
+        public async Task<IActionResult> ReportSumAddress(string buttonPage, string page, string amountPages)
         {
 
             string? process, details, username;
@@ -320,6 +321,8 @@ namespace DizimoParoquial.Controllers
 
                 ViewBag.UserName = username;
 
+                ViewBag.AmountPages = AmountPages.GetAmountPageInput();
+
                 #region Paginação
 
                 int actualPage = 0;
@@ -334,7 +337,7 @@ namespace DizimoParoquial.Controllers
                     actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
                 }
 
-                int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                int pageSize = amountPages != null ? Convert.ToInt32(amountPages) : 10;
                 int count = 0;
                 string action = page is null ? "" : page.Substring(3, page.Length - 3);
                 int totalPages = reportSumAddress.Count % pageSize == 0 ? reportSumAddress.Count / pageSize : (reportSumAddress.Count / pageSize) + 1;
@@ -376,8 +379,6 @@ namespace DizimoParoquial.Controllers
 
                 #endregion
 
-                ViewBag.UserName = username;
-
                 process = "ACESSO RELATÓRIO RUAS";
 
                 details = $"{username} acessou tela de relatório ruas!";
@@ -395,7 +396,7 @@ namespace DizimoParoquial.Controllers
 
         #endregion
 
-        public async Task<IActionResult> SearchReportTithePayer(string paymentType, string name, DateTime startPaymentDate, DateTime endPaymentDate, bool generateExcel, string pageAmount, string page, string buttonPage)
+        public async Task<IActionResult> SearchReportTithePayer(string paymentType, string name, DateTime startPaymentDate, DateTime endPaymentDate, bool generateExcel, string amountPages, string page, string buttonPage)
         {
 
             string? process, details, username;
@@ -424,14 +425,15 @@ namespace DizimoParoquial.Controllers
 
                 var reportTithePayers = await _tithePayer.GetReportTithePayers(paymentType, name, startPaymentDate, endPaymentDate);
 
+                username = HttpContext.Session.GetString("Username");
+
+                ViewBag.UserName = username;
+
                 ViewBag.PaymentType = paymentType;
                 ViewBag.Name = name;
                 ViewBag.StartPaymentDate = startPaymentDate;
                 ViewBag.EndPaymentDate = endPaymentDate;
-
-                username = HttpContext.Session.GetString("Username");
-
-                ViewBag.UserName = username;
+                ViewBag.AmountPages = AmountPages.GetAmountPageInput();
 
                 #region Paginação
 
@@ -447,7 +449,7 @@ namespace DizimoParoquial.Controllers
                     actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
                 }
 
-                int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                int pageSize = amountPages != null ? Convert.ToInt32(amountPages) : 10;
                 int count = 0;
                 string action = page is null ? "" : page.Substring(3, page.Length - 3);
                 int totalPages = reportTithePayers.Count % pageSize == 0 ? reportTithePayers.Count / pageSize : (reportTithePayers.Count / pageSize) + 1;
@@ -517,7 +519,7 @@ namespace DizimoParoquial.Controllers
 
         }
 
-        public async Task<IActionResult> SearchTithes(int tithePayerCode, string document, bool generateExcel, string pageAmount, string page, string buttonPage)
+        public async Task<IActionResult> SearchTithes(int tithePayerCode, string document, bool generateExcel, string amountPages, string page, string buttonPage)
         {
 
             string? process, details, username;
@@ -566,7 +568,7 @@ namespace DizimoParoquial.Controllers
                         actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
                     }
 
-                    int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                    int pageSize = amountPages != null ? Convert.ToInt32(amountPages) : 10;
                     int count = 0;
                     string action = page is null ? "" : page.Substring(3, page.Length - 3);
                     int totalPages = tithes.Count % pageSize == 0 ? tithes.Count / pageSize : (tithes.Count / pageSize) + 1;
@@ -611,6 +613,9 @@ namespace DizimoParoquial.Controllers
                     var tithesOrganized = tithes.OrderByDescending(t => t.PaymentMonth).ToList();
 
                     ViewBag.UserName = username;
+                    ViewBag.TithePayerId = tithePayerCode;
+                    ViewBag.Document = document;
+                    ViewBag.AmountPages = AmountPages.GetAmountPageInput();
 
                     process = "CONSULTA RELATÓRIO DIZIMOS";
 
@@ -655,7 +660,7 @@ namespace DizimoParoquial.Controllers
 
         }
 
-        public async Task<IActionResult> SearchReportBirthdays(string name, DateTime startBirthdayDate, DateTime endBirthdayDate, bool generateExcel, string pageAmount, string page, string buttonPage)
+        public async Task<IActionResult> SearchReportBirthdays(string name, DateTime startBirthdayDate, DateTime endBirthdayDate, bool generateExcel, string amountPages, string page, string buttonPage)
         {
 
             string? process, details, username;
@@ -689,6 +694,7 @@ namespace DizimoParoquial.Controllers
                 ViewBag.Name = name;
                 ViewBag.StartBirthdayDate = startBirthdayDate;
                 ViewBag.EndBirthdayDate = endBirthdayDate;
+                ViewBag.AmountPages = AmountPages.GetAmountPageInput();
 
                 List<ReportBirthday>? reportBirthdays = new List<ReportBirthday>();
 
@@ -709,7 +715,7 @@ namespace DizimoParoquial.Controllers
                     actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
                 }
 
-                int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                int pageSize = amountPages != null ? Convert.ToInt32(amountPages) : 10;
                 int count = 0;
                 string action = page is null ? "" : page.Substring(3, page.Length - 3);
                 int totalPages = reportBirthdays.Count % pageSize == 0 ? reportBirthdays.Count / pageSize : (reportBirthdays.Count / pageSize) + 1;
@@ -781,7 +787,7 @@ namespace DizimoParoquial.Controllers
 
         }
 
-        public async Task<IActionResult> SearchReportNeighborhood(string name, string address, bool generateExcel, string pageAmount, string page, string buttonPage)
+        public async Task<IActionResult> SearchReportNeighborhood(string name, string address, bool generateExcel, string amountPages, string page, string buttonPage)
         {
 
             string? process, details, username;
@@ -797,7 +803,8 @@ namespace DizimoParoquial.Controllers
                 List<ReportNeighborhood> reportNeighborhoods = await _tithePayer.GetReportTithePayerPerNeighborhood(name, address);
 
                 ViewBag.Name = name;
-                ViewBag.Address = address; 
+                ViewBag.Address = address;
+                ViewBag.AmountPages = AmountPages.GetAmountPageInput();
 
                 #region Paginação
 
@@ -813,7 +820,7 @@ namespace DizimoParoquial.Controllers
                     actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
                 }
 
-                int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                int pageSize = amountPages != null ? Convert.ToInt32(amountPages) : 10;
                 int count = 0;
                 string action = page is null ? "" : page.Substring(3, page.Length - 3);
                 int totalPages = reportNeighborhoods.Count % pageSize == 0 ? reportNeighborhoods.Count / pageSize : (reportNeighborhoods.Count / pageSize) + 1;
@@ -885,7 +892,7 @@ namespace DizimoParoquial.Controllers
 
         }
 
-        public async Task<IActionResult> SearchReportTithesMonth(string paymentType, string name, DateTime startPaymentDate, DateTime endPaymentDate, bool generateExcel, string pageAmount, string page, string buttonPage)
+        public async Task<IActionResult> SearchReportTithesMonth(string paymentType, string name, DateTime startPaymentDate, DateTime endPaymentDate, bool generateExcel, string amountPages, string page, string buttonPage)
         {
 
             string? process, details, username;
@@ -920,6 +927,7 @@ namespace DizimoParoquial.Controllers
                 ViewBag.Name = name;
                 ViewBag.StartTitheDate = startPaymentDate;
                 ViewBag.EndTitheDate = endPaymentDate;
+                ViewBag.AmountPages = AmountPages.GetAmountPageInput();
 
                 #region Paginação
 
@@ -935,7 +943,7 @@ namespace DizimoParoquial.Controllers
                     actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
                 }
 
-                int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                int pageSize = amountPages != null ? Convert.ToInt32(amountPages) : 10;
                 int count = 0;
                 string action = page is null ? "" : page.Substring(3, page.Length - 3);
                 int totalPages = reportTithes.Count % pageSize == 0 ? reportTithes.Count / pageSize : (reportTithes.Count / pageSize) + 1;
@@ -1007,7 +1015,7 @@ namespace DizimoParoquial.Controllers
 
         }
 
-        public async Task<IActionResult> SearchReportSum(string paymentType, DateTime startPaymentDate, DateTime endPaymentDate, bool generateExcel, string pageAmount, string page, string buttonPage)
+        public async Task<IActionResult> SearchReportSum(string paymentType, DateTime startPaymentDate, DateTime endPaymentDate, bool generateExcel, string amountPages, string page, string buttonPage)
         {
 
             string? process, details, username;
@@ -1039,6 +1047,7 @@ namespace DizimoParoquial.Controllers
                 ViewBag.PaymentType = paymentType;
                 ViewBag.StartPaymentDate = startPaymentDate;
                 ViewBag.EndPaymentDate = endPaymentDate;
+                ViewBag.AmountPages = AmountPages.GetAmountPageInput();
 
                 username = HttpContext.Session.GetString("Username");
 
@@ -1058,7 +1067,7 @@ namespace DizimoParoquial.Controllers
                     actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
                 }
 
-                int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                int pageSize = amountPages != null ? Convert.ToInt32(amountPages) : 10;
                 int count = 0;
                 string action = page is null ? "" : page.Substring(3, page.Length - 3);
                 int totalPages = reportSum.Count % pageSize == 0 ? reportSum.Count / pageSize : (reportSum.Count / pageSize) + 1;
@@ -1128,7 +1137,7 @@ namespace DizimoParoquial.Controllers
 
         }
 
-        public async Task<IActionResult> SearchReportSumAddress(bool generateExcel, string pageAmount, string page, string buttonPage)
+        public async Task<IActionResult> SearchReportSumAddress(bool generateExcel, string amountPages, string page, string buttonPage)
         {
 
             string? process, details, username;
@@ -1145,6 +1154,8 @@ namespace DizimoParoquial.Controllers
 
                 ViewBag.UserName = username;
 
+                ViewBag.AmountPages = AmountPages.GetAmountPageInput();
+
                 #region Paginação
 
                 int actualPage = 0;
@@ -1159,7 +1170,7 @@ namespace DizimoParoquial.Controllers
                     actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
                 }
 
-                int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                int pageSize = amountPages != null ? Convert.ToInt32(amountPages) : 10;
                 int count = 0;
                 string action = page is null ? "" : page.Substring(3, page.Length - 3);
                 int totalPages = reportSumAddress.Count % pageSize == 0 ? reportSumAddress.Count / pageSize : (reportSumAddress.Count / pageSize) + 1;

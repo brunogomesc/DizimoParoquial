@@ -336,6 +336,7 @@ namespace DizimoParoquial.Data.Repositories
                 query.Append("INNER JOIN TithePayer TP ");
                 query.Append("ON I.TithePayerId = TP.TithePayerId ");
                 query.Append($"WHERE RegistrationDate BETWEEN '{startPaymentDate.ToString("yyyy-MM-dd HH:mm:ss")}' AND '{endPaymentDate.AddDays(1).ToString("yyyy-MM-dd HH:mm:ss")}' ");
+                query.Append("AND I.Value != 0 ");
 
                 if (paymentType != null)
                     query.Append($"AND PaymentType = '{paymentType}' ");

@@ -88,7 +88,7 @@
 
 </head>
 <body>
-    @using (Html.BeginForm("SearchTithesEditLaunch", "Launch", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    @using (Html.BeginForm("SearchTithesEditLaunch", "Launch", FormMethod.Post, new { enctype = "multipart/form-data", @id = "formSearch" }))
     {
         <div class="container my-4">
             <div class="card shadow-sm">
@@ -100,11 +100,11 @@
                     <div class="row g-3">
                         <div class="col-md-5">
                             <label for="document" class="form-label fw-bold text-primary">Documento:</label>
-                            <input name="document" id="document" class="form-control" type="text" />
+                            <input name="document" id="document" value="@ViewBag.Document" class="form-control" type="text" />
                         </div>
                         <div class="col-md-2">
                             <label for="tithePayerCode" class="form-label fw-bold text-primary">Código Dizimista:</label>
-                            <input name="tithePayerCode" id="tithePayerCode" class="form-control" type="number" />
+                            <input name="tithePayerCode" id="tithePayerCode" value="@ViewBag.TithePayerId" class="form-control" type="number" />
                         </div>
                     </div>
                     <div class="row g-3 mt-3">
@@ -121,6 +121,17 @@
         @if (Model != null && Model.Any())
         {
             <div class="card mt-4 shadow-sm">
+                <div class="row align-items-center g-2">
+                    <div class="col-md-auto">
+                        <label class="form-label mb-0">Registros por Páginas:</label>
+                    </div>
+                    <div class="col-md-auto">
+                        @Html.DropDownList("AmountPages", (IEnumerable<SelectListItem>)ViewBag.AmountPages, new { @class = "form-select w-auto", id = "AmountPages" })
+                    </div>
+                    <div class="col-md-auto">
+                        <input type="hidden" id="inputPages" name="amount" />
+                    </div>
+                </div>
                 <div class="card-body">
                     <h3 class="border-bottom pb-2 mb-3 fw-bold text-primary">Resultados da Busca</h3>
                     <div class="table-responsive">
@@ -148,6 +159,7 @@
                                         <td>@tithePayer.RegistrationDate.ToString("dd/MM/yyyy")</td>
                                         <td class="text-center">
                                             <button type="button" data-bs-toggle="modal" data-bs-target="#modal_launch_edit" onclick="openModal(@tithePayer.TitheId)" title="Editar" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-user-pen"></i></button>
+                                            <a href="@Url.Action("DeleteLaunch","Launch", new { titheId = tithePayer.TitheId })" title="Excluir" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></a>
                                         </td>
                                     </tr>
                                 }
@@ -364,6 +376,22 @@
             width: '100%'
         });
     });
+</script>
+
+<script>
+    // Adicionando um evento onchange ao dropdownlist
+    document.getElementById("AmountPages").onchange = function () {
+        // Obtém o valor selecionado do dropdownlist
+        var valueSelected = this.value;
+
+        var input = document.getElementById("inputPages");
+        var form = document.getElementById("formSearch");
+
+        input.value = valueSelected;
+
+        form.submit();
+
+    };
 </script>
 
 @functions {

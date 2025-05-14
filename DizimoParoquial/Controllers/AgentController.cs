@@ -2,6 +2,7 @@
 using DizimoParoquial.Exceptions;
 using DizimoParoquial.Models;
 using DizimoParoquial.Services;
+using DizimoParoquial.Utils;
 using DizimoParoquial.Utils.Filters;
 using Microsoft.AspNetCore.Mvc;
 using NToastNotify;
@@ -44,6 +45,8 @@ namespace DizimoParoquial.Controllers
                 username = HttpContext.Session.GetString("Username");
 
                 ViewBag.UserName = username;
+                ViewBag.Status = null;
+                ViewBag.Name = null;
 
                 process = "ACESSO TELA AGENTES";
                            
@@ -61,7 +64,7 @@ namespace DizimoParoquial.Controllers
 
         }
 
-        public async Task<IActionResult> SearchAgents(string status, string name, string pageAmount, string page, string buttonPage)
+        public async Task<IActionResult> SearchAgents(string status, string name, string amountPages, string page, string buttonPage)
         {
 
             string? process, details, username;
@@ -77,6 +80,8 @@ namespace DizimoParoquial.Controllers
                 username = HttpContext.Session.GetString("Username");
 
                 ViewBag.UserName = username;
+                ViewBag.Status = status;
+                ViewBag.Name = name;
 
                 try
                 {
@@ -102,7 +107,7 @@ namespace DizimoParoquial.Controllers
                         actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
                     }
 
-                    int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                    int pageSize = amountPages != null ? Convert.ToInt32(amountPages) : 10;
                     int count = 0;
                     string action = page is null ? "" : page.Substring(3, page.Length - 3);
                     int totalPages = agents.Count % pageSize == 0 ? agents.Count / pageSize : (agents.Count / pageSize) + 1;
@@ -143,6 +148,8 @@ namespace DizimoParoquial.Controllers
                     TempData["UltimoRegistro"] = agents.Count <= pageSize ? agents.Count : (actualPage * pageSize) + count;
 
                     #endregion
+
+                    ViewBag.AmountPages = AmountPages.GetAmountPageInput();
 
                     process = "PESQUISA DE AGENTES";
 

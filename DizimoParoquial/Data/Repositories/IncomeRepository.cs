@@ -90,7 +90,8 @@ namespace DizimoParoquial.Data.Repositories
                 query.Append("COUNT(PaymentType) AS AmountPayments ");
                 query.Append("FROM Income I ");
                 query.Append($"WHERE I.RegistrationDate BETWEEN '{startPaymentDate.ToString("yyyy-MM-dd HH:mm:ss")}' AND '{endPaymentDate.AddDays(1).ToString("yyyy-MM-dd HH:mm:ss")}' ");
-                
+                query.Append("AND I.Value != 0 ");
+
                 if (paymentType != null)
                     query.Append($"AND I.PaymentType = '{paymentType}' ");
 
@@ -100,7 +101,8 @@ namespace DizimoParoquial.Data.Repositories
                 query.Append("SUM(Value) as TotalValue, ");
                 query.Append("COUNT(PaymentType) AS AmountPayments ");
                 query.Append("FROM Income I ");
-                query.Append($"WHERE I.RegistrationDate BETWEEN '{startPaymentDate.ToString("yyyy-MM-dd HH:mm:ss")}' AND '{endPaymentDate.AddDays(1).ToString("yyyy-MM-dd HH:mm:ss")}'; ");
+                query.Append($"WHERE I.RegistrationDate BETWEEN '{startPaymentDate.ToString("yyyy-MM-dd HH:mm:ss")}' AND '{endPaymentDate.AddDays(1).ToString("yyyy-MM-dd HH:mm:ss")}' ");
+                query.Append("AND I.Value != 0; ");
 
                 using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
                 {

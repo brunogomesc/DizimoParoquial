@@ -91,14 +91,14 @@ namespace DizimoParoquial.Services
             }
         }
 
-        public async Task<bool> UpdateTithe(Tithe tithe)
+        public async Task<bool> UpdateTithe(Tithe tithe, decimal oldValue)
         {
             bool titheWasUpdated = false;
 
             try
             {
 
-                titheWasUpdated = await UpdateTitheRepository(tithe);
+                titheWasUpdated = await UpdateTitheRepository(tithe, oldValue);
 
                 return titheWasUpdated;
 
@@ -261,6 +261,40 @@ namespace DizimoParoquial.Services
             }
         }
 
+        public async Task<bool> DeleteTithe(int titheId)
+        {
+            bool titheWasDeleted = false;
+
+            try
+            {
+
+                titheWasDeleted = await DeleteTitheRepository(titheId);
+
+                return titheWasDeleted;
+
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Excluir Lançamento - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Excluir Lançamento - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Excluir Lançamento - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Excluir Lançamento - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Excluir Lançamento - Dados vazios.");
+            }
+        }
+
         #region Repositories Methods
 
         private async Task<bool> SaveTithesRepository(List<Tithe> tithes)
@@ -295,13 +329,13 @@ namespace DizimoParoquial.Services
             }
         }
 
-        private async Task<bool> UpdateTitheRepository(Tithe tithe)
+        private async Task<bool> UpdateTitheRepository(Tithe tithe, decimal oldValue)
         {
             bool titheWasUpdated = false;
 
             try
             {
-                titheWasUpdated = await _titheRepository.UpdateTithe(tithe);
+                titheWasUpdated = await _titheRepository.UpdateTithe(tithe, oldValue);
 
                 return titheWasUpdated;
             }
@@ -452,6 +486,38 @@ namespace DizimoParoquial.Services
             catch (ArgumentNullException)
             {
                 throw new NullException("Consultar Dizimos Detalhes - Dados vazios.");
+            }
+        }
+
+        private async Task<bool> DeleteTitheRepository(int titheId)
+        {
+            bool titheWasUpdated = false;
+
+            try
+            {
+                titheWasUpdated = await _titheRepository.DeleteTithe(titheId);
+
+                return titheWasUpdated;
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Excluir Lançamento - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Excluir Lançamento - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Excluir Lançamento - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Excluir Lançamento - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Excluir Lançamento - Dados vazios.");
             }
         }
 

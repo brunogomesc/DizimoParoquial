@@ -146,49 +146,57 @@
     </script>
 </head>
 <body>
-    <div class="container my-4">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h2 class="d-flex align-items-center border-bottom pb-2 mb-3 fw-bold text-primary">
-                    <i class="fa fa-search me-2" aria-hidden="true"></i>
-                    Buscar Dizimistas
-                </h2>
-                @using (Html.BeginForm("SearchTithePayer", "TithePayer", FormMethod.Post, new { enctype = "multipart/form-data" }))
-                {
+    @using (Html.BeginForm("SearchTithePayer", "TithePayer", FormMethod.Post, new { enctype = "multipart/form-data", @id = "formSearch" }))
+    {
+        <div class="container my-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="d-flex align-items-center border-bottom pb-2 mb-3 fw-bold text-primary">
+                        <i class="fa fa-search me-2" aria-hidden="true"></i>
+                        Buscar Dizimistas
+                    </h2>
                     <div class="row g-3">
                         <div class="col-md-6 col-sm-12">
                             <label for="document" class="form-label fw-bold text-primary"><b>CPF:</b></label>
-                            <input name="document" class="form-control" type="text" />
+                            <input name="document" value="@ViewBag.Document" class="form-control" type="text" />
                         </div>
                         <div class="col-md-6 col-sm-12">
                             <label for="name" class="form-label fw-bold text-primary"><b>Nome:</b></label>
-                            <input name="name" class="form-control" type="text" />
+                            <input name="name" value="@ViewBag.Name" class="form-control" type="text" />
                         </div>
                     </div>
                     <div class="row g-3 mt-3">
                         <div class="col-md-3 col-sm-12">
-                            <button class="btn btn-outline-primary w-100">
+                            <button type="submit" class="btn btn-outline-primary w-100">
                                 <i class="fa fa-search me-2"></i> Pesquisar
                             </button>
                         </div>
                     </div>
-                }
-                <div class="row g-3 mt-3">
-                    <div class="col-12">
-                        <button class="btn btn-outline-success w-100" data-bs-toggle="modal" data-bs-target="#modal_tithepayer_add">
-                            <i class="fa-solid fa-user-plus me-2"></i> Adicionar Dizimista
-                        </button>
+                    <div class="row g-3 mt-3">
+                        <div class="col-12">
+                            <button type="button" class="btn btn-outline-success w-100" data-bs-toggle="modal" data-bs-target="#modal_tithepayer_add">
+                                <i class="fa-solid fa-user-plus me-2"></i> Adicionar Dizimista
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <br />
-    @using (Html.BeginForm("SearchTithePayer", "TithePayer", FormMethod.Post, new { enctype = "multipart/form-data"}))
-    {
+        <br />
         @if (Model != null && Model.Any())
         {
             <div class="card mt-4 shadow-sm">
+                <div class="row align-items-center g-2">
+                    <div class="col-md-auto">
+                        <label class="form-label mb-0">Registros por Páginas:</label>
+                    </div>
+                    <div class="col-md-auto">
+                        @Html.DropDownList("AmountPages", (IEnumerable<SelectListItem>)ViewBag.AmountPages, new { @class = "form-select w-auto", id = "AmountPages" })
+                    </div>
+                    <div class="col-md-auto">
+                        <input type="hidden" id="inputPages" name="amount" />
+                    </div>
+                </div>
                 <div class="card-body">
                     <h3 class="border-bottom pb-2 mb-3 fw-bold text-primary">Resultados da Busca</h3>
                     <div class="table-responsive">
@@ -549,4 +557,20 @@
             buscarEndereco(this.value, "addressEdit", "neighborhoodEdit", "complementEdit");
         });
     });
+</script>
+
+<script>
+    // Adicionando um evento onchange ao dropdownlist
+    document.getElementById("AmountPages").onchange = function () {
+        // Obtém o valor selecionado do dropdownlist
+        var valueSelected = this.value;
+
+        var input = document.getElementById("inputPages");
+        var form = document.getElementById("formSearch");
+
+        input.value = valueSelected;
+
+        form.submit();
+
+    };
 </script>

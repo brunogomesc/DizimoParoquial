@@ -8,7 +8,7 @@ namespace DizimoParoquial.Data.Interface
 
         public Task<bool> SaveTithes(List<Tithe> tithes);
 
-        public Task<bool> UpdateTithe(Tithe tithe);
+        public Task<bool> UpdateTithe(Tithe tithe, decimal oldValue);
 
         public Task<List<TithePayerLaunchDTO>> GetTithesWithFilters(string? name, int tithePayerCode, string? document);
 
@@ -17,6 +17,8 @@ namespace DizimoParoquial.Data.Interface
         public Task<List<TitheDTO>> GetReportTithesMonth(string paymentType, string name, DateTime startPaymentDate, DateTime endPaymentDate);
 
         public Task<TitheDTO> GetTitheByTitheId(int id);
+
+        public Task<bool> DeleteTithe(int titheId);
 
     }
 }

@@ -1,29 +1,68 @@
 ﻿body {
-    background: linear-gradient(to bottom, #03144b, #5e74dc); /* Azul escuro para azul claro */
-    height: 100vh; /* Garante que o fundo ocupe toda a tela */
+    background: linear-gradient(to bottom, #03144b, #5e74dc); 
+    height: 100vh; 
     margin: 0;
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 
 .container {
     background: #ffffff;
     width: 25rem;
-    height: 40rem;
-    border-radius: 8px; /* Opcional, para cantos arredondados */
-    box-shadow: 10px 10px 30px rgba(0, 0, 0, 1); /* Sombra preta */
+    padding: 2rem; 
+    border-radius: 8px; 
+    box-shadow: 10px 10px 30px rgba(0, 0, 0, 1); 
     display: flex;
     align-items: center;
     flex-direction: column;
-    justify-content: center;
 }
+
+    .container h1,
+    .container h4 {
+        text-align: center; 
+    }
+
+    .container img {
+        display: block;
+        margin: 0 auto 15px auto;
+        width: 150px;
+    }
+
+
+.form-floating {
+    position: relative; 
+    width: 100%; 
+    margin-bottom: 1rem;
+}
+
+    .form-floating > .form-control,
+    .form-floating > .form-select {
+        padding-right: 40px; 
+    }
+
+
+    
+    .form-floating .toggle-password {
+        position: absolute;
+        right: 15px; 
+        top: 50%; 
+        transform: translateY(-50%); 
+        cursor: pointer;
+        z-index: 3; 
+        color: #6c757d; 
+        font-size: 1em; 
+    }
+
+#floatingPassword,
+input[type="text"]#floatingPassword {
+    padding-right: 40px !important; 
+}
+
 
 .btn-primary {
-    border-radius: 8px; /* Opcional, para cantos arredondados */
-    width: 20rem;
-    margin-top: 2rem;
-}
-
-h1 {
-    margin-bottom: 2rem;
+    border-radius: 8px; 
+    width: 100%; 
+    margin-top: 1rem; 
+    padding: 0.75rem; 
 }

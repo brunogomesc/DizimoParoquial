@@ -13,7 +13,7 @@
     <title>Consultar Dizimo</title>
 </head>
 <body>
-    @using (Html.BeginForm("SearchTithes", "Consult", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    @using (Html.BeginForm("SearchTithes", "Consult", FormMethod.Post, new { enctype = "multipart/form-data", @id = "formSearch" }))
     {
         <div class="container my-4">
             <div class="card shadow-sm">
@@ -25,20 +25,20 @@
                     <div class="row g-3">
                         <div class="col-md-5">
                             <label for="Name" class="form-label fw-bold">Nome:</label>
-                            <input name="name" id="name" class="form-control" type="text" />
+                            <input name="name" value="@ViewBag.Name" id="name" class="form-control" type="text" />
                         </div>
                         <div class="col-md-5">
                             <label for="Document" class="form-label fw-bold">Documento:</label>
-                            <input name="document" id="document" class="form-control" type="text" />
+                            <input name="document" value="@ViewBag.Document" id="document" class="form-control" type="text" />
                         </div>
                         <div class="col-md-2">
                             <label for="tithePayerCode" class="form-label fw-bold">Código Dizimista:</label>
-                            <input name="tithePayerCode" id="tithePayerCode" class="form-control" type="number" />
+                            <input name="tithePayerCode" value="@ViewBag.TithePayerId" id="tithePayerCode" class="form-control" type="number" />
                         </div>
                     </div>
                     <div class="row g-3 mt-3">
                         <div class="col-md-3">
-                            <button class="btn btn-outline-primary w-100" type="submit">
+                            <button type="submit" class="btn btn-outline-primary w-100">
                                 <i class="fa fa-search me-2"></i> Pesquisar
                             </button>
                         </div>
@@ -50,6 +50,17 @@
         @if (Model != null && Model.Any())
         {
             <div class="card mt-4 shadow-sm">
+                <div class="row align-items-center g-2">
+                    <div class="col-md-auto">
+                        <label class="form-label mb-0">Registros por Páginas:</label>
+                    </div>
+                    <div class="col-md-auto">
+                        @Html.DropDownList("AmountPages", (IEnumerable<SelectListItem>)ViewBag.AmountPages, new { @class = "form-select w-auto", id = "AmountPages" })
+                    </div>
+                    <div class="col-md-auto">
+                        <input type="hidden" id="inputPages" name="amount" />
+                    </div>
+                </div>
                 <div class="card-body">
                     <h3 class="border-bottom pb-2 mb-3 fw-bold text-info">Resultados da Busca</h3>
                     <div class="table-responsive">
@@ -295,5 +306,22 @@
             });
         }
     </script>
+
+    <script>
+        // Adicionando um evento onchange ao dropdownlist
+        document.getElementById("AmountPages").onchange = function () {
+            // Obtém o valor selecionado do dropdownlist
+            var valueSelected = this.value;
+
+            var input = document.getElementById("inputPages");
+            var form = document.getElementById("formSearch");
+
+            input.value = valueSelected;
+
+            form.submit();
+
+        };
+    </script>
+
 </body>
 </html>

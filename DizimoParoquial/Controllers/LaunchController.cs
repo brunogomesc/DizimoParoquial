@@ -1,6 +1,7 @@
 ﻿using DizimoParoquial.DTOs;
 using DizimoParoquial.Models;
 using DizimoParoquial.Services;
+using DizimoParoquial.Utils;
 using DizimoParoquial.Utils.Filters;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +9,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using NToastNotify;
 using System.Diagnostics;
 using System.Globalization;
+using System.Reflection.Metadata;
+using System.Xml.Linq;
 
 namespace DizimoParoquial.Controllers
 {
@@ -160,7 +163,7 @@ namespace DizimoParoquial.Controllers
 
         }
 
-        public async Task<IActionResult> SearchTithePayerLaunchAllUsers(string name, int tithePayerCode, string pageAmount, string page, string buttonPage)
+        public async Task<IActionResult> SearchTithePayerLaunchAllUsers(string name, int tithePayerCode, string amountPages, string page, string buttonPage)
         {
 
             int? agentId = HttpContext.Session.GetInt32("Agent");
@@ -198,7 +201,7 @@ namespace DizimoParoquial.Controllers
                         actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
                     }
 
-                    int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                    int pageSize = amountPages != null ? Convert.ToInt32(amountPages) : 10;
                     int count = 0;
                     string action = page is null ? "" : page.Substring(3, page.Length - 3);
                     int totalPages = tithePayers.Count % pageSize == 0 ? tithePayers.Count / pageSize : (tithePayers.Count / pageSize) + 1;
@@ -239,6 +242,10 @@ namespace DizimoParoquial.Controllers
                     TempData["UltimoRegistro"] = tithePayers.Count <= pageSize ? tithePayers.Count : (actualPage * pageSize) + count;
 
                     #endregion
+
+                    ViewBag.Name = name;
+                    ViewBag.TithePayerId = tithePayerCode;
+                    ViewBag.AmountPages = AmountPages.GetAmountPageInput();
 
                     return View(ROUTE_SCREEN_LAUNCH_ALLUSERS, tithePayersPaginated);
                 }
@@ -421,7 +428,7 @@ namespace DizimoParoquial.Controllers
 
         }
 
-        public async Task<IActionResult> SearchTithePayerLaunch(string name, int tithePayerCode, string pageAmount, string page, string buttonPage)
+        public async Task<IActionResult> SearchTithePayerLaunch(string name, int tithePayerCode, string amountPages, string page, string buttonPage)
         {
 
             int? idUser = HttpContext.Session.GetInt32("User");
@@ -461,7 +468,7 @@ namespace DizimoParoquial.Controllers
                         actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
                     }
 
-                    int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                    int pageSize = amountPages != null ? Convert.ToInt32(amountPages) : 10;
                     int count = 0;
                     string action = page is null ? "" : page.Substring(3, page.Length - 3);
                     int totalPages = tithePayers.Count % pageSize == 0 ? tithePayers.Count / pageSize : (tithePayers.Count / pageSize) + 1;
@@ -502,6 +509,10 @@ namespace DizimoParoquial.Controllers
                     TempData["UltimoRegistro"] = tithePayers.Count <= pageSize ? tithePayers.Count : (actualPage * pageSize) + count;
 
                     #endregion
+
+                    ViewBag.Name = name;
+                    ViewBag.TithePayerId = tithePayerCode;
+                    ViewBag.AmountPages = AmountPages.GetAmountPageInput();
 
                     return View(ROUTE_SCREEN_LAUNCH, tithePayersPaginated);
                 }
@@ -643,7 +654,7 @@ namespace DizimoParoquial.Controllers
             
         }
 
-        public async Task<IActionResult> SearchTithesEditLaunch(int tithePayerCode, string document, string pageAmount, string page, string buttonPage)
+        public async Task<IActionResult> SearchTithesEditLaunch(int tithePayerCode, string document, string amountPages, string page, string buttonPage)
         {
 
             int? idUser = HttpContext.Session.GetInt32("User");
@@ -688,7 +699,7 @@ namespace DizimoParoquial.Controllers
                         actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
                     }
 
-                    int pageSize = pageAmount != null ? Convert.ToInt32(pageAmount) : 10;
+                    int pageSize = amountPages != null ? Convert.ToInt32(amountPages) : 10;
                     int count = 0;
                     string action = page is null ? "" : page.Substring(3, page.Length - 3);
                     int totalPages = tithes.Count % pageSize == 0 ? tithes.Count / pageSize : (tithes.Count / pageSize) + 1;
@@ -729,6 +740,10 @@ namespace DizimoParoquial.Controllers
                     TempData["UltimoRegistro"] = tithes.Count <= pageSize ? tithes.Count : (actualPage * pageSize) + count;
 
                     #endregion
+
+                    ViewBag.Document = document;
+                    ViewBag.TithePayerId = tithePayerCode;
+                    ViewBag.AmountPages = AmountPages.GetAmountPageInput();
 
                     var tithesOrganized = tithePayersPaginated.OrderByDescending(t => t.PaymentMonth).ToList();
 
@@ -866,7 +881,7 @@ namespace DizimoParoquial.Controllers
                         Value = decimalValue
                     };
 
-                    bool titheWasUpdated = await _titheService.UpdateTithe(titheUpdated);
+                    bool titheWasUpdated = await _titheService.UpdateTithe(titheUpdated, tithe.Value);
 
                     process = "EDIÇÃO DIZIMO";
 
@@ -896,6 +911,74 @@ namespace DizimoParoquial.Controllers
                     process = "EDIÇÃO DIZIMO";
 
                     details = $"{username} falhou na edição do dizimo. Erro: {ex.Message}";
+
+                    eventRegistered = await _eventService.SaveEvent(process, details);
+
+                }
+
+                return RedirectToAction(nameof(EditLaunch));
+            }
+            else
+            {
+                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
+                return RedirectToAction("Index", "Login");
+            }
+
+        }
+
+        public async Task<IActionResult> DeleteLaunch(int titheId)
+        {
+
+            string? process, details, username;
+            bool eventRegistered;
+
+            int? idUser = HttpContext.Session.GetInt32("User");
+
+            username = HttpContext.Session.GetString("Username");
+
+            if (idUser != null && idUser != 0)
+            {
+
+                try
+                {
+                    if (titheId == 0)
+                    {
+                        _notification.AddErrorToastMessage("Dizimo não localizado para a exclusão!");
+                        return RedirectToAction(nameof(Index));
+                    }
+
+                    bool titheWasDeleted = await _titheService.DeleteTithe(titheId);
+
+                    ViewBag.UserName = username;
+
+                    process = "EXCLUSÃO LANÇAMENTO DIZIMO";
+
+                    if (titheWasDeleted)
+                    {
+                        _notification.AddSuccessToastMessage("Lançamento excluido com sucesso!");
+
+                        details = $"{username} excluiu o lançamento com sucesso!";
+
+                        eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                    }
+                    else
+                    {
+                        _notification.AddErrorToastMessage("Não foi possível excluir o lançamento!");
+
+                        details = $"{username} não foi possível excluir o lançamento, devido a uma falha!";
+
+                        eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _notification.AddErrorToastMessage(ex.Message);
+
+                    process = "EXCLUSÃO LANÇAMENTO DIZIMO";
+
+                    details = $"{username} falhou na exclusão de lançamento. Erro: {ex.Message}";
 
                     eventRegistered = await _eventService.SaveEvent(process, details);
 
@@ -942,9 +1025,12 @@ namespace DizimoParoquial.Controllers
 
             foreach (var tithe in tithes)
             {
-                if(dates.Contains(tithe.PaymentMonth))
+
+                DateTime dateFormatted = new DateTime(tithe.PaymentMonth.Year, tithe.PaymentMonth.Month, today.Day, today.Hour, today.Minute, today.Second);
+
+                if (dates.Contains(dateFormatted))
                 {
-                    dates.Remove(tithe.PaymentMonth);
+                    dates.Remove(dateFormatted);
                 }
             }
 
