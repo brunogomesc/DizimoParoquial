@@ -4,6 +4,7 @@ using DizimoParoquial.DTOs;
 using DizimoParoquial.Exceptions;
 using DizimoParoquial.Models;
 using System.Data.Common;
+using System.Reflection.Metadata;
 
 namespace DizimoParoquial.Services
 {
@@ -292,6 +293,40 @@ namespace DizimoParoquial.Services
             catch (ArgumentNullException)
             {
                 throw new NullException("Excluir Lançamento - Dados vazios.");
+            }
+        }
+
+        public async Task<List<ReportPaying>> GetPayingStatus(string? name, Status? status)
+        {
+            List<ReportPaying> reportPayings = new List<ReportPaying>();
+
+            try
+            {
+
+                List<TithePayerLaunchDTO> tithes = tithes = await GetTithesWithFilters(name, 0, null);
+
+                return reportPayings;
+
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consultar Status Contribuintes - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Consultar Status Contribuintes - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Consultar Status Contribuintes - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Consultar Status Contribuintes - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Consultar Status Contribuintes - Dados vazios.");
             }
         }
 
