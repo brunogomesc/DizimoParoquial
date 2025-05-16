@@ -12,10 +12,12 @@ namespace DizimoParoquial.Services
     {
 
         private readonly ITithePayerRepository _tithePayerRepository;
+        private readonly TitheService _titheService;
 
-        public TithePayerService(ITithePayerRepository tithePayerRepository)
+        public TithePayerService(ITithePayerRepository tithePayerRepository, TitheService titheService)
         {
             _tithePayerRepository = tithePayerRepository;
+            _titheService = titheService;
         }
 
         public async Task<int> RegisterTithePayer(TithePayerDTO tithePayer, int userId)
@@ -467,6 +469,99 @@ namespace DizimoParoquial.Services
             {
                 throw new NullException("Consultar Relatório Bairros - Dados vazios.");
             }
+        }
+
+        public async Task<List<ReportPaying>> GetPayingStatus(string? name, Status? status)
+        {
+            List<ReportPaying> reportPayings = new List<ReportPaying>();
+
+            try
+            {
+
+                List<TithePayer> tithePayers = await GetTithePayersWithFilters(null, name);
+
+                foreach (var person in tithePayers)
+                {
+
+                    List<TitheDTO> tithes = await _titheService.GetTithesByTithePayerId(person.TithePayerId);
+
+                    if (tithes.Count == 0)
+                    {
+                        reportPayings.Add(new ReportPaying
+                        {
+                            TithePayerId = person.TithePayerId,
+                            Name = person.Name,
+                            StatusPaying = Status.NaoContribuinte,
+                            PhoneNumber = person.PhoneNumber,
+                            Email = person.Email,
+                            LastContribuition = null,
+                            AmountContribuition = 0
+                        });
+                    }
+                    else
+                    {
+
+                        int amountMonths = CalculatePaidMonthsLastSemester(tithes); 
+
+                        reportPayings.Add(new ReportPaying
+                        {
+                            TithePayerId = person.TithePayerId,
+                            Name = person.Name,
+                            StatusPaying = amountMonths == 0 ? Status.Inadimplente : Status.Adimplente,
+                            PhoneNumber = person.PhoneNumber,
+                            Email = person.Email,
+                            LastContribuition = tithes.Max(x => x.PaymentMonth),
+                            AmountContribuition = amountMonths
+                        });
+                    }
+
+                }
+
+                if(status != null)
+                    reportPayings = reportPayings.Where(x => x.StatusPaying == status).ToList();
+
+                return reportPayings;
+
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consultar Status Contribuintes - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Consultar Status Contribuintes - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Consultar Status Contribuintes - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Consultar Status Contribuintes - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Consultar Status Contribuintes - Dados vazios.");
+            }
+        }
+
+        private int CalculatePaidMonthsLastSemester(List<TitheDTO> tithes)
+        {
+            int amountMonths = 0;
+
+            DateTime actualMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0);
+
+            DateTime lastMonth = actualMonth.AddMonths(-6);
+
+            foreach (var tithe in tithes)
+            {
+                DateTime titheDateFormatted = new DateTime(tithe.PaymentMonth.Year, tithe.PaymentMonth.Month, DateTime.Now.Day, 0, 0, 0);
+
+                if (titheDateFormatted >= lastMonth && titheDateFormatted <= actualMonth)
+                    amountMonths++;
+            }
+
+            return amountMonths;
         }
 
         #region Repositories Methods

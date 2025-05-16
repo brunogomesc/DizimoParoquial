@@ -4,6 +4,7 @@ using DizimoParoquial.DTOs;
 using DizimoParoquial.Exceptions;
 using DizimoParoquial.Models;
 using System.Data.Common;
+using System.Reflection.Metadata;
 
 namespace DizimoParoquial.Services
 {

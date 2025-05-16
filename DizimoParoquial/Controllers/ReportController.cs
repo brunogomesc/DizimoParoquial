@@ -5,6 +5,7 @@ using DizimoParoquial.Utils;
 using Microsoft.AspNetCore.Mvc;
 using NToastNotify;
 using OfficeOpenXml;
+using System.Xml.Linq;
 
 namespace DizimoParoquial.Controllers
 {
@@ -18,6 +19,7 @@ namespace DizimoParoquial.Controllers
         private const string ROUTE_SCREEN_TITHES = "/Views/Report/ReportTithes.cshtml";
         private const string ROUTE_SCREEN_SUM = "/Views/Report/ReportSum.cshtml";
         private const string ROUTE_SCREEN_SUM_ADDRESS = "/Views/Report/ReportSumAddress.cshtml";
+        private const string ROUTE_SCREEN_PAYING = "/Views/Report/ReportPaying.cshtml";
 
         private readonly IToastNotification _notification;
         private readonly TithePayerService _tithePayer;
@@ -386,6 +388,98 @@ namespace DizimoParoquial.Controllers
                 eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
 
                 return View(reportSumAddressPaginated);
+            }
+            else
+            {
+                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
+                return RedirectToAction("Index", "Login");
+            }
+        }
+
+        public async Task<IActionResult> ReportPaying(string buttonPage, string page, string amountPages)
+        {
+
+            string? process, details, username;
+            bool eventRegistered;
+
+            int? idUser = HttpContext.Session.GetInt32("User");
+
+            if (idUser != null && idUser != 0)
+            {
+
+                //Retorna a lista para exibição
+                List<ReportPaying> reportPaying = await _tithePayer.GetPayingStatus(null, null);
+
+                username = HttpContext.Session.GetString("Username");
+
+                ViewBag.UserName = username;
+                ViewBag.Name = null;
+                ViewBag.Status = null;
+                ViewBag.AmountPages = AmountPages.GetAmountPageInput();
+
+                #region Paginação
+
+                int actualPage = 0;
+                List<ReportPaying> reportPayingPaginated = new();
+
+                if (buttonPage != null)
+                {
+                    actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                }
+                else if (page != null)
+                {
+                    actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
+                }
+
+                int pageSize = amountPages != null ? Convert.ToInt32(amountPages) : 10;
+                int count = 0;
+                string action = page is null ? "" : page.Substring(3, page.Length - 3);
+                int totalPages = reportPaying.Count % pageSize == 0 ? reportPaying.Count / pageSize : (reportPaying.Count / pageSize) + 1;
+                ViewBag.TotalPages = totalPages;
+                ViewBag.ActualPage = actualPage;
+
+                if (action.Contains("back") || action.Contains("next"))
+                {
+                    actualPage = action.Contains("back") ? ViewBag.ActualPage - 1 : ViewBag.ActualPage + 1;
+                }
+                else if (buttonPage != null)
+                {
+                    actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                }
+
+                actualPage = actualPage < 0 ? 0 : actualPage;
+
+                ViewBag.ActualPage = actualPage;
+
+                if (reportPaying.Count > pageSize)
+                {
+                    for (int i = (actualPage * pageSize); i < reportPaying.Count; i++)
+                    {
+                        reportPayingPaginated.Add(reportPaying[i]);
+                        count++;
+
+                        if (count == pageSize)
+                            break;
+                    }
+                }
+                else
+                {
+                    reportPayingPaginated = reportPaying;
+                }
+
+                TempData["TotalCredenciais"] = reportPaying.Count;
+                TempData["PrimeiroRegistro"] = (actualPage * pageSize) + 1;
+                TempData["UltimoRegistro"] = reportPaying.Count <= pageSize ? reportPaying.Count : (actualPage * pageSize) + count;
+
+                #endregion
+
+                process = "ACESSO RELATÓRIO INADIMPLENTES";
+
+                details = $"{username} acessou tela de relatório inadimplentes!";
+
+                eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                return View(reportPayingPaginated);
             }
             else
             {
@@ -1240,6 +1334,120 @@ namespace DizimoParoquial.Controllers
 
         }
 
+        public async Task<IActionResult> SearchReportPaying(string name, string status, bool generateExcel, string amountPages, string page, string buttonPage)
+        {
+
+            string? process, details, username;
+            bool eventRegistered;
+
+            int? idUser = HttpContext.Session.GetInt32("User");
+
+            username = HttpContext.Session.GetString("Username");
+
+            if (idUser != null && idUser != 0)
+            {
+  
+                Status? statusPaying = status switch
+                {
+                    "true" => Status.Adimplente,
+                    "false" => Status.Inadimplente,
+                    "not" => Status.NaoContribuinte,
+                    _ => null
+                };
+
+                //Retorna a lista para exibição
+                List<ReportPaying> reportPaying = await _tithePayer.GetPayingStatus(name, statusPaying);
+
+                ViewBag.Name = name;
+                ViewBag.Status = status;
+                ViewBag.AmountPages = AmountPages.GetAmountPageInput();
+
+                #region Paginação
+
+                int actualPage = 0;
+                List<ReportPaying> reportPayingPaginated = new();
+
+                if (buttonPage != null)
+                {
+                    actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                }
+                else if (page != null)
+                {
+                    actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
+                }
+
+                int pageSize = amountPages != null ? Convert.ToInt32(amountPages) : 10;
+                int count = 0;
+                string action = page is null ? "" : page.Substring(3, page.Length - 3);
+                int totalPages = reportPaying.Count % pageSize == 0 ? reportPaying.Count / pageSize : (reportPaying.Count / pageSize) + 1;
+                ViewBag.TotalPages = totalPages;
+                ViewBag.ActualPage = actualPage;
+
+                if (action.Contains("back") || action.Contains("next"))
+                {
+                    actualPage = action.Contains("back") ? ViewBag.ActualPage - 1 : ViewBag.ActualPage + 1;
+                }
+                else if (buttonPage != null)
+                {
+                    actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                }
+
+                actualPage = actualPage < 0 ? 0 : actualPage;
+
+                ViewBag.ActualPage = actualPage;
+
+                if (reportPaying.Count > pageSize)
+                {
+                    for (int i = (actualPage * pageSize); i < reportPaying.Count; i++)
+                    {
+                        reportPayingPaginated.Add(reportPaying[i]);
+                        count++;
+
+                        if (count == pageSize)
+                            break;
+                    }
+                }
+                else
+                {
+                    reportPayingPaginated = reportPaying;
+                }
+
+                TempData["TotalCredenciais"] = reportPaying.Count;
+                TempData["PrimeiroRegistro"] = (actualPage * pageSize) + 1;
+                TempData["UltimoRegistro"] = reportPaying.Count <= pageSize ? reportPaying.Count : (actualPage * pageSize) + count;
+
+                #endregion
+
+                ViewBag.UserName = username;
+
+                process = "CONSULTA RELATÓRIO INADIMPLENTES";
+
+                details = $"{username} consultou o relatório de inadimplentes!";
+
+                eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                if (generateExcel)
+                {
+
+                    process = "EXPORTAÇÃO RELATÓRIO INADIMPLENTES";
+
+                    details = $"{username} exportou o relatório de indadimplentes!";
+
+                    eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                    return GenerateExcelPaying(reportPaying);
+                }
+
+                return View(ROUTE_SCREEN_PAYING, reportPayingPaginated);
+            }
+            else
+            {
+                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
+                return RedirectToAction("Index", "Login");
+            }
+
+        }
+
         #region Excel
 
         [HttpPost]
@@ -1520,7 +1728,7 @@ namespace DizimoParoquial.Controllers
             if (sums == null || sums.Count == 0)
             {
                 _notification.AddErrorToastMessage("Sem somas para exportar!");
-                return View(ROUTE_SCREEN_SUM);
+                return View(ROUTE_SCREEN_SUM_ADDRESS);
             }
 
             // Configuração para permitir a geração do arquivo
@@ -1556,6 +1764,62 @@ namespace DizimoParoquial.Controllers
 
                 // Retornar o arquivo para download
                 string excelFileName = $"Ruas_{DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss").Replace("/", "").Replace(" ", "").Replace(":", "")}.xlsx";
+
+                return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelFileName);
+            }
+
+        }
+
+        public IActionResult GenerateExcelPaying(List<ReportPaying> payings)
+        {
+
+            if (payings == null || payings.Count == 0)
+            {
+                _notification.AddErrorToastMessage("Sem resultados para exportar!");
+                return View(ROUTE_SCREEN_PAYING);
+            }
+
+            // Configuração para permitir a geração do arquivo
+            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+            // Criar uma nova planilha
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Contribuidores");
+
+                // Cabeçalhos
+                worksheet.Cells[1, 1].Value = "Código Dizimista";
+                worksheet.Cells[1, 2].Value = "Nome";
+                worksheet.Cells[1, 3].Value = "Status";
+                worksheet.Cells[1, 4].Value = "Telefone";
+                worksheet.Cells[1, 5].Value = "E-mail";
+                worksheet.Cells[1, 6].Value = "Data Última Contribuição";
+                worksheet.Cells[1, 7].Value = "Contribuição nos últimos 6 meses";
+
+                // Preencher os dados a partir da lista de objetos
+                int row = 2;
+
+                foreach (var paying in payings)
+                {
+                    worksheet.Cells[row, 1].Value = paying.TithePayerId;
+                    worksheet.Cells[row, 2].Value = paying.Name;
+                    worksheet.Cells[row, 3].Value = paying.StatusPaying;
+                    worksheet.Cells[row, 4].Value = paying.PhoneNumber;
+                    worksheet.Cells[row, 5].Value = paying.Email;
+                    worksheet.Cells[row, 6].Value = paying.LastContribuition;
+                    worksheet.Cells[row, 7].Value = $"{paying.AmountContribuition}/6";
+
+                    row++;
+                }
+
+                // Formatar cabeçalhos
+                worksheet.Cells[1, 1, 1, 7].Style.Font.Bold = true;
+                worksheet.Cells[1, 1, 1, 7].AutoFitColumns();
+
+                var excelBytes = package.GetAsByteArray();
+
+                // Retornar o arquivo para download
+                string excelFileName = $"Contribuidores_{DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss").Replace("/", "").Replace(" ", "").Replace(":", "")}.xlsx";
 
                 return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelFileName);
             }
