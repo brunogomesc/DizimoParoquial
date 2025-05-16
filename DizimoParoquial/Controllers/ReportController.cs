@@ -408,7 +408,7 @@ namespace DizimoParoquial.Controllers
             {
 
                 //Retorna a lista para exibição
-                List<ReportPaying> reportPaying = await _titheService.GetPayingStatus(null, null);
+                List<ReportPaying> reportPaying = await _tithePayer.GetPayingStatus(null, null);
 
                 username = HttpContext.Session.GetString("Username");
 
@@ -1351,11 +1351,12 @@ namespace DizimoParoquial.Controllers
                 {
                     "true" => Status.Adimplente,
                     "false" => Status.Inadimplente,
+                    "not" => Status.NaoContribuinte,
                     _ => null
                 };
 
                 //Retorna a lista para exibição
-                List<ReportPaying> reportPaying = await _titheService.GetPayingStatus(name, statusPaying);
+                List<ReportPaying> reportPaying = await _tithePayer.GetPayingStatus(name, statusPaying);
 
                 ViewBag.Name = name;
                 ViewBag.Status = status;

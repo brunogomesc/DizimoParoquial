@@ -12,35 +12,35 @@
     <title>Relatório de Inadimplentes</title>
     <style>
         .btn-primary {
-            background-color: #007bff; /* Azul principal */
-            border-color: #007bff;
+        background-color: #007bff; /* Azul principal */
+        border-color: #007bff;
         }
 
-            .btn-primary:hover {
-                background-color: #0056b3;
-                border-color: #0056b3;
-            }
+        .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+        }
 
         .bg-primary {
-            background-color: #007bff !important;
+        background-color: #007bff !important;
         }
 
         .text-primary {
-            color: #007bff !important;
+        color: #007bff !important;
         }
 
         .table thead th {
-            background-color: #007bff;
-            color: white;
-            border-color: #007bff;
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
         }
 
         .table tbody tr:nth-child(odd) {
-            background-color: #f8f9fa;
+        background-color: #f8f9fa;
         }
 
         .table tbody td {
-            border-color: #dee2e6;
+        border-color: #dee2e6;
         }
     </style>
 </head>
@@ -67,18 +67,28 @@
                                     <option value="" selected>Todos</option>
                                     <option value="true">Adimplentes</option>
                                     <option value="false">Inadimplentes</option>
+                                    <option value="not">Não contribuintes</option>
                                 }
-                                else if (Convert.ToBoolean(ViewBag.Status) == true)
+                                else if (ViewBag.Status == "true")
                                 {
                                     <option value="">Todos</option>
                                     <option value="true" selected>Adimplentes</option>
                                     <option value="false">Inadimplentes</option>
+                                    <option value="not">Não contribuintes</option>
+                                }
+                                else if(ViewBag.Status == "false")
+                                {
+                                    <option value="">Todos</option>
+                                    <option value="true">Adimplentes</option>
+                                    <option value="false" selected>Inadimplentes</option>
+                                    <option value="not">Não contribuintes</option>
                                 }
                                 else
                                 {
                                     <option value="">Todos</option>
                                     <option value="true">Adimplentes</option>
-                                    <option value="false" selected>Inadimplentes</option>
+                                    <option value="false">Inadimplentes</option>
+                                    <option value="not" selected>Não contribuintes</option>
                                 }
 
                             </select>
@@ -123,8 +133,8 @@
                                 <th>Status</th>
                                 <th>Telefone</th>
                                 <th>E-mail</th>
-                                <th>Data Última Contribuição</th>
-                                <th>Contribuição nos últimos 6 meses</th>
+                                <th class="text-center">Data Última Contribuição</th>
+                                <th class="text-center">Contribuição nos últimos 6 meses</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -133,14 +143,25 @@
                                 <tr>
                                     <td>@Html.DisplayFor(item => paying.Name)</td>
                                     <td class="text-center">
-                                        <div class="badge @(paying.StatusPaying.Equals("Adimplente") ? "bg-success" : "bg-danger")">
-                                            @(paying.StatusPaying)
+                                        <div class="badge @(
+                                                            paying.StatusPaying == Status.Adimplente ? "bg-success" :
+                                                            paying.StatusPaying == Status.Inadimplente ? "bg-danger" :
+                                                            "bg-secondary"
+                                        )">
+                                            @if(paying.StatusPaying == Status.NaoContribuinte)
+                                            {
+                                                <span>Não contribuinte</span>
+                                            }
+                                            else
+                                            {
+                                                <span>@paying.StatusPaying</span>
+                                            }
                                         </div>
                                     </td>
                                     <td>@Html.DisplayFor(item => paying.PhoneNumber)</td>
                                     <td>@Html.DisplayFor(item => paying.Email)</td>
-                                    <td>@(paying.LastContribuition?.ToString("MM/yyyy"))</td>
-                                    <td>@Html.DisplayFor(item => paying.AmountContribuition)/6</td>
+                                    <td class="text-center">@(paying.LastContribuition?.ToString("MM/yyyy"))</td>
+                                    <td class="text-center">@Html.DisplayFor(item => paying.AmountContribuition)/6</td>
                                 </tr>
                             }
                         </tbody>
