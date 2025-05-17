@@ -416,6 +416,10 @@ namespace DizimoParoquial.Controllers
                 ViewBag.Name = null;
                 ViewBag.Status = null;
                 ViewBag.AmountPages = AmountPages.GetAmountPageInput();
+                ViewBag.AmountTotal = reportPaying.Count;
+                ViewBag.AmountAdimplente = reportPaying.Where(r => r.StatusPaying == Status.Adimplente).Count();
+                ViewBag.AmountInadimplente = reportPaying.Where(r => r.StatusPaying == Status.Inadimplente).Count();
+                ViewBag.AmountNaoContribuinte = reportPaying.Where(r => r.StatusPaying == Status.NaoContribuinte).Count();
 
                 #region Paginação
 
@@ -1361,6 +1365,10 @@ namespace DizimoParoquial.Controllers
                 ViewBag.Name = name;
                 ViewBag.Status = status;
                 ViewBag.AmountPages = AmountPages.GetAmountPageInput();
+                ViewBag.AmountTotal = reportPaying.Count;
+                ViewBag.AmountAdimplente = reportPaying.Where(r => r.StatusPaying == Status.Adimplente).Count();
+                ViewBag.AmountInadimplente = reportPaying.Where(r => r.StatusPaying == Status.Inadimplente).Count();
+                ViewBag.AmountNaoContribuinte = reportPaying.Where(r => r.StatusPaying == Status.NaoContribuinte).Count();
 
                 #region Paginação
 

@@ -127,25 +127,25 @@
                                 <td class="text-center">
                                     <div class="badge bg-success">Adimplente</div>
                                 </td>
-                                <td class="text-center">@Model.Where(s => s.StatusPaying == Status.Adimplente).Count()</td>
+                                <td class="text-center">@ViewBag.AmountAdimplente</td>
                             </tr>
                             <tr>
                                 <td class="text-center">
                                     <div class="badge bg-danger">Inadimplente</div>
                                 </td>
-                                <td class="text-center">@Model.Where(s => s.StatusPaying == Status.Inadimplente).Count()</td>
+                                <td class="text-center">@ViewBag.AmountInadimplente</td>
                             </tr>
                             <tr>
                                 <td class="text-center">
                                     <div class="badge bg-secondary">Não Contribuinte</div>
                                 </td>
-                                <td class="text-center">@Model.Where(s => s.StatusPaying == Status.NaoContribuinte).Count()</td>
+                                <td class="text-center">@ViewBag.AmountNaoContribuinte</td>
                             </tr>
                             <tr>
                                 <td class="text-center">
                                     <div class="badge bg-primary">Total</div>
                                 </td>
-                                <td class="text-center">@Model.Count</td>
+                                <td class="text-center">@ViewBag.AmountTotal</td>
                             </tr>
                         </tbody>
                     </table>
