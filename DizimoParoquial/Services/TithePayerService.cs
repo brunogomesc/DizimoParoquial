@@ -235,7 +235,7 @@ namespace DizimoParoquial.Services
             try
             {
 
-                List<TithePayer> tithePayers = await GetTithePayersWithFilters(null, name);
+                List<ReportBirthday> tithePayers = await GetReportTithePayersBirthdaysRepository(name, startBirthdayDate, endBirthdayDate);
 
                 foreach (var person in tithePayers)
                 {
