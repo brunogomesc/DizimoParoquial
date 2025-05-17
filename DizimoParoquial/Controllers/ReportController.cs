@@ -1471,10 +1471,11 @@ namespace DizimoParoquial.Controllers
                 // Cabeçalhos
                 worksheet.Cells[1, 1].Value = "Código Dizimista";
                 worksheet.Cells[1, 2].Value = "Nome Dizimista";
-                worksheet.Cells[1, 3].Value = "Documento";
-                worksheet.Cells[1, 4].Value = "Date de Aniversário";
-                worksheet.Cells[1, 5].Value = "Telefone";
-                worksheet.Cells[1, 6].Value = "E-mail";
+                worksheet.Cells[1, 3].Value = "Status";
+                worksheet.Cells[1, 4].Value = "Documento";
+                worksheet.Cells[1, 5].Value = "Date de Aniversário";
+                worksheet.Cells[1, 6].Value = "Telefone";
+                worksheet.Cells[1, 7].Value = "E-mail";
 
                 // Preencher os dados a partir da lista de objetos
                 int row = 2;
@@ -1483,17 +1484,18 @@ namespace DizimoParoquial.Controllers
                 {
                     worksheet.Cells[row, 1].Value = birthday.TithePayerId;
                     worksheet.Cells[row, 2].Value = birthday.Name;
-                    worksheet.Cells[row, 3].Value = birthday.Document;
-                    worksheet.Cells[row, 4].Value = birthday.DateBirth.ToString("dd/MM/yyyy");
-                    worksheet.Cells[row, 5].Value = birthday.PhoneNumber;
-                    worksheet.Cells[row, 6].Value = birthday.Email;
+                    worksheet.Cells[row, 3].Value = birthday.StatusPaying;
+                    worksheet.Cells[row, 4].Value = birthday.Document;
+                    worksheet.Cells[row, 5].Value = birthday.DateBirth.ToString("dd/MM/yyyy");
+                    worksheet.Cells[row, 6].Value = birthday.PhoneNumber;
+                    worksheet.Cells[row, 7].Value = birthday.Email;
 
                     row++;
                 }
 
                 // Formatar cabeçalhos
-                worksheet.Cells[1, 1, 1, 6].Style.Font.Bold = true;
-                worksheet.Cells[1, 1, 1, 6].AutoFitColumns();
+                worksheet.Cells[1, 1, 1, 7].Style.Font.Bold = true;
+                worksheet.Cells[1, 1, 1, 7].AutoFitColumns();
 
                 var excelBytes = package.GetAsByteArray();
 

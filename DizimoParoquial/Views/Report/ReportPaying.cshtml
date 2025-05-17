@@ -114,6 +114,44 @@
         @if (Model != null && Model.Any())
         {
             <div class="card mt-4 shadow-sm">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-hover mb-0">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Status</th>
+                                <th>Quantidade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="text-center">
+                                    <div class="badge bg-success">Adimplente</div>
+                                </td>
+                                <td class="text-center">@Model.Where(s => s.StatusPaying == Status.Adimplente).Count()</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center">
+                                    <div class="badge bg-danger">Inadimplente</div>
+                                </td>
+                                <td class="text-center">@Model.Where(s => s.StatusPaying == Status.Inadimplente).Count()</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center">
+                                    <div class="badge bg-success">Não Contribuinte</div>
+                                </td>
+                                <td class="text-center">@Model.Where(s => s.StatusPaying == Status.NaoContribuinte).Count()</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center">
+                                    <div class="badge bg-success">Total</div>
+                                </td>
+                                <td class="text-center">@Model.Count</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card mt-4 shadow-sm">
                 <div class="row align-items-center g-2">
                     <div class="col-md-auto">
                         <label class="form-label mb-0">Registros por Páginas:</label>

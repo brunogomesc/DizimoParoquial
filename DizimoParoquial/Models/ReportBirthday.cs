@@ -7,6 +7,8 @@
 
         public string Name { get; set; } = string.Empty;
 
+        public Status StatusPaying { get; set; }
+
         public string? Document { get; set; }
 
         public DateTime DateBirth { get; set; }

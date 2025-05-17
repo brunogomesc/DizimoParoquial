@@ -235,7 +235,44 @@ namespace DizimoParoquial.Services
             try
             {
 
-                report = await GetReportTithePayersBirthdaysRepository(name, startBirthdayDate, endBirthdayDate);
+                List<TithePayer> tithePayers = await GetTithePayersWithFilters(null, name);
+
+                foreach (var person in tithePayers)
+                {
+
+                    List<TitheDTO> tithes = await _titheService.GetTithesByTithePayerId(person.TithePayerId);
+
+                    if (tithes.Count == 0)
+                    {
+                        report.Add(new ReportBirthday
+                        {
+                            TithePayerId = person.TithePayerId,
+                            Name = person.Name,
+                            StatusPaying = Status.NaoContribuinte,
+                            Document = person.Document,
+                            DateBirth = person.DateBirth,
+                            PhoneNumber = person.PhoneNumber,
+                            Email = person.Email
+                        });
+                    }
+                    else
+                    {
+
+                        int amountMonths = CalculatePaidMonthsLastSemester(tithes);
+
+                        report.Add(new ReportBirthday
+                        {
+                            TithePayerId = person.TithePayerId,
+                            Name = person.Name,
+                            StatusPaying = amountMonths == 0 ? Status.Inadimplente : Status.Adimplente,
+                            Document = person.Document,
+                            DateBirth = person.DateBirth,
+                            PhoneNumber = person.PhoneNumber,
+                            Email = person.Email
+                        });
+                    }
+
+                }
 
                 return report;
 

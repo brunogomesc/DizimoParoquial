@@ -107,6 +107,7 @@
                             <tr>
                                 <th>Código Dizimista</th>
                                 <th>Nome</th>
+                                <th>Status</th>
                                 <th>Data de Aniversário</th>
                                 <th>Telefone</th>
                                 <th>E-mail</th>
@@ -118,6 +119,22 @@
                                 <tr>
                                     <td>@Html.DisplayFor(item => tithePayer.TithePayerId)</td>
                                     <td>@Html.DisplayFor(item => tithePayer.Name)</td>
+                                    <td class="text-center">
+                                        <div class="badge @(
+                                                            tithePayer.StatusPaying == Status.Adimplente ? "bg-success" :
+                                                            tithePayer.StatusPaying == Status.Inadimplente ? "bg-danger" :
+                                                            "bg-secondary"
+                                        )">
+                                            @if (tithePayer.StatusPaying == Status.NaoContribuinte)
+                                            {
+                                                <span>Não contribuinte</span>
+                                            }
+                                            else
+                                            {
+                                                <span>@tithePayer.StatusPaying</span>
+                                            }
+                                        </div>
+                                    </td>
                                     <td>@(tithePayer.DateBirth.ToString("dd/MM/yyyy"))</td>
                                     <td>@Html.DisplayFor(item => tithePayer.PhoneNumber)</td>
                                     <td>@Html.DisplayFor(item => tithePayer.Email)</td>
