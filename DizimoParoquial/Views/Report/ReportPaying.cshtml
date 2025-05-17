@@ -111,46 +111,47 @@
         </div>
         <br />
 
+        <div class="card mt-4 shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover mb-0">
+                    <thead class="table-primary">
+                        <tr>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Quantidade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-center">
+                                <div class="badge bg-success">Adimplente</div>
+                            </td>
+                            <td class="text-center">@ViewBag.AmountAdimplente</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">
+                                <div class="badge bg-danger">Inadimplente</div>
+                            </td>
+                            <td class="text-center">@ViewBag.AmountInadimplente</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">
+                                <div class="badge bg-secondary">Não Contribuinte</div>
+                            </td>
+                            <td class="text-center">@ViewBag.AmountNaoContribuinte</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">
+                                <div class="badge bg-primary">Total</div>
+                            </td>
+                            <td class="text-center">@ViewBag.AmountTotal</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         @if (Model != null && Model.Any())
         {
-            <div class="card mt-4 shadow-sm">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped table-hover mb-0">
-                        <thead class="table-primary">
-                            <tr>
-                                <th class="text-center">Status</th>
-                                <th class="text-center">Quantidade</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="text-center">
-                                    <div class="badge bg-success">Adimplente</div>
-                                </td>
-                                <td class="text-center">@ViewBag.AmountAdimplente</td>
-                            </tr>
-                            <tr>
-                                <td class="text-center">
-                                    <div class="badge bg-danger">Inadimplente</div>
-                                </td>
-                                <td class="text-center">@ViewBag.AmountInadimplente</td>
-                            </tr>
-                            <tr>
-                                <td class="text-center">
-                                    <div class="badge bg-secondary">Não Contribuinte</div>
-                                </td>
-                                <td class="text-center">@ViewBag.AmountNaoContribuinte</td>
-                            </tr>
-                            <tr>
-                                <td class="text-center">
-                                    <div class="badge bg-primary">Total</div>
-                                </td>
-                                <td class="text-center">@ViewBag.AmountTotal</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
             <div class="card mt-4 shadow-sm">
                 <div class="row align-items-center g-2">
                     <div class="col-md-auto">
