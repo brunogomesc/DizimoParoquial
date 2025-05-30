@@ -586,13 +586,13 @@ namespace DizimoParoquial.Services
         {
             int amountMonths = 0;
 
-            DateTime actualMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0);
+            DateTime actualMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1, 0, 0, 0);
 
             DateTime lastMonth = actualMonth.AddMonths(-6);
 
             foreach (var tithe in tithes)
             {
-                DateTime titheDateFormatted = new DateTime(tithe.PaymentMonth.Year, tithe.PaymentMonth.Month, DateTime.Now.Day, 0, 0, 0);
+                DateTime titheDateFormatted = new DateTime(tithe.PaymentMonth.Year, tithe.PaymentMonth.Month, 1, 0, 0, 0);
 
                 if (titheDateFormatted >= lastMonth && titheDateFormatted <= actualMonth)
                     amountMonths++;

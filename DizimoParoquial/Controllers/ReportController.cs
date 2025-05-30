@@ -20,6 +20,7 @@ namespace DizimoParoquial.Controllers
         private const string ROUTE_SCREEN_SUM = "/Views/Report/ReportSum.cshtml";
         private const string ROUTE_SCREEN_SUM_ADDRESS = "/Views/Report/ReportSumAddress.cshtml";
         private const string ROUTE_SCREEN_PAYING = "/Views/Report/ReportPaying.cshtml";
+        private const string ROUTE_SCREEN_EVENTS = "/Views/Report/ReportEvents.cshtml";
 
         private readonly IToastNotification _notification;
         private readonly TithePayerService _tithePayer;
@@ -484,6 +485,41 @@ namespace DizimoParoquial.Controllers
                 eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
 
                 return View(reportPayingPaginated);
+            }
+            else
+            {
+                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
+                return RedirectToAction("Index", "Login");
+            }
+        }
+
+        public async Task<IActionResult> ReportEvents(string buttonPage, string page, string amountPages)
+        {
+
+            string? process, details, username;
+            bool eventRegistered;
+
+            int? idUser = HttpContext.Session.GetInt32("User");
+
+            if (idUser != null && idUser != 0)
+            {
+
+                ViewBag.StartEventDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                ViewBag.EndEventDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+
+                username = HttpContext.Session.GetString("Username");
+
+                ViewBag.UserName = username;
+
+                ViewBag.AmountPages = AmountPages.GetAmountPageInput();
+
+                process = "ACESSO RELATÓRIO EVENTOS";
+
+                details = $"{username} acessou tela de relatório de eventos!";
+
+                eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                return View();
             }
             else
             {
@@ -1235,6 +1271,128 @@ namespace DizimoParoquial.Controllers
 
         }
 
+        public async Task<IActionResult> SearchReportEvent(string? agentName, DateTime startEventDate, DateTime endEventDate, bool generateExcel, string amountPages, string page, string buttonPage)
+        {
+
+            string? process, details, username;
+            bool eventRegistered;
+
+            int? idUser = HttpContext.Session.GetInt32("User");
+
+            if (idUser != null && idUser != 0)
+            {
+
+                if (startEventDate == DateTime.MinValue)
+                {
+                    startEventDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                }
+
+                if (endEventDate == DateTime.MinValue)
+                {
+                    endEventDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+                }
+
+                if (startEventDate > endEventDate)
+                {
+                    _notification.AddErrorToastMessage("Data de inicio não pode ser maior que a data de término.");
+                    return RedirectToAction(nameof(ReportEvents));
+                }
+
+                var reportEvents = await _eventService.GetReportEvents(agentName, startEventDate, endEventDate);
+
+                ViewBag.AgentName = agentName;
+                ViewBag.StartEventDate = startEventDate;
+                ViewBag.EndEventDate = endEventDate;
+                ViewBag.AmountPages = AmountPages.GetAmountPageInput();
+
+                username = HttpContext.Session.GetString("Username");
+
+                ViewBag.UserName = username;
+
+                #region Paginação
+
+                int actualPage = 0;
+                List<ReportEvent> reportEventsPaginated = new();
+
+                if (buttonPage != null)
+                {
+                    actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                }
+                else if (page != null)
+                {
+                    actualPage = Convert.ToInt32(page.Substring(0, (page.IndexOf("_"))));
+                }
+
+                int pageSize = amountPages != null ? Convert.ToInt32(amountPages) : 10;
+                int count = 0;
+                string action = page is null ? "" : page.Substring(3, page.Length - 3);
+                int totalPages = reportEvents.Count % pageSize == 0 ? reportEvents.Count / pageSize : (reportEvents.Count / pageSize) + 1;
+                ViewBag.TotalPages = totalPages;
+                ViewBag.ActualPage = actualPage;
+
+                if (action.Contains("back") || action.Contains("next"))
+                {
+                    actualPage = action.Contains("back") ? ViewBag.ActualPage - 1 : ViewBag.ActualPage + 1;
+                }
+                else if (buttonPage != null)
+                {
+                    actualPage = Convert.ToInt32(buttonPage.Substring(0, (buttonPage.IndexOf("_")))) - 1;
+                }
+
+                actualPage = actualPage < 0 ? 0 : actualPage;
+
+                ViewBag.ActualPage = actualPage;
+
+                if (reportEvents.Count > pageSize)
+                {
+                    for (int i = (actualPage * pageSize); i < reportEvents.Count; i++)
+                    {
+                        reportEventsPaginated.Add(reportEvents[i]);
+                        count++;
+
+                        if (count == pageSize)
+                            break;
+                    }
+                }
+                else
+                {
+                    reportEventsPaginated = reportEvents;
+                }
+
+                TempData["TotalCredenciais"] = reportEvents.Count;
+                TempData["PrimeiroRegistro"] = (actualPage * pageSize) + 1;
+                TempData["UltimoRegistro"] = reportEvents.Count <= pageSize ? reportEvents.Count : (actualPage * pageSize) + count;
+
+                #endregion
+
+                process = "CONSULTA RELATÓRIO EVENTOS";
+
+                details = $"{username} consultou o relatório de eventos!";
+
+                eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                if (generateExcel)
+                {
+
+                    process = "EXPORTAÇÃO RELATÓRIO EVENTOS";
+
+                    details = $"{username} exportou o relatório de eventos!";
+
+                    eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+
+                    return GenerateExcelEvents(reportEvents);
+                }
+
+                return View(ROUTE_SCREEN_EVENTS, reportEventsPaginated);
+            }
+            else
+            {
+                _notification.AddErrorToastMessage("Sessão encerrada, conecte-se novamente!");
+                return RedirectToAction("Index", "Login");
+            }
+
+        }
+
         public async Task<IActionResult> SearchReportSumAddress(bool generateExcel, string amountPages, string page, string buttonPage)
         {
 
@@ -1780,6 +1938,7 @@ namespace DizimoParoquial.Controllers
 
         }
 
+        [HttpPost]
         public IActionResult GenerateExcelPaying(List<ReportPaying> payings)
         {
 
@@ -1830,6 +1989,57 @@ namespace DizimoParoquial.Controllers
 
                 // Retornar o arquivo para download
                 string excelFileName = $"Contribuidores_{DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss").Replace("/", "").Replace(" ", "").Replace(":", "")}.xlsx";
+
+                return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelFileName);
+            }
+
+        }
+
+        [HttpPost]
+        public IActionResult GenerateExcelEvents(List<ReportEvent> events)
+        {
+
+            if (events == null || events.Count == 0)
+            {
+                _notification.AddErrorToastMessage("Sem eventos para exportar!");
+                return View(ROUTE_SCREEN_EVENTS);
+            }
+
+            // Configuração para permitir a geração do arquivo
+            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+            // Criar uma nova planilha
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Eventos");
+
+                // Cabeçalhos
+                worksheet.Cells[1, 1].Value = "Processo";
+                worksheet.Cells[1, 2].Value = "Data Evento";
+                worksheet.Cells[1, 3].Value = "Detalhes";
+                worksheet.Cells[1, 4].Value = "Agente/Usuário";
+
+                // Preencher os dados a partir da lista de objetos
+                int row = 2;
+
+                foreach (var register in events)
+                {
+                    worksheet.Cells[row, 1].Value = register.Process;
+                    worksheet.Cells[row, 2].Value = register.EventDate.ToString("dd/MM/yyyy HH:mm:ss");
+                    worksheet.Cells[row, 3].Value = register.Details;
+                    worksheet.Cells[row, 4].Value = !string.IsNullOrWhiteSpace(register.NameAgent) ? register.NameAgent : register.NameUser;
+
+                    row++;
+                }
+
+                // Formatar cabeçalhos
+                worksheet.Cells[1, 1, 1, 4].Style.Font.Bold = true;
+                worksheet.Cells[1, 1, 1, 4].AutoFitColumns();
+
+                var excelBytes = package.GetAsByteArray();
+
+                // Retornar o arquivo para download
+                string excelFileName = $"Eventos_{DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss").Replace("/", "").Replace(" ", "").Replace(":", "")}.xlsx";
 
                 return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelFileName);
             }

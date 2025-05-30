@@ -59,6 +59,40 @@ namespace DizimoParoquial.Services
             }
         }
 
+        public async Task<List<ReportEvent>> GetReportEvents(string? agentName, DateTime startEventDate, DateTime endEventDate)
+        {
+
+            List<ReportEvent> reportEvents = new List<ReportEvent>();
+
+            try
+            {
+
+                reportEvents = await GetReportEventsRepository(agentName, startEventDate, endEventDate);
+
+                return reportEvents;
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Obter Eventos - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Obter Eventos - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Obter Eventos - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Obter Eventos - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Obter Eventos - Dados vazios.");
+            }
+        }
+
         #region Repositories Methods
 
         private async Task<bool> SaveEventRepository(Event newEvent)
@@ -90,6 +124,40 @@ namespace DizimoParoquial.Services
             catch (ArgumentNullException)
             {
                 throw new NullException("Criar Evento - Dados vazios.");
+            }
+        }
+
+        public async Task<List<ReportEvent>> GetReportEventsRepository(string? agentName, DateTime startEventDate, DateTime endEventDate)
+        {
+
+            List<ReportEvent> reportEvents = new List<ReportEvent>();
+
+            try
+            {
+
+                reportEvents = await _eventRepository.GetReportEvents(agentName, startEventDate, endEventDate);
+
+                return reportEvents;
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Obter Eventos - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ValidationException("Obter Eventos - Estouro de limite.");
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("Obter Eventos - Erro de formatação.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullException("Obter Eventos - Referência vazia.");
+            }
+            catch (ArgumentNullException)
+            {
+                throw new NullException("Obter Eventos - Dados vazios.");
             }
         }
 
