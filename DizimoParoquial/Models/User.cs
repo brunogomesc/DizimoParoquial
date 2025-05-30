@@ -16,6 +16,8 @@ namespace DizimoParoquial.Models
 
         public string Profile { get; set; } = string.Empty;
 
+        public bool SuperUser { get; set; }
+
         public DateTime CreatedAt { get; set; }
 
         public DateTime? UpdatedAt { get; set; }

@@ -3,8 +3,10 @@ using DizimoParoquial.Data.Interface;
 using DizimoParoquial.Exceptions;
 using DizimoParoquial.Models;
 using DizimoParoquial.Services;
+using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using System.Data.Common;
+using System.Text;
 
 namespace DizimoParoquial.Data.Repositories
 {
@@ -66,5 +68,48 @@ namespace DizimoParoquial.Data.Repositories
                 }
             }
         }
+
+        public async Task<List<ReportEvent>> GetReportEvents(string? agentName, DateTime startEventDate, DateTime endEventDate)
+        {
+
+            List<ReportEvent> events = new List<ReportEvent>();
+
+            try
+            {
+                StringBuilder query = new StringBuilder();
+
+                query.Append("SELECT E.EventId, E.EventDate, ");
+                query.Append("E.Process, E.Details, ");
+                query.Append("A.Name as NameAgent, U.Name as NameUser ");
+                query.Append("FROM Event E ");
+                query.Append("LEFT JOIN Agent A ");
+                query.Append("ON E.AgentId = A.AgentId ");
+                query.Append("LEFT JOIN User U ");
+                query.Append("ON E.UserId = U.UserId ");
+
+                query.Append($"WHERE E.EventDate BETWEEN '{startEventDate.ToString("yyyy-MM-dd HH:mm:ss")}' AND '{endEventDate.AddDays(1).ToString("yyyy-MM-dd HH:mm:ss")}' ");
+
+                if (agentName != null)
+                    query.Append($" AND A.Name LIKE '%{agentName}%' ");
+
+                using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
+                {
+                    var result = await connection.QueryAsync<ReportEvent>(query.ToString());
+
+                    events = result.ToList();
+
+                    return events;
+                }
+            }
+            catch (DbException ex)
+            {
+                throw new RepositoryException("Consulta Eventos - Erro ao acessar o banco de dados.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("Consulta Eventos - Erro interno.", ex);
+            }
+        }
+
     }
 }

@@ -1,7 +1,14 @@
-﻿@model List<ReportBirthday>
+﻿@using DizimoParoquial.Utils;
+@inject DizimoParoquial.Services.AgentService _agentService;
+
+@model List<ReportEvent>
+
 @{
     ViewData["Username"] = @ViewBag.UserName;
     ViewBag.ActualPageView = ViewBag.ActualPage + 1;
+
+    List<AgentDTO> agents = await _agentService.GetAgentsWithouthFilters();
+
 }
 
 <!DOCTYPE html>
@@ -9,65 +16,80 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Relatório de Aniversariantes</title>
+    <title>Relatório Totais</title>
     <style>
         .btn-primary {
-        background-color: #007bff; /* Azul principal */
-        border-color: #007bff;
+            background-color: #007bff; /* Azul principal */
+            border-color: #007bff;
         }
 
-        .btn-primary:hover {
-        background-color: #0056b3;
-        border-color: #0056b3;
-        }
+            .btn-primary:hover {
+                background-color: #0056b3;
+                border-color: #0056b3;
+            }
 
         .bg-primary {
-        background-color: #007bff !important;
+            background-color: #007bff !important;
         }
 
         .text-primary {
-        color: #007bff !important;
+            color: #007bff !important;
         }
 
         .table thead th {
-        background-color: #007bff;
-        color: white;
-        border-color: #007bff;
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
         }
 
         .table tbody tr:nth-child(odd) {
-        background-color: #f8f9fa;
+            background-color: #f8f9fa;
         }
 
         .table tbody td {
-        border-color: #dee2e6;
+            border-color: #dee2e6;
         }
     </style>
 </head>
 <body>
-    @using (Html.BeginForm("SearchReportBirthdays", "Report", FormMethod.Post, new { enctype = "multipart/form-data", @id = "formSearch" }))
+    @using (Html.BeginForm("SearchReportEvent", "Report", FormMethod.Post, new { enctype = "multipart/form-data", @id = "formSearch" }))
     {
         <div class="container my-4">
             <div class="card shadow-sm">
                 <div class="card-body">
                     <h2 class="d-flex align-items-center border-bottom pb-2 mb-3 fw-bold text-primary" style="font-family: system-ui;">
-                        <i class="fa fa-search me-2" aria-hidden="true"></i>
-                        Aniversariantes
+                        <i class="fa fa-report me-2" aria-hidden="true"></i>
+                        Relatório Eventos
                     </h2>
                     <div class="row g-3">
                         <div class="col-md-6 col-sm-12">
-                            <label for="Name" class="form-label fw-bold text-primary"><b>Nome Dizimista:</b></label>
-                            <input name="name" value="@ViewBag.Name" class="form-control" type="text" />
+                            <label for="AgentName" class="form-label fw-bold text-primary"><b>Nome do Agente:</b></label>
+                            <select id="agentName" name="agentName" class="form-control">
+                                <option></option>
+
+                                @foreach (var agent in agents)
+                                {
+                                    @if (agent.Name == ViewBag.AgentName)
+                                    {
+                                        <option selected value="@agent.Name">@agent.Name</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@agent.Name">@agent.Name</option>
+                                    }
+                                }
+
+                            </select>
                         </div>
                     </div>
                     <div class="row g-3">
                         <div class="col-md-6 col-sm-12">
-                            <label for="startBirthdayDate" class="form-label fw-bold text-primary"><b>Data de Aniversário (Início): <b class="text-danger">*</b></b></label>
-                            <input name="startBirthdayDate" value="@ViewBag.StartBirthdayDate?.ToString("yyyy-MM-dd")" type="date" class="form-control" required />
+                            <label for="startEventDate" class="form-label fw-bold text-primary"><b>Data do Evento (Início): <b class="text-danger">*</b></b></label>
+                            <input name="startEventDate" value="@ViewBag.StartEventDate?.ToString("yyyy-MM-dd")" type="date" class="form-control" required />
                         </div>
                         <div class="col-md-6 col-sm-12">
-                            <label for="endBirthdayDate" class="form-label fw-bold text-primary"><b>Data de Aniversário (Final): <b class="text-danger">*</b></b></label>
-                            <input name="endBirthdayDate" value="@ViewBag.EndBirthdayDate?.ToString("yyyy-MM-dd")" class="form-control" type="date" required />
+                            <label for="endEventDate" class="form-label fw-bold text-primary"><b>Data do Evento (Final): <b class="text-danger">*</b></b></label>
+                            <input name="endEventDate" value="@ViewBag.EndEventDate?.ToString("yyyy-MM-dd")" class="form-control" type="date" required />
                         </div>
                     </div>
                     <div class="row g-3 mt-3">
@@ -105,39 +127,28 @@
                     <table class="table table-bordered table-striped table-hover mb-0">
                         <thead class="table-primary">
                             <tr>
-                                <th>Código Dizimista</th>
-                                <th>Nome</th>
-                                <th>Status</th>
-                                <th>Data de Aniversário</th>
-                                <th>Telefone</th>
-                                <th>E-mail</th>
+                                <th>Agente / Usuário</th>
+                                <th>Processo</th>
+                                <th>Detalhes</th>
+                                <th>Data do Evento</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var tithePayer in Model)
+                            @foreach (var register in Model)
                             {
                                 <tr>
-                                    <td>@Html.DisplayFor(item => tithePayer.TithePayerId)</td>
-                                    <td>@Html.DisplayFor(item => tithePayer.Name)</td>
-                                    <td class="text-center">
-                                        <div class="badge @(
-                                                            tithePayer.StatusPaying == Status.Adimplente ? "bg-success" :
-                                                            tithePayer.StatusPaying == Status.Inadimplente ? "bg-danger" :
-                                                            "bg-secondary"
-                                        )">
-                                            @if (tithePayer.StatusPaying == Status.NaoContribuinte)
-                                            {
-                                                <span>Não contribuinte</span>
-                                            }
-                                            else
-                                            {
-                                                <span>@tithePayer.StatusPaying</span>
-                                            }
-                                        </div>
-                                    </td>
-                                    <td>@(tithePayer.DateBirth.ToString("dd/MM/yyyy"))</td>
-                                    <td>@Html.DisplayFor(item => tithePayer.PhoneNumber)</td>
-                                    <td>@Html.DisplayFor(item => tithePayer.Email)</td>
+                                    @if (!string.IsNullOrWhiteSpace(register.NameAgent))
+                                    {
+                                        <td> Agente: @register.NameAgent</td>
+                                    }
+                                    else
+                                    {
+                                        <td> Usuário: @register.NameUser</td>
+                                    }
+
+                                    <td>@register.Process</td>
+                                    <td>@register.Details</td>
+                                    <td>@register.EventDate.ToString("dd/MM/yyyy HH:mm:ss")</td>
                                 </tr>
                             }
                         </tbody>
@@ -237,7 +248,6 @@
             <h4 class="text-center text-muted mt-4">Sem resultados para serem exibidos</h4>
         }
     }
-
 </body>
 </html>
 

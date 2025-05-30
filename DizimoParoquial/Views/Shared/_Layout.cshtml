@@ -1,5 +1,6 @@
 ﻿﻿@{
     var profile = Context.Session.GetString("Profile");
+    var superUser = Context.Session.GetInt32("SuperUser");
 }
 
 <!DOCTYPE html>
@@ -71,6 +72,10 @@
                                 <a class="dropdown-item" href="@Url.Action("ReportSum","Report")">Total de Entradas</a>
                                 <a class="dropdown-item" href="@Url.Action("ReportSumAddress","Report")">Contagem de Dimizistas por rua</a>
                                 <a class="dropdown-item" href="@Url.Action("ReportPaying","Report")">Inadimplentes</a>
+                                @if(superUser == 1)
+                                {
+                                    <a class="dropdown-item" href="@Url.Action("ReportEvents","Report")">Eventos do Sistema</a>
+                                }
                             </div>
                         </li>
                     }

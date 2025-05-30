@@ -235,7 +235,44 @@ namespace DizimoParoquial.Services
             try
             {
 
-                report = await GetReportTithePayersBirthdaysRepository(name, startBirthdayDate, endBirthdayDate);
+                List<ReportBirthday> tithePayers = await GetReportTithePayersBirthdaysRepository(name, startBirthdayDate, endBirthdayDate);
+
+                foreach (var person in tithePayers)
+                {
+
+                    List<TitheDTO> tithes = await _titheService.GetTithesByTithePayerId(person.TithePayerId);
+
+                    if (tithes.Count == 0)
+                    {
+                        report.Add(new ReportBirthday
+                        {
+                            TithePayerId = person.TithePayerId,
+                            Name = person.Name,
+                            StatusPaying = Status.NaoContribuinte,
+                            Document = person.Document,
+                            DateBirth = person.DateBirth,
+                            PhoneNumber = person.PhoneNumber,
+                            Email = person.Email
+                        });
+                    }
+                    else
+                    {
+
+                        int amountMonths = CalculatePaidMonthsLastSemester(tithes);
+
+                        report.Add(new ReportBirthday
+                        {
+                            TithePayerId = person.TithePayerId,
+                            Name = person.Name,
+                            StatusPaying = amountMonths == 0 ? Status.Inadimplente : Status.Adimplente,
+                            Document = person.Document,
+                            DateBirth = person.DateBirth,
+                            PhoneNumber = person.PhoneNumber,
+                            Email = person.Email
+                        });
+                    }
+
+                }
 
                 return report;
 
@@ -549,13 +586,13 @@ namespace DizimoParoquial.Services
         {
             int amountMonths = 0;
 
-            DateTime actualMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0);
+            DateTime actualMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1, 0, 0, 0);
 
             DateTime lastMonth = actualMonth.AddMonths(-6);
 
             foreach (var tithe in tithes)
             {
-                DateTime titheDateFormatted = new DateTime(tithe.PaymentMonth.Year, tithe.PaymentMonth.Month, DateTime.Now.Day, 0, 0, 0);
+                DateTime titheDateFormatted = new DateTime(tithe.PaymentMonth.Year, tithe.PaymentMonth.Month, 1, 0, 0, 0);
 
                 if (titheDateFormatted >= lastMonth && titheDateFormatted <= actualMonth)
                     amountMonths++;

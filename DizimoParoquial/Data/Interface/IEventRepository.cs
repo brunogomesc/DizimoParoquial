@@ -7,5 +7,7 @@ namespace DizimoParoquial.Data.Interface
 
         public Task<bool> SaveEvent(Event newEvent);
 
+        public Task<List<ReportEvent>> GetReportEvents(string? agentName, DateTime startEventDate, DateTime endEventDate);
+
     }
 }

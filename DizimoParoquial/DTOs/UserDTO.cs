@@ -15,6 +15,8 @@
 
         public string Profile { get; set; } = string.Empty;
 
+        public bool SuperUser { get; set; }
+
         public DateTime CreatedAt { get; set; }
 
     }
