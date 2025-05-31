@@ -35,6 +35,8 @@ namespace DizimoParoquial.Data.Repositories
                     try
                     {
 
+                        var createdAtUTC = tithePayer.CreatedAt.AddHours(-3);
+
                         int idTithePayer = 0;
 
                         var query = @"INSERT INTO TithePayer(Name, Document, DateBirth, Email, PhoneNumber, Address, Number, ZipCode, Neighborhood, Complement, CreatedAt, UpdatedAt, TermFile, UserId, Extension) 
@@ -55,7 +57,7 @@ namespace DizimoParoquial.Data.Repositories
                                 tithePayer.ZipCode,
                                 tithePayer.Neighborhood,
                                 tithePayer.Complement,
-                                tithePayer.CreatedAt,
+                                CreatedAt = createdAtUTC,
                                 tithePayer.UpdatedAt,
                                 tithePayer.TermFile,
                                 tithePayer.UserId,
@@ -264,6 +266,9 @@ namespace DizimoParoquial.Data.Repositories
 
                     try
                     {
+
+                        var createdAtUTC = tithePayer.CreatedAt.AddHours(-3);
+
                         var query = @"UPDATE TithePayer 
                                     SET Name = @Name, 
                                         Document = @Document,

@@ -34,6 +34,7 @@ namespace DizimoParoquial.Data.Repositories
 
                     try
                     {
+
                         var query = @"INSERT INTO Tithe(TithePayerId, AgentCode, PaymentType, Value, IncomeId, PaymentMonth, RegistrationDate, UserId) 
                                     VALUES(@TithePayerId, @AgentCode, @PaymentType, @Value, @IncomeId, @PaymentMonth, @RegistrationDate, @UserId);";
 
@@ -41,6 +42,9 @@ namespace DizimoParoquial.Data.Repositories
 
                         foreach (var tithe in tithes)
                         {
+
+                            var registrationUTC = tithe.RegistrationDate.AddHours(-3);
+
                             rowsAffected = await connection.ExecuteAsync(query,
                                 new
                                 {
@@ -50,7 +54,7 @@ namespace DizimoParoquial.Data.Repositories
                                     tithe.Value,
                                     tithe.IncomeId,
                                     tithe.PaymentMonth,
-                                    tithe.RegistrationDate,
+                                    RegistrationDate = registrationUTC,
                                     tithe.UserId
                                 }
                             );

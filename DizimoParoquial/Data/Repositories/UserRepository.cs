@@ -70,6 +70,9 @@ namespace DizimoParoquial.Data.Repositories
 
                     try
                     {
+
+                        var createdAtUTC = user.CreatedAt.AddHours(-3);
+
                         var query = @"INSERT INTO User(Name, Username, Password, Active, CreatedAt, UpdatedAt, Profile) 
                                     VALUES(@Name, @Username, @Password, @Active, @CreatedAt, @UpdatedAt, @Profile)";
 
@@ -80,7 +83,7 @@ namespace DizimoParoquial.Data.Repositories
                                 user.Username,
                                 user.Password,
                                 user.Active,
-                                user.CreatedAt,
+                                CreatedAt = createdAtUTC,
                                 user.UpdatedAt,
                                 user.Profile
                             }

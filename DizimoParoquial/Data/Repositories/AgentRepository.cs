@@ -60,6 +60,9 @@ namespace DizimoParoquial.Data.Repositories
 
                     try
                     {
+
+                        var createdAtUTC = agent.CreatedAt.AddHours(-3);
+
                         var query = @"INSERT INTO Agent(Name, Active, AgentCode, CreatedAt, UpdatedAt, PhoneNumber) 
                                     VALUES(@Name, @Active, @AgentCode, @CreatedAt, @UpdatedAt, @PhoneNumber);";
 
@@ -69,7 +72,7 @@ namespace DizimoParoquial.Data.Repositories
                                 agent.Name,
                                 agent.Active,
                                 agent.AgentCode,
-                                agent.CreatedAt,
+                                CreatedAt = createdAtUTC,
                                 agent.UpdatedAt,
                                 agent.PhoneNumber
                             }
@@ -185,7 +188,7 @@ namespace DizimoParoquial.Data.Repositories
                             new
                             {
                                 Deleted = true,
-                                UpdatedAt = DateTime.Now,
+                                UpdatedAt = DateTime.Now.AddHours(-3),
                                 AgentId = agentId
                             }
                         );
@@ -225,6 +228,9 @@ namespace DizimoParoquial.Data.Repositories
 
                     try
                     {
+
+                        var updatedAtUTC = agent.CreatedAt.AddHours(-3);
+
                         var query = @"UPDATE Agent 
                                     SET Name = @Name, 
                                         PhoneNumber = @PhoneNumber,
@@ -238,7 +244,7 @@ namespace DizimoParoquial.Data.Repositories
                                 agent.Name,
                                 agent.PhoneNumber,
                                 agent.Active,
-                                agent.UpdatedAt,
+                                UpdatedAt = updatedAtUTC,
                                 agent.AgentId
                             }
                         );

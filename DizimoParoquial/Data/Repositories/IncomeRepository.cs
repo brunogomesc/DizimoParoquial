@@ -36,6 +36,9 @@ namespace DizimoParoquial.Data.Repositories
 
                     try
                     {
+
+                        var registrationUTC = income.RegistrationDate.AddHours(-3);
+
                         var query = @"INSERT INTO Income(AgentCode, PaymentType, Value, TithePayerId, UserId, RegistrationDate) 
                                     VALUES(@AgentCode, @PaymentType, @Value, @TithePayerId, @UserId, @RegistrationDate);
 
@@ -50,7 +53,7 @@ namespace DizimoParoquial.Data.Repositories
                             income.Value,
                             income.TithePayerId,
                             income.UserId,
-                            income.RegistrationDate
+                            RegistrationDate = registrationUTC
                         }
                         );
 

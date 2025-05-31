@@ -29,27 +29,16 @@ namespace DizimoParoquial.Data.Repositories
                 {
                     try
                     {
+
+                        var eventDateUtc = newEvent.EventDate.AddHours(-3);
+
                         var query = @"INSERT INTO Event(EventDate, Process, Details, UserId, AgentId) 
                               VALUES(@EventDate, @Process, @Details, @UserId, @AgentId);";
-
-                        DateTime eventDateForDb;
-                        if (newEvent.EventDate.Kind == DateTimeKind.Utc)
-                        {
-                            eventDateForDb = newEvent.EventDate;
-                        }
-                        else if (newEvent.EventDate.Kind == DateTimeKind.Unspecified)
-                        {
-                            eventDateForDb = DateTime.SpecifyKind(newEvent.EventDate, DateTimeKind.Local).ToUniversalTime();
-                        }
-                        else
-                        {
-                            eventDateForDb = newEvent.EventDate.ToUniversalTime();
-                        }
 
                         var rowsEffect = await connection.ExecuteAsync(query,
                             new
                             {
-                                EventDate = eventDateForDb, // Use a data convertida para UTC
+                                EventDate = eventDateUtc, // Use a data convertida para UTC
                                 newEvent.Process,
                                 newEvent.Details,
                                 newEvent.UserId,
