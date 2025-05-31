@@ -156,7 +156,7 @@ namespace DizimoParoquial.Services
 
                 AgentDTO agentExists = await GetAgentByIdRepository(agent.AgentId);
 
-                if (agentExists == null && agentExists.AgentId == 0)
+                if (agentExists == null || agentExists.AgentId == 0)
                     throw new ValidationException("Agente não existente");
 
                 agent.UpdatedAt = DateTime.Now;

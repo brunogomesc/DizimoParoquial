@@ -1,12 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>affa75dc-df53-4d90-b255-12d8e32451b3</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <ApplicationIcon>wwwroot\img\Brasao_Migrantes.ico</ApplicationIcon>
+    <PackageIcon>Brasao_Migrantes.png</PackageIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\img\Brasao_Migrantes.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.1.66" />
