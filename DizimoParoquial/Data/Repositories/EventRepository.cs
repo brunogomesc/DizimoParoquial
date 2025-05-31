@@ -24,22 +24,32 @@ namespace DizimoParoquial.Data.Repositories
         {
             using (var connection = new MySqlConnection(_configurationService.GetConnectionString()))
             {
-
                 await connection.OpenAsync();
-
                 using (var transaction = connection.BeginTransaction())
                 {
-
                     try
                     {
-
                         var query = @"INSERT INTO Event(EventDate, Process, Details, UserId, AgentId) 
-                                    VALUES(@EventDate, @Process, @Details, @UserId, @AgentId);";
+                              VALUES(@EventDate, @Process, @Details, @UserId, @AgentId);";
+
+                        DateTime eventDateForDb;
+                        if (newEvent.EventDate.Kind == DateTimeKind.Utc)
+                        {
+                            eventDateForDb = newEvent.EventDate;
+                        }
+                        else if (newEvent.EventDate.Kind == DateTimeKind.Unspecified)
+                        {
+                            eventDateForDb = DateTime.SpecifyKind(newEvent.EventDate, DateTimeKind.Local).ToUniversalTime();
+                        }
+                        else
+                        {
+                            eventDateForDb = newEvent.EventDate.ToUniversalTime();
+                        }
 
                         var rowsEffect = await connection.ExecuteAsync(query,
                             new
                             {
-                                newEvent.EventDate,
+                                EventDate = eventDateForDb, // Use a data convertida para UTC
                                 newEvent.Process,
                                 newEvent.Details,
                                 newEvent.UserId,
@@ -48,21 +58,16 @@ namespace DizimoParoquial.Data.Repositories
                         );
 
                         transaction.Commit();
-
-                        await connection.DisposeAsync();
-
                         return rowsEffect > 0;
                     }
                     catch (DbException ex)
                     {
                         transaction.Rollback();
-                        await connection.DisposeAsync();
                         throw new RepositoryException("Criar Evento - Erro ao acessar o banco de dados.", ex);
                     }
                     catch (Exception ex)
                     {
                         transaction.Rollback();
-                        await connection.DisposeAsync();
                         throw new RepositoryException("Criar Evento - Erro interno.", ex);
                     }
                 }
