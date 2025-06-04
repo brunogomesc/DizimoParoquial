@@ -10,10 +10,14 @@ namespace DizimoParoquial.Services
     {
 
         private readonly IEventRepository _eventRepository;
+        private readonly ILogger<EventService> _log;
 
-        public EventService(IEventRepository eventRepository)
+        public EventService(
+            IEventRepository eventRepository, 
+            ILogger<EventService> log)
         {
             _eventRepository = eventRepository;
+            _log = log;
         }
 
         public async Task<bool> SaveEvent(string process, string details, int? userId = null, int? agentId = null)

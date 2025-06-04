@@ -5,6 +5,7 @@ using DizimoParoquial.Services;
 using DizimoParoquial.Utils;
 using DizimoParoquial.Utils.Filters;
 using Microsoft.AspNetCore.Mvc;
+using Mysqlx.Crud;
 using NToastNotify;
 using System;
 using System.Diagnostics;
@@ -20,15 +21,18 @@ namespace DizimoParoquial.Controllers
         private readonly IToastNotification _notification;
         private readonly AgentService _agentService;
         private readonly EventService _eventService;
+        private readonly ILogger<AgentController> _log;
 
         public AgentController(
             IToastNotification notification, 
             AgentService agentService,
-            EventService eventService)
+            EventService eventService,
+            ILogger<AgentController> log)
         {
             _notification = notification;
             _agentService = agentService;
             _eventService = eventService;
+            _log = log;
         }
 
         public async Task<IActionResult> Index()
@@ -52,7 +56,9 @@ namespace DizimoParoquial.Controllers
                            
                 details = $"{username} acessou tela de agentes!";
 
-                eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+                _log.LogInformation(details);
+
+                //eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
 
                 return View();
             }
@@ -155,7 +161,9 @@ namespace DizimoParoquial.Controllers
 
                     details = $"{username} pesquisou os agentes!";
 
-                    eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+                    _log.LogInformation(details, agentsPaginated);
+
+                    //eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
 
                 }
                 catch (Exception ex)
@@ -166,7 +174,9 @@ namespace DizimoParoquial.Controllers
 
                     details = $"{username} falhou na pesquisa de agentes. Erro: {ex.Message}";
 
-                    eventRegistered = await _eventService.SaveEvent(process, details);
+                    _log.LogError(ex, details, ex.Data);
+
+                    //eventRegistered = await _eventService.SaveEvent(process, details);
 
                 }
 
@@ -218,7 +228,9 @@ namespace DizimoParoquial.Controllers
 
                         details = $"{username} criou o agente: {name}!";
 
-                        eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+                        _log.LogInformation(details, newAgenteCode);
+
+                        //eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
 
                     }
                     else
@@ -233,7 +245,9 @@ namespace DizimoParoquial.Controllers
 
                     details = $"{username} falhou na criação de agentes. Erro: {ex.Message}";
 
-                    eventRegistered = await _eventService.SaveEvent(process, details);
+                    _log.LogError(ex, details, ex.Data);
+
+                    //eventRegistered = await _eventService.SaveEvent(process, details);
 
                 }
 
@@ -286,7 +300,9 @@ namespace DizimoParoquial.Controllers
 
                         details = $"{username} editou o agente: {agent.Name}!";
 
-                        eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+                        _log.LogInformation(details, agent);
+
+                        //eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
 
                     }
                     else
@@ -300,7 +316,9 @@ namespace DizimoParoquial.Controllers
 
                     details = $"{username} falhou na edição de agentes. Erro: {ex.Message}";
 
-                    eventRegistered = await _eventService.SaveEvent(process, details);
+                    _log.LogError(ex, details, ex.Data);
+
+                    //eventRegistered = await _eventService.SaveEvent(process, details);
 
                 }
 
@@ -346,7 +364,9 @@ namespace DizimoParoquial.Controllers
 
                         details = $"{username} excluiu o agente: {agentId}!";
 
-                        eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+                        _log.LogInformation(details, agentId);
+
+                        //eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
 
                     }
                     else
@@ -357,7 +377,9 @@ namespace DizimoParoquial.Controllers
 
                         details = $"{username} não excluiu o agente: {agentId}, devido a erro gerado!";
 
-                        eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
+                        _log.LogError(details, agentId);
+
+                        //eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
 
                     }
 
@@ -370,7 +392,9 @@ namespace DizimoParoquial.Controllers
 
                     details = $"{username} falhou na exclusão de agentes. Erro: {ex.Message}";
 
-                    eventRegistered = await _eventService.SaveEvent(process, details);
+                    _log.LogError(ex, details, ex.Data);
+
+                    //eventRegistered = await _eventService.SaveEvent(process, details);
 
                 }
 
@@ -402,6 +426,7 @@ namespace DizimoParoquial.Controllers
             catch (Exception ex)
             {
                 _notification.AddErrorToastMessage(ex.Message);
+                _log.LogError(ex, ex.Message, ex.Data);
             }
 
             return RedirectToAction(nameof(Index));

@@ -3,76 +3,108 @@ using DizimoParoquial.Data.Repositories;
 using DizimoParoquial.Services;
 using DizimoParoquial.Utils;
 using NToastNotify;
+using Serilog;
+using Serilog.Events;
 
-var builder = WebApplication.CreateBuilder(args);
+
+var configuration = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true)
+    .Build();
 
 
-// Add services to the container.
-builder.Services.AddControllersWithViews();
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(configuration)
+    .Enrich.FromLogContext() 
+    .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Information) // Adiciona um sink de console para feedback imediato
+    .CreateLogger();
 
-builder.Services.AddMvc().AddNToastNotifyToastr(new ToastrOptions()
+try
 {
-    ProgressBar = false,
-    PositionClass = ToastPositions.TopCenter,
-    TimeOut = 5000
-});
 
-builder.Services.AddSession( options =>
-{
-    options.IdleTimeout = TimeSpan.FromHours(3);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-});
+    Log.Information("Iniciando a aplicação web.");
 
-//Injecting the services
-//Singleton
-builder.Services.AddSingleton<ConfigurationService>();
-builder.Services.AddSingleton<Encryption>();
+    var builder = WebApplication.CreateBuilder(args);
 
-//Transient
-builder.Services.AddTransient<UserService>();
-builder.Services.AddTransient<IUserRepository, UserRepository>();
+    builder.Host.UseSerilog();
 
-builder.Services.AddTransient<PermissionService>();
-builder.Services.AddTransient<IPermissionRepository, PermissionRepository>();
+    // Add services to the container.
+    builder.Services.AddControllersWithViews();
 
-builder.Services.AddTransient<AgentService>();
-builder.Services.AddTransient<IAgentRepository, AgentRepository>();
+    Log.Information("Configurando o NToastNotify.");
+    builder.Services.AddMvc().AddNToastNotifyToastr(new ToastrOptions()
+    {
+        ProgressBar = false,
+        PositionClass = ToastPositions.TopCenter,
+        TimeOut = 5000
+    });
 
-builder.Services.AddTransient<TithePayerService>();
-builder.Services.AddTransient<ITithePayerRepository, TithePayerRepository>();
+    Log.Information("Configurando a sessão.");
+    builder.Services.AddSession(options =>
+    {
+        options.IdleTimeout = TimeSpan.FromHours(3);
+        options.Cookie.HttpOnly = true;
+        options.Cookie.IsEssential = true;
+    });
 
-builder.Services.AddTransient<TitheService>();
-builder.Services.AddTransient<ITitheRepository, TitheRepository>();
+    //Injecting the services
+    //Singleton
+    builder.Services.AddSingleton<ConfigurationService>();
+    builder.Services.AddSingleton<Encryption>();
 
-builder.Services.AddTransient<IncomeService>();
-builder.Services.AddTransient<IIncomeRepository, IncomeRepository>();
+    //Transient
+    builder.Services.AddTransient<UserService>();
+    builder.Services.AddTransient<IUserRepository, UserRepository>();
 
-builder.Services.AddTransient<EventService>();
-builder.Services.AddTransient<IEventRepository, EventRepository>();
+    builder.Services.AddTransient<PermissionService>();
+    builder.Services.AddTransient<IPermissionRepository, PermissionRepository>();
 
+    builder.Services.AddTransient<AgentService>();
+    builder.Services.AddTransient<IAgentRepository, AgentRepository>();
 
-var app = builder.Build();
+    builder.Services.AddTransient<TithePayerService>();
+    builder.Services.AddTransient<ITithePayerRepository, TithePayerRepository>();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseHsts();
+    builder.Services.AddTransient<TitheService>();
+    builder.Services.AddTransient<ITitheRepository, TitheRepository>();
+
+    builder.Services.AddTransient<IncomeService>();
+    builder.Services.AddTransient<IIncomeRepository, IncomeRepository>();
+
+    builder.Services.AddTransient<EventService>();
+    builder.Services.AddTransient<IEventRepository, EventRepository>();
+
+    var app = builder.Build();
+
+    // Configure the HTTP request pipeline.
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseHsts();
+    }
+
+    app.UseHttpsRedirection();
+    app.UseStaticFiles();
+
+    app.UseRouting();
+
+    app.UseSession();
+
+    app.UseAuthorization();
+
+    app.UseNToastNotify();
+
+    app.MapControllerRoute(
+        name: "Login",
+        pattern: "{controller=Login}/{action=Index}/{id?}");
+
+    app.Run();
 }
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseRouting();
-
-app.UseSession();
-
-app.UseAuthorization();
-
-app.UseNToastNotify();
-
-app.MapControllerRoute(
-    name: "Login",
-    pattern: "{controller=Login}/{action=Index}/{id?}");
-
-app.Run();
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Host encerrado inesperadamente!");
+}
+finally
+{
+    Log.CloseAndFlush();
+}
