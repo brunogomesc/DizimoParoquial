@@ -56,7 +56,10 @@ namespace DizimoParoquial.Controllers
                            
                 details = $"{username} acessou tela de agentes!";
 
-                _log.LogInformation(details);
+                _log.LogInformation(Guid.NewGuid().ToString(),
+                                    process,
+                                    details
+                );
 
                 //eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
 
@@ -161,7 +164,12 @@ namespace DizimoParoquial.Controllers
 
                     details = $"{username} pesquisou os agentes!";
 
-                    _log.LogInformation(details, agentsPaginated);
+                    _log.LogInformation(Guid.NewGuid().ToString(),
+                                    process,
+                                    details,
+                                    agentsPaginated
+                    );
+
 
                     //eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
 
@@ -174,7 +182,11 @@ namespace DizimoParoquial.Controllers
 
                     details = $"{username} falhou na pesquisa de agentes. Erro: {ex.Message}";
 
-                    _log.LogError(ex, details, ex.Data);
+                    _log.LogError(Guid.NewGuid().ToString(),
+                                    process,
+                                    details,
+                                    ex.Data
+                    );
 
                     //eventRegistered = await _eventService.SaveEvent(process, details);
 
@@ -228,10 +240,13 @@ namespace DizimoParoquial.Controllers
 
                         details = $"{username} criou o agente: {name}!";
 
-                        _log.LogInformation(details, newAgenteCode);
+                        _log.LogInformation(Guid.NewGuid().ToString(),
+                                    process,
+                                    details,
+                                    newAgenteCode
+                        );
 
                         //eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
-
                     }
                     else
                         _notification.AddErrorToastMessage("Não foi possível criar o agente do dizimo!");
@@ -245,7 +260,11 @@ namespace DizimoParoquial.Controllers
 
                     details = $"{username} falhou na criação de agentes. Erro: {ex.Message}";
 
-                    _log.LogError(ex, details, ex.Data);
+                    _log.LogError(Guid.NewGuid().ToString(),
+                                    process,
+                                    details,
+                                    ex.Data
+                    );
 
                     //eventRegistered = await _eventService.SaveEvent(process, details);
 
@@ -300,7 +319,11 @@ namespace DizimoParoquial.Controllers
 
                         details = $"{username} editou o agente: {agent.Name}!";
 
-                        _log.LogInformation(details, agent);
+                        _log.LogInformation(Guid.NewGuid().ToString(),
+                                    process,
+                                    details,
+                                    agent
+                        );
 
                         //eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
 
@@ -316,7 +339,11 @@ namespace DizimoParoquial.Controllers
 
                     details = $"{username} falhou na edição de agentes. Erro: {ex.Message}";
 
-                    _log.LogError(ex, details, ex.Data);
+                    _log.LogError(Guid.NewGuid().ToString(),
+                                    process,
+                                    details,
+                                    ex.Data
+                    );
 
                     //eventRegistered = await _eventService.SaveEvent(process, details);
 
@@ -364,7 +391,11 @@ namespace DizimoParoquial.Controllers
 
                         details = $"{username} excluiu o agente: {agentId}!";
 
-                        _log.LogInformation(details, agentId);
+                        _log.LogInformation(Guid.NewGuid().ToString(),
+                                    process,
+                                    details,
+                                    agentId
+                        );
 
                         //eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
 
@@ -377,7 +408,11 @@ namespace DizimoParoquial.Controllers
 
                         details = $"{username} não excluiu o agente: {agentId}, devido a erro gerado!";
 
-                        _log.LogError(details, agentId);
+                        _log.LogError(Guid.NewGuid().ToString(),
+                                    process,
+                                    details,
+                                    agentId
+                        );
 
                         //eventRegistered = await _eventService.SaveEvent(process, details, userId: idUser);
 
@@ -392,7 +427,11 @@ namespace DizimoParoquial.Controllers
 
                     details = $"{username} falhou na exclusão de agentes. Erro: {ex.Message}";
 
-                    _log.LogError(ex, details, ex.Data);
+                    _log.LogError(Guid.NewGuid().ToString(),
+                                    process,
+                                    details,
+                                    ex.Data
+                    );
 
                     //eventRegistered = await _eventService.SaveEvent(process, details);
 
