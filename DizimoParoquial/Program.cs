@@ -3,8 +3,6 @@ using DizimoParoquial.Data.Repositories;
 using DizimoParoquial.Services;
 using DizimoParoquial.Utils;
 using NToastNotify;
-using OpenTelemetry.Logs;
-using OpenTelemetry.Resources;
 using Serilog;
 using Serilog.Events;
 
@@ -17,23 +15,23 @@ try
 
     builder.Logging.ClearProviders();
 
-    var resourceBuilder = ResourceBuilder.CreateDefault()
-    .AddService("OrderProcessingService")
-    .AddAttributes(new Dictionary<string, object>
-    {
-        ["environment"] = "development",
-        ["service.version"] = "1.0.0"
-    });
+    //var resourceBuilder = ResourceBuilder.CreateDefault()
+    //.AddService("OrderProcessingService")
+    //.AddAttributes(new Dictionary<string, object>
+    //{
+    //    ["environment"] = "development",
+    //    ["service.version"] = "1.0.0"
+    //});
 
-    builder.Logging.AddOpenTelemetry(logging => {
-        logging.IncludeFormattedMessage = true;
-        logging.SetResourceBuilder(resourceBuilder)
-            .AddOtlpExporter(otlpOptions => {
-                otlpOptions.Endpoint = new Uri("https://monitoria.devcorehub.com.br/api/default/v1/logs");
-                otlpOptions.Headers = "Authorization=Basic ZGV2Y29yZWh1YkBnbWFpbC5jb206Vkl4ZkJaVE4xMmFiTVEzMg==";
-                otlpOptions.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.HttpProtobuf;
-            });
-    });
+    //builder.Logging.AddOpenTelemetry(logging => {
+    //    logging.IncludeFormattedMessage = true;
+    //    logging.SetResourceBuilder(resourceBuilder)
+    //        .AddOtlpExporter(otlpOptions => {
+    //            otlpOptions.Endpoint = new Uri("https://monitoria.devcorehub.com.br/api/default/v1/logs");
+    //            otlpOptions.Headers = "Authorization=Basic ZGV2Y29yZWh1YkBnbWFpbC5jb206Vkl4ZkJaVE4xMmFiTVEzMg==";
+    //            otlpOptions.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.HttpProtobuf;
+    //        });
+    //});
 
     // Add services to the container.
     builder.Services.AddControllersWithViews();
