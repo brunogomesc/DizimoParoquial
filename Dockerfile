@@ -1,30 +1,44 @@
-# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
-
-# This stage is used when running from VS in fast mode (Default for Debug configuration)
+# Base image for runtime (used in final stage)
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
+# Optional: define UID if needed
+# ARG APP_UID=1000
+# USER ${APP_UID}
 
-# This stage is used to build the service project
+# Image used for building the application
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
+ARG GIT_SHA=ec95009fc54734c1dc1e1192012b38c13e763822
+LABEL git_sha=$GIT_SHA
+
 WORKDIR /src
+
+# Copy and restore dependencies
 COPY ["DizimoParoquial/DizimoParoquial.csproj", "DizimoParoquial/"]
 RUN dotnet restore "./DizimoParoquial/DizimoParoquial.csproj"
-COPY . .
-WORKDIR "/src/DizimoParoquial"
-RUN dotnet build "./DizimoParoquial.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# This stage is used to publish the service project to be copied to the final stage
+# Copy the entire source
+COPY . .
+
+WORKDIR "/src/DizimoParoquial"
+
+# Build with limited memory usage (1 thread to reduce memory use)
+RUN dotnet build "./DizimoParoquial.csproj" -c $BUILD_CONFIGURATION -m:1 -o /app/build
+
+# Publish the application
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./DizimoParoquial.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./DizimoParoquial.csproj" -c $BUILD_CONFIGURATION -m:1 -o /app/publish /p:UseAppHost=false
 
-# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
+# Final image
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
+# Optional: if you want to run as non-root
+# USER ${APP_UID}
+
 ENTRYPOINT ["dotnet", "DizimoParoquial.dll"]
